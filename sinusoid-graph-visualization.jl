@@ -66,13 +66,28 @@ let
 	p
 end
 
+# ╔═╡ 46ec1e5a-9d63-4f99-b35c-ac69520e7565
+md"""
+## Sine
+Recall that ``\sin \theta`` is the **``y``-coordinate** of the point on the unit circle that intersects the ray at angle ``\theta`` from the positive ``x``-axis.
+
+``θ:\quad`` $(θ_sin_slider = @bind θ_sin Slider(-4π:π/12:4π, default=0.0))
+"""
+
 # ╔═╡ a87effdc-0282-4a92-82b4-ae35e496e81f
 md"""
-Now let's plot these points. The x-axis is ``θ``, and the y-axis is ``\sin θ``.
+Now let's plot these points. The ``x``-axis is ``θ``, and the ``y``-axis is ``\sin θ``.
 
 Show positive: $(@bind show_sin_positive CheckBox()) ``\quad``
 Show negative: $(@bind show_sin_negative CheckBox()) ``\quad``
 Show curve: $(@bind show_sin_curve CheckBox()) ``\quad``
+"""
+
+# ╔═╡ 31caf44b-cd8d-4cef-bbb3-6dd6eedf0a76
+md"""
+Lastly, let's look at the two plots together.
+
+``θ:\quad`` $(θ_sin_slider)
 """
 
 # ╔═╡ 9004bad6-b416-483a-9852-1d6ad19b2a48
@@ -96,19 +111,167 @@ The **amplitude** (``A``) of the wave is the difference between the maximum and 
 What is the amplitude (``A``) of this sinusoid?
 """
 
+# ╔═╡ 99384a42-6902-481c-980e-3cc469df17c2
+md"""
+## Cosine
+
+Recall that ``\cos \theta`` is the **``x``-coordinate** of the point on the unit circle that intersects the ray at angle ``\theta`` from the positive ``x``-axis.
+
+``θ:\quad`` $(θ_cos_slider = @bind θ_cos Slider(-4π:π/12:4π, default=0.0))
+"""
+
 # ╔═╡ 8d289999-bbca-4db7-9730-e62cd2822747
 md"""
-Now let's plot these points. The x-axis is ``θ``, and the y-axis is ``\cos θ``.
+Now let's plot these points. The ``x``-axis is ``θ``, and the ``y``-axis is ``\cos θ``.
 
 Show positive: $(@bind show_cos_positive CheckBox()) ``\quad``
 Show negative: $(@bind show_cos_negative CheckBox()) ``\quad``
 Show curve: $(@bind show_cos_curve CheckBox()) ``\quad``
 """
 
+# ╔═╡ 657496b6-cf0f-4f2b-a7ae-9ec89f0800e2
+md"""
+Lastly, let's look at the two plots together.
+
+``θ:\quad`` $(θ_cos_slider)
+"""
+
 # ╔═╡ 7f34b696-8844-40e5-8cf0-14ceb0f56868
 md"""
 What are the period, maximum, minimum, midline, and amplitude of this sinusoid?
 """
+
+# ╔═╡ f8ccdf01-abc9-4fd9-95c1-e5c77e3527ef
+md"""
+## Putting it Together: Sinusoids from Circles
+Let's look at all three plots together. Once again, sine is in blue and cosine is in orange.
+
+``θ:\quad`` $(@bind θ₁ Slider(-2π:π/12:2π, default=0.0))
+"""
+
+# ╔═╡ 8b95ef50-fbac-4653-8819-757fdf77a4dd
+md"""
+When identifying the function for a basic sinusoid, use the following steps:
+
+1. Identify whether the sinusoid is sine or cosine (check behavior at ``0``).
+2. Identify whether the sinusoid is vertically flipped (check behavior at ``0``).
+
+The functional form is ``\pm \sin \theta`` or ``\pm \cos \theta``. If the sinusoid is vertically flipped, the sign will be ``-`` otherwise it will be ``+``.
+"""
+
+# ╔═╡ da783d24-3ae2-4618-8eac-af1b2a32f657
+md"""
+# Transforming Sinusoids
+
+We have now seen that the graphs of ``\sin \theta`` and ``\cos \theta`` come from reading lengths as we vary ``\theta`` in the unit circle.
+
+We will now apply the same process to other circles. This will give us new sinusoids that we can write down formulas for in terms ``\sin`` and ``\cos``.
+"""
+
+# ╔═╡ 618edeb0-411a-4c4f-9ddb-2497b40241aa
+md"""
+## Vertical Scaling
+First, let's remember what happens when we scale the unit circle.
+
+For a circle centered at the origin with radius ``R``, the coordinates of the point on the circle along the terminal ray an angle ``\theta`` from the positive ``x``-axis are ``(R\cos \theta, R\sin \theta)``.
+
+``θ:\quad`` $(θ_t1_slider = @bind θ_t1 Slider(-4π:π/12:4π, default=0.0))
+
+``R:\quad`` $(R_t1_slider = @bind R_t1 Slider(0.5:0.5:3.0, default=1.0, show_value=true))
+"""
+
+# ╔═╡ eaa13afa-3efd-42dd-9eb3-a41569e063dc
+md"""
+Now let's put the circle back in the context of the corresponding waves.
+
+This scaling of the radius by ``R`` also scales all of the coordinates on the circle by ``R``. Since the values of the wave functions are just the ``x`` and ``y`` coordinates of the points on the circle, the values at every point on the waves are multiplied by ``R``.
+
+``θ:\quad`` $(θ_t1_slider)
+
+``R:\quad`` $(R_t1_slider)
+"""
+
+# ╔═╡ de7960c4-9177-4ded-b0bf-6140c10e69f0
+md"""
+The waves ``R \sin \theta`` and ``R \cos \theta`` have a maximum value of ``R`` and a midline of ``0``, so they both have amplitude ``R``. Thus, scaling the circle affects the **amplitude** of its coresponding waves.
+"""
+
+# ╔═╡ f14d6ab2-1e06-4e72-86c1-6defaedd58c3
+md"""
+## Vertical Shifting
+
+What happens if we move the center of the unit circle around? Let's call the center of the circle ``(c_x, c_y)``. Then the coordinates of the point on the shifted unit circle along the terminal ray an angle ``\theta`` from the positive ``x``-axis are ``(\cos \theta + c_x, \sin \theta + c_y)``.
+
+``θ:\quad`` $(θ_t2_slider = @bind θ_t2 Slider(-4π:π/12:4π, default=0.0))
+
+``c_x:\quad`` $(cx_t2_slider = @bind cx_t2 Slider(-2:1:2, default=0, show_value=true))
+
+``c_y:\quad`` $(cy_t2_slider = @bind cy_t2 Slider(-2:1:2, default=0, show_value=true))
+"""
+
+# ╔═╡ 7086d5eb-6f81-4bfc-8ba0-1ea83268059f
+md"""
+Now let's put the circle back in the context of the corresponding waves.
+
+This shifting of the center to ``(c_x, c_y)`` increases all of the ``x``-coordinates on the circle by ``c_x`` and increases all of the ``y``-coordinates on the circle by ``c_y``. Since the values of the wave functions are just the ``x`` and ``y`` coordinates of the points on the circle, the values at every point on the waves are shifted up or down accordingly.
+
+``θ:\quad`` $(θ_t2_slider)
+
+``c_x:\quad`` $(cx_t2_slider)
+
+``c_y:\quad`` $(cy_t2_slider)
+"""
+
+# ╔═╡ 81d21cce-1374-4d64-9230-8216ff71ee38
+md"""
+The wave ``\sin \theta + c_y`` has a maximum value of ``c_y + 1`` and a minimum value of ``c_y - 1``, so it has a midline of ``c_y``. Likewise, ``\sin \theta + c_x`` has a midline of ``c_x``. Thus, shifting the circle affects the **midline** of its coresponding waves.
+"""
+
+# ╔═╡ 3690445c-4878-4f9c-949b-222c2e31176e
+md"""
+## Putting it Together: Vertical Transformations
+
+If we combine changes in the **center** and **radius** of the circle, we see combined changes in the **midline** and **amplitude** of the waves.
+
+``θ:\quad`` $(@bind θ_t3 Slider(-4π:π/12:4π, default=0.0))
+
+``c_x:\quad`` $(@bind cx_t3 Slider(-2:1:2, default=0, show_value=true))
+
+``c_y:\quad`` $(@bind cy_t3 Slider(-2:1:2, default=0, show_value=true))
+
+``R:\quad`` $(@bind R_t3 Slider(0.5:0.25:2.0, default=1.0, show_value=true))
+"""
+
+# ╔═╡ 1bfcc315-531b-482d-b712-14589d2489f7
+md"""
+When identifying the function for a vertically transformed sinusoid, use the following steps:
+
+1. Identify whether the sinusoid is sine or cosine (check behavior at ``0``).
+2. Identify whether the sinusoid is vertically flipped (check behavior at ``0``).
+3. Find the maximum and minimum value of the sinusoid.
+4. Calculate ``k = \frac{max\ +\ min}{2}``.
+5. Calculate ``A = \frac{max\ -\ min}{2}``.
+
+The functional form is ``\pm A \sin \theta + k`` or ``\pm A \cos \theta + k``. If the sinusoid is vertically flipped, the sign will be ``-`` otherwise it will be ``+``.
+"""
+
+# ╔═╡ 48e3d3c0-a6f1-48a3-9ca1-c239fa15fc62
+md"""
+## Horizontal Scaling
+
+"""
+
+# ╔═╡ 9a34a196-0a73-4aee-a097-ad4d5b193a42
+
+
+# ╔═╡ 21c01e95-814a-4760-bc27-b31f45eb72b2
+md"""
+## Horizontal Shifting
+
+"""
+
+# ╔═╡ 7c6ba1e8-9e6c-4fbb-aea2-493bb3b7fcd9
+
 
 # ╔═╡ 1a408b82-fe7e-4930-94d2-cfa89c7340b8
 # Empty header cell to be a blank end-of-presentation screen.
@@ -142,43 +305,6 @@ md"""
 This notebook was designed to complement Middlesex School's *Math 32 -- Pre-calculus: Trigonometry* class. Specifically, it is an interactive visual aide for PART II: Graphing Period Functions.
 """
 
-# ╔═╡ f9557e92-2b1d-4dd2-bbac-022190195203
-begin
-	θ_sin_slider = @bind θ_sin Slider(-4π:π/12:4π, default=0.0, show_value=true);
-	θ_cos_slider = @bind θ_cos Slider(-4π:π/12:4π, default=0.0, show_value=true);
-end;
-
-# ╔═╡ 46ec1e5a-9d63-4f99-b35c-ac69520e7565
-md"""
-## Sine
-Recall that ``\sin \theta`` is the **y-coordinate** of the point on the unit circle that intersects the ray at angle ``\theta`` from the positive x-axis.
-
-θ:``\quad`` $(θ_sin_slider)
-"""
-
-# ╔═╡ 31caf44b-cd8d-4cef-bbb3-6dd6eedf0a76
-md"""
-Lastly, let's look at the two plots together.
-
-θ:``\quad`` $(θ_sin_slider)
-"""
-
-# ╔═╡ 99384a42-6902-481c-980e-3cc469df17c2
-md"""
-## Cosine
-
-Recall that ``\cos \theta`` is the **x-coordinate** of the point on the unit circle that intersects the ray at angle ``\theta`` from the positive x-axis.
-
-θ:``\quad`` $(θ_cos_slider)
-"""
-
-# ╔═╡ 657496b6-cf0f-4f2b-a7ae-9ec89f0800e2
-md"""
-Lastly, let's look at the two plots together.
-
-θ:``\quad`` $(θ_cos_slider)
-"""
-
 # ╔═╡ 1577dff0-f4b6-4c39-8d2a-f7ff6fe5b044
 md"""
 ## Appendix: Formatting
@@ -202,9 +328,8 @@ begin
 	sin_color = 1
 	cos_color = 2
 	hyp_color = 3
-	circle_color = :gray
-	angle_color = :black
-	point_color = :white
+
+	round_label = x -> abs(x - round(Int64, x)) < 1e-6 ? round(Int64, x) : round(x, digits=3)
 end;
 
 # ╔═╡ 048a7a2b-2be3-4a79-9992-c0b745000952
@@ -214,7 +339,10 @@ md"""
 
 # ╔═╡ f1b9dda1-31da-4324-8d4f-e73735630d4a
 begin
-	special_angles_string = ["0", "π/6", "π/4", "π/3", "π/2", "2π/3", "3π/4", "5π/6", "π", "7π/6", "5π/4", "4π/3", "3π/2", "5π/3", "7π/4", "11π/6", "2π"]
+	special_angles_string = [
+		"0", "π/6", "π/4", "π/3", "π/2", "2π/3", "3π/4", "5π/6", "π",
+		"7π/6", "5π/4", "4π/3", "3π/2", "5π/3", "7π/4", "11π/6", "2π"
+	]
 	special_angles = special_angles_string .|> Meta.parse .|> eval
 end;
 
@@ -256,40 +384,81 @@ md"""
 """
 
 # ╔═╡ 279fa764-91aa-415d-86ed-47ed3ecfc720
-function plot_trig_circle(θ; show_sin=false, show_cos=false, circle_resolution=0.01π)
+function plot_trig_circle(
+	θ;
+	R=1, c_x=0, c_y=0,
+	max_x=nothing, max_y=nothing, circle_resolution=0.01π,
+	show_sin=false, show_cos=false
+)	
 	circle_range = 0:circle_resolution:2π
-	θ_range = θ ≥ 0 ? (0:circle_resolution:rem(θ, 2π)) : (0:-circle_resolution:rem(θ, 2π))
+	θ_range = 0:((θ ≥ 0 ? 1 : -1) * circle_resolution):rem(θ, 2π)
+
+	angle_radius = isnothing(max_x) || isnothing(max_y) ? 0.1 : 0.08min(max_x, max_y)
 	
-	label_digits = 3
+	label_R = R == 1 ? "" : "$R "
+	label_cx = c_x == 0 ? "" : c_x > 0 ? " + $c_x" : " - $(abs(c_x))"
+	label_cy = c_y == 0 ? "" : c_y > 0 ? " + $c_y" : " - $(abs(c_y))"
+	theta_label = "θ = $(round_label(θ))"
+	sin_label = show_sin && "$(label_R)sin(θ)$(label_cy) = $(round_label(R * sin(θ) + c_y))"
+	cos_label = show_cos && "$(label_R)cos(θ)$(label_cx) = $(round_label(R * cos(θ) + c_x))"
 	
 	p = plot(framestyle = :origin, aspect_ratio=:equal)
-	plot!(
-		cos.(circle_range), sin.(circle_range),
-		lw=3, color=circle_color, label=false
+	!isnothing(max_x) && plot!(xlim=(-max_x, max_x) .* 1.1)
+	!isnothing(max_y) && plot!(ylim=(-max_y, max_y) .* 1.1)
+	scatter!(  # center
+		[c_x],
+		[c_y],
+		ms=6, msw=0, color=:black, label=false
 	)
-	plot!(
-		0.1 .* cos.(θ_range), 0.1 .* sin.(θ_range),
-		lw=3, color=angle_color, label="θ = $(round(θ, digits=label_digits))"
+	plot!(  # radius
+		[0, 1.1R] .+ c_x,
+		[0,    0] .+ c_y,
+		lw=3, color=:black, label=false
 	)
-	plot!(
-		[0,1] .* cos(θ), [0,1] .* sin(θ),
+	plot!(  # circle
+		R .* cos.(circle_range) .+ c_x,
+		R .* sin.(circle_range) .+ c_y,
+		lw=2, color=:black, label=false
+	)
+	plot!(  # angle - (angle % 2π)
+		angle_radius .* cos.(circle_range) .+ c_x,
+		angle_radius .* sin.(circle_range) .+ c_y,
+		lw=2abs(θ ÷ 2π), color=:gray, label=false
+	)
+	plot!(  # angle % 2π
+		angle_radius .* cos.(θ_range) .+ c_x,
+		angle_radius .* sin.(θ_range) .+ c_y,
+		lw=2(abs(θ ÷ 2π) + 1), color=:gray, label=theta_label
+	)
+	plot!(  # vertical offset
+		[c_x, c_x],
+		[0,   c_y],
+		lw=3, color=sin_color, label=false
+	)
+	plot!(  # horizontal offset
+		[0, c_x],
+		[0,   0],
+		lw=3, color=cos_color, label=false
+	)
+	plot!(  # hypotenuse of triangle
+		R .* [0, cos(θ)] .+ c_x,
+		R .* [0, sin(θ)] .+ c_y,
 		lw=3, color=hyp_color, label=false
 	)
-	plot!(
-		[cos(θ), cos(θ)], [0, sin(θ)],
-		lw=3, color=sin_color, label=show_sin && "sin θ = $(round(sin(θ), digits=label_digits))"
+	plot!(  # vertical edge of triangle
+		R .* [cos(θ), cos(θ)] .+ c_x,
+		R .* [     0, sin(θ)] .+ c_y,
+		lw=3, color=sin_color, label=sin_label
 	)
-	plot!(
-		[0, cos(θ)], [0, 0],
-		lw=3, color=cos_color, label=show_cos && "cos θ = $(round(cos(θ), digits=label_digits))"
+	plot!(  # horizontal edge of triangle
+		R .* [0, cos(θ)] .+ c_x,
+		R .* [0,      0] .+ c_y,
+		lw=3, color=cos_color, label=cos_label
 	)
-	scatter!(
-		[0, cos(θ)], [0, 0],
-		ms=2, msw=3, color=angle_color, msc=angle_color, label=false
-	)
-	scatter!(
-		[cos(θ)], [sin(θ)],
-		ms=6, msw=3, color=point_color, msc=circle_color, label=false
+	scatter!(  # point on circle
+		R .* [cos(θ)] .+ c_x,
+		R .* [sin(θ)] .+ c_y,
+		ms=6, msw=3, color=:white, msc=:black, label=false
 	)
 end;
 
@@ -305,45 +474,68 @@ begin
 	cos_circle_plot
 end
 
+# ╔═╡ ebc4c86d-621b-4c0a-b7bd-e9ea8e87d36d
+plot_trig_circle(θ_t1, R=R_t1, max_x=4, max_y=3, show_sin=true, show_cos=true)
+
+# ╔═╡ e58f6c8b-ffcd-4f06-a1c3-6a02055ae428
+plot_trig_circle(θ_t2, c_x=cx_t2, c_y=cy_t2, max_x=4, max_y=3, show_sin=true, show_cos=true)
+
 # ╔═╡ 54eb2768-7b9e-442e-8818-b373f8b6d49e
-function plot_trig_function(f, color; max_θ=2π, point_count=0, show_positive=false, show_negative=false, show_curve=true, θ=nothing, show_period=false, circle_resolution=0.01π)
+function plot_trig_function(
+	f, color;
+	A=1, k=0, T=2π, h=0,  # TODO: confirm options here
+	max_θ=T, circle_resolution=0.01π, tick_θ=max_θ/4,
+	max_A=A, max_y=nothing, tick_y=max_A/2,
+	show_curve=true, show_label=true,
+	point_count=0, show_positive=false, show_negative=false,
+	θ=nothing, show_period=false
+)
+	func = θ -> A * f(2π/T * (θ - h)) + k  # TODO: confirm "standard form"
+	label_A = A == 1 ? "" : "$A "
+	label_k = k == 0 ? "" : k > 0 ? " + $k" : " - $(abs(k))"
+	label = show_label && "$(label_A)$(string(f))(θ)$(label_k)"  # TODO: label inner
+	
 	p = plot(
 		framestyle=:origin, minorgrid=true,
-		xlim=(-max_θ, max_θ) .* 1.1, xticks=round.(-max_θ:max_θ/4:max_θ, digits=2), xminorticks=6,
-		ylim=(-1.0, 1.0) .* 1.1, yticks=-1:0.5:1
+		xlim=(-max_θ, max_θ) .* 1.1, ylim=(-max_A, max_A) .* 1.1 .+ k,
+		xticks=round.(-max_θ:tick_θ:max_θ, digits=2), xminorticks=6,
+		yticks=(k - max_A):tick_y:(k + max_A), yminorticks=4
 	)
-	show_curve && plot!(
-		-max_θ:circle_resolution:max_θ, f,
-		lw=3, color=color, label=string(f)
+	!isnothing(max_y) && plot!(
+		ylim=(-max_y, max_y) .* 1.1, yticks = -max_y:tick_y:max_y
 	)
-	show_positive && scatter!(
-		special_angles[1:point_count], f,
+	show_curve && plot!(  # the function itself
+		-max_θ:circle_resolution:max_θ, func,
+		lw=3, color=color, label=label
+	)
+	show_positive && scatter!(  # positive special angles
+		special_angles[1:point_count], func,
 		color=color, label=false
 	)
-	show_negative && scatter!(
-		special_angles[1:point_count] .* -1, f,
+	show_negative && scatter!(  # negative special angles
+		special_angles[1:point_count] .* -1, func,
 		color=color, label=false
 	)
-	!isnothing(θ) && plot!(
-		[θ, θ], [0, f(θ)],
+	!isnothing(θ) && plot!(  # vertical line at indicated point
+		[θ, θ], [0, func(θ)],
 		lw=3, color=color, label=false
 	)
-	!isnothing(θ) && scatter!(
-		[θ], [f(θ)],
-		ms=6, msw=3, color=point_color, msc=circle_color, label=false
+	!isnothing(θ) && scatter!(  # indicated point
+		[θ], [func(θ)],
+		ms=6, msw=3, color=:white, msc=color, label=round_label(func(θ))
 	)
-	show_period && vline!(
-		sort(vcat(0:-2π:-max_θ, 0:2π:max_θ)),
+	show_period && vline!(  # period markers
+		sort(vcat(0:-T:-max_θ, 0:T:max_θ)),
 		lw=2, color=4, style=:dash, label=false
 	)
 	p
 end;
 
 # ╔═╡ f87b8e3f-4943-47e6-9317-6516a8c8a31a
-plot_trig_function(sin, sin_color, point_count=sin_slider, show_positive=show_sin_positive, show_negative=show_sin_negative, show_curve=show_sin_curve)
+plot_trig_function(sin, sin_color, show_curve=show_sin_curve, point_count=sin_slider, show_positive=show_sin_positive, show_negative=show_sin_negative)
 
 # ╔═╡ ce0ca1d7-8ebf-4761-89e3-b53fc46216e0
-begin
+let
 	sin_curve_plot = plot_trig_function(sin, sin_color, max_θ=4π, θ=θ_sin)
 	plot(sin_circle_plot, sin_curve_plot, layout=(2, 1))
 end
@@ -352,12 +544,50 @@ end
 plot_trig_function(sin, sin_color, max_θ=4π, show_period=show_sin_period)
 
 # ╔═╡ 882dcccd-3c97-4bc3-9e95-014f90d7a795
-plot_trig_function(cos, cos_color, point_count=cos_slider, show_positive=show_cos_positive, show_negative=show_cos_negative, show_curve=show_cos_curve)
+plot_trig_function(cos, cos_color, show_curve=show_cos_curve, point_count=cos_slider, show_positive=show_cos_positive, show_negative=show_cos_negative)
 
 # ╔═╡ 25408447-3e76-4bfc-94c9-4bede0a44351
-begin
+let
 	cos_curve_plot = plot_trig_function(cos, cos_color, max_θ=4π, θ=θ_cos)
 	plot(cos_circle_plot, cos_curve_plot, layout=(2, 1))
+end
+
+# ╔═╡ 6a031d8c-ff65-4a6b-b8b6-76203dc56f2a
+let
+	circle_plot = plot_trig_circle(θ₁, show_sin=true, show_cos=true)
+	sin_curve_plot = plot_trig_function(sin, sin_color, max_θ=2π, tick_θ=π, θ=θ₁)
+	cos_curve_plot = plot_trig_function(cos, cos_color, max_θ=2π, tick_θ=π, θ=θ₁)
+	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
+end
+
+# ╔═╡ 8927df0f-b092-4933-b7c2-d712a1d2e8b2
+let
+	circle_plot = plot_trig_circle(θ_t1, R=R_t1, max_x=4, max_y=5, show_sin=true, show_cos=true)
+	sin_curve_plot = plot_trig_function(sin, sin_color, A=R_t1, max_θ=4π, tick_θ=2π, max_A=3, tick_y=1, θ=θ_t1)
+	cos_curve_plot = plot_trig_function(cos, cos_color, A=R_t1, max_θ=4π, tick_θ=2π, max_A=3, tick_y=1, θ=θ_t1)
+	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
+end
+
+# ╔═╡ 962cb2da-7f45-40aa-a081-468841dfa617
+let
+	circle_plot = plot_trig_circle(θ_t2, c_x=cx_t2, c_y=cy_t2, max_x=3, max_y=4, show_sin=true, show_cos=true)
+	sin_curve_plot = plot_trig_function(sin, sin_color, k=cy_t2, max_θ=4π, tick_θ=2π, max_y=3, tick_y=1, θ=θ_t2)
+	cos_curve_plot = plot_trig_function(cos, cos_color, k=cx_t2, max_θ=4π, tick_θ=2π, max_y=3, tick_y=1, θ=θ_t2)
+	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
+end
+
+# ╔═╡ 1c959bee-c340-41cf-a142-2d6cd3839684
+let
+	circle_plot = plot_trig_circle(θ_t3, R=R_t3, c_x=cx_t3, c_y=cy_t3, max_x=4, max_y=5, show_sin=true, show_cos=true)
+	sin_curve_plot = plot_trig_function(sin, sin_color, A=R_t3, k=cy_t3, max_θ=4π, tick_θ=2π, max_y=4, tick_y=2, θ=θ_t3)
+	cos_curve_plot = plot_trig_function(cos, cos_color, A=R_t3, k=cx_t3, max_θ=4π, tick_θ=2π, max_y=4, tick_y=2, θ=θ_t3)
+	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
+end
+
+# ╔═╡ db66a1ef-6f40-447e-8e09-1b612bd98d3b
+begin
+	plot_trig_function(sin, 3, A=2, T=2, show_label=false)
+	png("MQ 6 - Sine Graph.png")
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -1485,11 +1715,31 @@ version = "1.4.1+1"
 # ╟─657496b6-cf0f-4f2b-a7ae-9ec89f0800e2
 # ╟─25408447-3e76-4bfc-94c9-4bede0a44351
 # ╟─7f34b696-8844-40e5-8cf0-14ceb0f56868
+# ╟─f8ccdf01-abc9-4fd9-95c1-e5c77e3527ef
+# ╟─6a031d8c-ff65-4a6b-b8b6-76203dc56f2a
+# ╟─8b95ef50-fbac-4653-8819-757fdf77a4dd
+# ╟─da783d24-3ae2-4618-8eac-af1b2a32f657
+# ╟─618edeb0-411a-4c4f-9ddb-2497b40241aa
+# ╟─ebc4c86d-621b-4c0a-b7bd-e9ea8e87d36d
+# ╟─eaa13afa-3efd-42dd-9eb3-a41569e063dc
+# ╟─8927df0f-b092-4933-b7c2-d712a1d2e8b2
+# ╟─de7960c4-9177-4ded-b0bf-6140c10e69f0
+# ╟─f14d6ab2-1e06-4e72-86c1-6defaedd58c3
+# ╟─e58f6c8b-ffcd-4f06-a1c3-6a02055ae428
+# ╟─7086d5eb-6f81-4bfc-8ba0-1ea83268059f
+# ╟─962cb2da-7f45-40aa-a081-468841dfa617
+# ╟─81d21cce-1374-4d64-9230-8216ff71ee38
+# ╟─3690445c-4878-4f9c-949b-222c2e31176e
+# ╟─1c959bee-c340-41cf-a142-2d6cd3839684
+# ╟─1bfcc315-531b-482d-b712-14589d2489f7
+# ╠═48e3d3c0-a6f1-48a3-9ca1-c239fa15fc62
+# ╠═9a34a196-0a73-4aee-a097-ad4d5b193a42
+# ╠═21c01e95-814a-4760-bc27-b31f45eb72b2
+# ╠═7c6ba1e8-9e6c-4fbb-aea2-493bb3b7fcd9
 # ╟─1a408b82-fe7e-4930-94d2-cfa89c7340b8
 # ╟─3bb2ca7f-c283-4574-a45a-bebf068dfe71
 # ╠═289f7931-8511-4650-960e-54a20a180320
 # ╠═8fd2edc7-5063-4033-a9cb-5e7623467fb5
-# ╠═f9557e92-2b1d-4dd2-bbac-022190195203
 # ╟─1577dff0-f4b6-4c39-8d2a-f7ff6fe5b044
 # ╠═652bfa10-aa36-48e4-bf26-622dda24351a
 # ╠═64840f00-2529-4ad9-bf9e-33610dc4cfcc
@@ -1499,5 +1749,6 @@ version = "1.4.1+1"
 # ╟─26e8e204-a74e-4bc8-8bc0-28ba4eb26620
 # ╠═279fa764-91aa-415d-86ed-47ed3ecfc720
 # ╠═54eb2768-7b9e-442e-8818-b373f8b6d49e
+# ╠═db66a1ef-6f40-447e-8e09-1b612bd98d3b
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
