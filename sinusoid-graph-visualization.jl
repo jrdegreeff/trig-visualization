@@ -371,7 +371,7 @@ begin
 	times_label = x -> isone(x) ? "" : "$(round_label(x)) "
 	
 	angle_label = (θ, d) -> isapproxinteger(θ/(π/d)) ? π_label(round(Int, θ/(π/d)) // d) : round_label(θ)
-	transformation_label = (f; A=1, k=0) -> "$(times_label(A))$(string(f))(θ)$(plus_label(k))"  # TODO: label inner
+	transformation_label(f; A=1, k=0) = "$(times_label(A))$(string(f))(θ)$(plus_label(k))"  # TODO: label inner
 
 	transform(f; A=1, k=0, T=2π, h=0) = θ -> A * f(2π/T * (θ - h)) + k
 end;
@@ -402,13 +402,16 @@ begin
 		
 		Text(line * header * line * reduce(*, rows) * line)
 	end
+
 	function format_special_angles_table(columns; n_angles=n_special_angles, critical_only=false, column_width=6)
 		angles = critical_only ? critical_angles : special_angles
 		n_angles = min(n_angles, length(angles))
-		format_two_column(["θ" => angle_label.(angles, 12), (n => [
-			angles[1:n_angles] .|> f .|> round_to_hundredths;
-			fill("", length(angles) - n_angles)
-		] for (n, f) in columns)...], column_width=column_width)
+		format_two_column(["θ" => angle_label.(angles, 12), (
+			transformation_label(f; kwargs...) => [
+				angles[1:n_angles] .|> transform(f; kwargs...) .|> round_to_hundredths;
+				fill("", length(angles) - n_angles)
+			] for (f, kwargs) in columns
+		)...], column_width=column_width)
 	end
 end;
 
@@ -420,7 +423,7 @@ $(@bind sin_slider Slider(0:n_special_angles))
 """
 
 # ╔═╡ ebdbcb08-bdfa-46e4-9d20-898b25d77d15
-format_special_angles_table([transformation_label(sin) => sin], n_angles=sin_slider)
+format_special_angles_table([(sin, ())], n_angles=sin_slider)
 
 # ╔═╡ 1159e991-073f-4e4d-88f8-c8cd0104a6e2
 md"""
@@ -430,16 +433,16 @@ $(@bind cos_slider Slider(0:n_special_angles))
 """
 
 # ╔═╡ c3550f70-8b7b-432e-aa5e-7ab5084cf69f
-format_special_angles_table([transformation_label(cos) => cos], n_angles=cos_slider)
+format_special_angles_table([(cos, ())], n_angles=cos_slider)
 
 # ╔═╡ 8aee1e87-7b32-4f71-9685-12e15ba9b246
-format_special_angles_table([transformation_label(sin) => sin, transformation_label(sin, A=A_t1) => transform(sin, A=A_t1)], critical_only=critical_only_t1, column_width=11)
+format_special_angles_table([(sin, ()), (sin, (A=A_t1,))], critical_only=critical_only_t1, column_width=11)
 
 # ╔═╡ 32e5c347-5dd3-41ab-9382-deaff3089657
-format_special_angles_table([transformation_label(sin) => sin, transformation_label(sin, k=k_t2) => transform(sin, k=k_t2)], critical_only=critical_only_t2, column_width=12)
+format_special_angles_table([(sin, ()), (sin, (k=k_t2,))], critical_only=critical_only_t2, column_width=12)
 
 # ╔═╡ 9ffa7538-c969-4e7a-8bd6-6b568d7e1a03
-format_special_angles_table([transformation_label(sin) => sin, transformation_label(sin, A=A_t3, k=k_t3) => transform(sin, A=A_t3, k=k_t3)], critical_only=critical_only_t3, column_width=16)
+format_special_angles_table([(sin, ()), (sin, (A=A_t3, k=k_t3))], critical_only=critical_only_t3, column_width=16)
 
 # ╔═╡ 26e8e204-a74e-4bc8-8bc0-28ba4eb26620
 md"""
