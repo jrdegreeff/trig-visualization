@@ -305,36 +305,9 @@ md"""
 This notebook was designed to complement Middlesex School's *Math 32 -- Pre-calculus: Trigonometry* class. Specifically, it is an interactive visual aide for PART II: Graphing Period Functions.
 """
 
-# ╔═╡ 1577dff0-f4b6-4c39-8d2a-f7ff6fe5b044
-md"""
-## Appendix: Formatting
-"""
-
-# ╔═╡ 652bfa10-aa36-48e4-bf26-622dda24351a
-round_to_hundredths(x::Float64) = @sprintf("%.2f", x);
-
-# ╔═╡ 64840f00-2529-4ad9-bf9e-33610dc4cfcc
-function format_two_column(left, right; col_width=5)
-	line = "+-$(repeat("-", col_width))-+-$(repeat("-", col_width))-+\n"
-	pad(text) = lpad(text, col_width, " ")
-	
-	header = "| $(pad(left[1])) | $(pad(right[1])) |\n"
-	rows = reduce(*, "| $(pad(l)) | $(pad(r)) |\n" for (l, r) in zip(left[2], right[2]))
-	Text(line * header * line * rows * line)
-end;
-
-# ╔═╡ 30e87a64-2d1a-4198-8039-8bb0be7632f3
-begin
-	sin_color = 1
-	cos_color = 2
-	hyp_color = 3
-
-	round_label = x -> abs(x - round(Int64, x)) < 1e-6 ? round(Int64, x) : round(x, digits=3)
-end;
-
 # ╔═╡ 048a7a2b-2be3-4a79-9992-c0b745000952
 md"""
-## Appendix: Data
+## Appendix: Globals
 """
 
 # ╔═╡ f1b9dda1-31da-4324-8d4f-e73735630d4a
@@ -353,6 +326,32 @@ Let's write down the sine values for the special angles, and round to 2 decimal 
 $(@bind sin_slider Slider(0:length(special_angles)))
 """
 
+# ╔═╡ 1159e991-073f-4e4d-88f8-c8cd0104a6e2
+md"""
+Let's write down the cosine values for the special angles, and round to 2 decimal places.
+
+$(@bind cos_slider Slider(0:length(special_angles)))
+"""
+
+# ╔═╡ 1577dff0-f4b6-4c39-8d2a-f7ff6fe5b044
+md"""
+## Appendix: Formatting
+"""
+
+# ╔═╡ 64840f00-2529-4ad9-bf9e-33610dc4cfcc
+begin
+	round_to_hundredths(x::Float64) = @sprintf("%.2f", x);
+	
+	function format_two_column(left, right; col_width=5)
+		line = "+-$(repeat("-", col_width))-+-$(repeat("-", col_width))-+\n"
+		pad(text) = lpad(text, col_width, " ")
+		
+		header = "| $(pad(left[1])) | $(pad(right[1])) |\n"
+		rows = reduce(*, "| $(pad(l)) | $(pad(r)) |\n" for (l, r) in zip(left[2], right[2]))
+		Text(line * header * line * rows * line)
+	end
+end;
+
 # ╔═╡ ebdbcb08-bdfa-46e4-9d20-898b25d77d15
 let
 	values = [
@@ -361,13 +360,6 @@ let
 	]
 	Text(format_two_column("θ" => special_angles_string, "sin θ" => values))
 end
-
-# ╔═╡ 1159e991-073f-4e4d-88f8-c8cd0104a6e2
-md"""
-Let's write down the cosine values for the special angles, and round to 2 decimal places.
-
-$(@bind cos_slider Slider(0:length(special_angles)))
-"""
 
 # ╔═╡ c3550f70-8b7b-432e-aa5e-7ab5084cf69f
 let
@@ -378,6 +370,37 @@ let
 	Text(format_two_column("θ" => special_angles_string, "cos θ" => values))
 end
 
+# ╔═╡ 4ed19a7f-cfbb-4df4-84bf-613223891141
+begin
+	isapproxinteger = x -> abs(x - round(Int64, x)) < 1e-6
+	
+	function π_label(x::Real)
+		iszero(x) && return "0"
+		S = x < 0 ? "-" : ""
+		n = isinteger(x) ? Int(x) : x
+		N = isone(abs(n)) ? "" : n
+		"$(S)$(N)π"
+	end
+	function π_label(x::Rational)
+	    iszero(x) && return "0"
+		n, d = π_label(numerator(x)), denominator(x)
+	    isone(d) ? n : "$(n)/$(d)"
+	end
+	
+	round_label = x -> isapproxinteger(x) ? round(Int64, x) : round(x, digits=3)
+	angle_label = (θ, d) -> isapproxinteger(θ/(π/d)) ? π_label(round(Int64, θ/(π/d)) // d) : round_label(θ)
+	
+	plus_label = x -> iszero(x) ? "" : " $(x > 0 ? "+" : "-") $(round_label(abs(x)))"
+	times_label = x -> isone(x) ? "" : "$(round_label(x)) "
+end;
+
+# ╔═╡ 30e87a64-2d1a-4198-8039-8bb0be7632f3
+begin
+	sin_color = 1
+	cos_color = 2
+	hyp_color = 3
+end;
+
 # ╔═╡ 26e8e204-a74e-4bc8-8bc0-28ba4eb26620
 md"""
 ## Appendix: Plotting
@@ -387,24 +410,35 @@ md"""
 function plot_trig_circle(
 	θ;
 	R=1, c_x=0, c_y=0,
-	max_x=nothing, max_y=nothing, circle_resolution=0.01π,
+	max_x=nothing, max_y=nothing, R_tick=1, circle_resolution=0.01π,
 	show_sin=false, show_cos=false
 )	
 	circle_range = 0:circle_resolution:2π
 	θ_range = 0:((θ ≥ 0 ? 1 : -1) * circle_resolution):rem(θ, 2π)
 
-	angle_radius = isnothing(max_x) || isnothing(max_y) ? 0.1 : 0.08min(max_x, max_y)
+	angle_radius = isnothing(max_x) || isnothing(max_y) ? 0.1 : 0.1min(max_x, max_y)
 	
-	label_R = R == 1 ? "" : "$R "
-	label_cx = c_x == 0 ? "" : c_x > 0 ? " + $c_x" : " - $(abs(c_x))"
-	label_cy = c_y == 0 ? "" : c_y > 0 ? " + $c_y" : " - $(abs(c_y))"
-	theta_label = "θ = $(round_label(θ))"
-	sin_label = show_sin && "$(label_R)sin(θ)$(label_cy) = $(round_label(R * sin(θ) + c_y))"
-	cos_label = show_cos && "$(label_R)cos(θ)$(label_cx) = $(round_label(R * cos(θ) + c_x))"
+	θ_label = "θ = $(angle_label(θ, 12))"
+	sin_label = show_sin && "$(times_label(R))sin(θ)$(plus_label(c_y)) = $(round_label(R * sin(θ) + c_y))"
+	cos_label = show_cos && "$(times_label(R))cos(θ)$(plus_label(c_x)) = $(round_label(R * cos(θ) + c_x))"
 	
 	p = plot(framestyle = :origin, aspect_ratio=:equal)
-	!isnothing(max_x) && plot!(xlim=(-max_x, max_x) .* 1.1)
-	!isnothing(max_y) && plot!(ylim=(-max_y, max_y) .* 1.1)
+
+	if !isnothing(max_x)
+		x_ticks = -(max_x ÷ R_tick)R_tick:R_tick:(max_x ÷ R_tick)R_tick
+		plot!(
+			xlim=(-max_x, max_x) .* 1.1,
+			xticks=(collect(x_ticks), round_label.(x_ticks))
+		)
+	end
+	if !isnothing(max_y)
+		y_ticks = -(max_y ÷ R_tick)R_tick:R_tick:(max_y ÷ R_tick)R_tick
+		plot!(
+			ylim=(-max_y, max_y) .* 1.1,
+			yticks=(collect(y_ticks), round_label.(y_ticks))
+		)
+	end
+	
 	scatter!(  # center
 		[c_x],
 		[c_y],
@@ -428,7 +462,7 @@ function plot_trig_circle(
 	plot!(  # angle % 2π
 		angle_radius .* cos.(θ_range) .+ c_x,
 		angle_radius .* sin.(θ_range) .+ c_y,
-		lw=2(abs(θ ÷ 2π) + 1), color=:gray, label=theta_label
+		lw=2(abs(θ ÷ 2π) + 1), color=:gray, label=θ_label
 	)
 	plot!(  # vertical offset
 		[c_x, c_x],
@@ -460,19 +494,14 @@ function plot_trig_circle(
 		R .* [sin(θ)] .+ c_y,
 		ms=6, msw=3, color=:white, msc=:black, label=false
 	)
+	p
 end;
 
 # ╔═╡ 7f924a27-3a75-47ba-a0e9-d5b841a49bb1
-begin
-	sin_circle_plot = plot_trig_circle(θ_sin, show_sin=true)
-	sin_circle_plot
-end
+plot_trig_circle(θ_sin, max_x=1.5, max_y=1, R_tick=0.5, show_sin=true)
 
 # ╔═╡ 0e2de8ba-3a25-4158-abc0-bed956dfe470
-begin
-	cos_circle_plot = plot_trig_circle(θ_cos, show_cos=true)
-	cos_circle_plot
-end
+plot_trig_circle(θ_cos, max_x=1.5, max_y=1, R_tick=0.5, show_cos=true)
 
 # ╔═╡ ebc4c86d-621b-4c0a-b7bd-e9ea8e87d36d
 plot_trig_circle(θ_t1, R=R_t1, max_x=4, max_y=3, show_sin=true, show_cos=true)
@@ -483,27 +512,41 @@ plot_trig_circle(θ_t2, c_x=cx_t2, c_y=cy_t2, max_x=4, max_y=3, show_sin=true, s
 # ╔═╡ 54eb2768-7b9e-442e-8818-b373f8b6d49e
 function plot_trig_function(
 	f, color;
-	A=1, k=0, T=2π, h=0,  # TODO: confirm options here
-	max_θ=T, circle_resolution=0.01π, tick_θ=max_θ/4,
-	max_A=A, max_y=nothing, tick_y=max_A/2,
+	A=1, k=0, T=2π, h=0,  # TODO: more flexibility here
+	max_θ=T, circle_resolution=0.01π, tick_θ=max_θ/4, tickstyle=:decimal,
+	max_A=abs(A), max_y=nothing, tick_y=isnothing(max_y) ? max_A/2 : max_y/2,
 	show_curve=true, show_label=true,
 	point_count=0, show_positive=false, show_negative=false,
 	θ=nothing, show_period=false
 )
-	func = θ -> A * f(2π/T * (θ - h)) + k  # TODO: confirm "standard form"
-	label_A = A == 1 ? "" : "$A "
-	label_k = k == 0 ? "" : k > 0 ? " + $k" : " - $(abs(k))"
-	label = show_label && "$(label_A)$(string(f))(θ)$(label_k)"  # TODO: label inner
+	func = θ -> A * f(2π/T * (θ - h)) + k
+	label = show_label && "$(times_label(A))$(string(f))(θ)$(plus_label(k))"
+	# TODO: label inner
 	
-	p = plot(
-		framestyle=:origin, minorgrid=true,
-		xlim=(-max_θ, max_θ) .* 1.1, ylim=(-max_A, max_A) .* 1.1 .+ k,
-		xticks=round.(-max_θ:tick_θ:max_θ, digits=2), xminorticks=6,
-		yticks=(k - max_A):tick_y:(k + max_A), yminorticks=4
-	)
-	!isnothing(max_y) && plot!(
-		ylim=(-max_y, max_y) .* 1.1, yticks = -max_y:tick_y:max_y
-	)
+	p = plot(framestyle=:origin, minorgrid=true, xminorticks=6, yminorticks=4)
+
+	@assert isinteger(max_θ / tick_θ)
+	θ_ticks = -max_θ:tick_θ:max_θ
+	if tickstyle == :decimal
+		θ_labels = round_label.(θ_ticks)
+	elseif tickstyle == :πmultiple
+		@assert isinteger(tick_θ / π)
+		θ_labels = π_label.(θ_ticks ./ π)
+	else tickstyle == :πfraction
+		@assert isinteger(π / tick_θ)
+		θ_labels = π_label.(Int.(θ_ticks ./ tick_θ) .// Int(π / tick_θ))
+	end
+	plot!(xlim=(-max_θ, max_θ) .* 1.1, xticks=(collect(θ_ticks), θ_labels))
+	
+	if isnothing(max_y)
+		y_lim = (-max_A, max_A) .* 1.1 .+ k
+		y_ticks = (k - max_A):tick_y:(k + max_A)
+	else
+		y_lim = (-max_y, max_y) .* 1.1
+		y_ticks = -max_y:tick_y:max_y
+	end
+	plot!(ylim=y_lim, yticks=(collect(y_ticks), round_label.(y_ticks)))
+	
 	show_curve && plot!(  # the function itself
 		-max_θ:circle_resolution:max_θ, func,
 		lw=3, color=color, label=label
@@ -532,63 +575,80 @@ function plot_trig_function(
 end;
 
 # ╔═╡ f87b8e3f-4943-47e6-9317-6516a8c8a31a
-plot_trig_function(sin, sin_color, show_curve=show_sin_curve, point_count=sin_slider, show_positive=show_sin_positive, show_negative=show_sin_negative)
+plot_trig_function(sin, sin_color, tickstyle=:πfraction, show_curve=show_sin_curve, point_count=sin_slider, show_positive=show_sin_positive, show_negative=show_sin_negative)
 
 # ╔═╡ ce0ca1d7-8ebf-4761-89e3-b53fc46216e0
 let
-	sin_curve_plot = plot_trig_function(sin, sin_color, max_θ=4π, θ=θ_sin)
+	sin_circle_plot = plot_trig_circle(θ_sin, max_x=3, max_y=1, show_sin=true)
+	sin_curve_plot = plot_trig_function(sin, sin_color, max_θ=4π, θ=θ_sin,  tickstyle=:πmultiple)
 	plot(sin_circle_plot, sin_curve_plot, layout=(2, 1))
 end
 
 # ╔═╡ e520ba54-bef4-44b9-a09c-feeb6519292e
-plot_trig_function(sin, sin_color, max_θ=4π, show_period=show_sin_period)
+plot_trig_function(sin, sin_color, max_θ=4π, tickstyle=:πmultiple, show_period=show_sin_period)
 
 # ╔═╡ 882dcccd-3c97-4bc3-9e95-014f90d7a795
-plot_trig_function(cos, cos_color, show_curve=show_cos_curve, point_count=cos_slider, show_positive=show_cos_positive, show_negative=show_cos_negative)
+plot_trig_function(cos, cos_color, tickstyle=:πfraction, show_curve=show_cos_curve, point_count=cos_slider, show_positive=show_cos_positive, show_negative=show_cos_negative)
 
 # ╔═╡ 25408447-3e76-4bfc-94c9-4bede0a44351
 let
-	cos_curve_plot = plot_trig_function(cos, cos_color, max_θ=4π, θ=θ_cos)
+	cos_circle_plot = plot_trig_circle(θ_cos, max_x=3, max_y=1, show_cos=true)
+	cos_curve_plot = plot_trig_function(cos, cos_color, max_θ=4π, θ=θ_cos, tickstyle=:πmultiple)
 	plot(cos_circle_plot, cos_curve_plot, layout=(2, 1))
 end
 
 # ╔═╡ 6a031d8c-ff65-4a6b-b8b6-76203dc56f2a
 let
-	circle_plot = plot_trig_circle(θ₁, show_sin=true, show_cos=true)
-	sin_curve_plot = plot_trig_function(sin, sin_color, max_θ=2π, tick_θ=π, θ=θ₁)
-	cos_curve_plot = plot_trig_function(cos, cos_color, max_θ=2π, tick_θ=π, θ=θ₁)
+	circle_plot = plot_trig_circle(θ₁, max_x=1, max_y=1.5, R_tick=0.5, show_sin=true, show_cos=true)
+	sin_curve_plot = plot_trig_function(sin, sin_color, max_θ=2π, tick_θ=π, tickstyle=:πmultiple, θ=θ₁)
+	cos_curve_plot = plot_trig_function(cos, cos_color, max_θ=2π, tick_θ=π, tickstyle=:πmultiple, θ=θ₁)
 	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
 end
 
 # ╔═╡ 8927df0f-b092-4933-b7c2-d712a1d2e8b2
 let
-	circle_plot = plot_trig_circle(θ_t1, R=R_t1, max_x=4, max_y=5, show_sin=true, show_cos=true)
-	sin_curve_plot = plot_trig_function(sin, sin_color, A=R_t1, max_θ=4π, tick_θ=2π, max_A=3, tick_y=1, θ=θ_t1)
-	cos_curve_plot = plot_trig_function(cos, cos_color, A=R_t1, max_θ=4π, tick_θ=2π, max_A=3, tick_y=1, θ=θ_t1)
+	circle_plot = plot_trig_circle(θ_t1, R=R_t1, max_x=4, max_y=5, R_tick=2, show_sin=true, show_cos=true)
+	sin_curve_plot = plot_trig_function(sin, sin_color, A=R_t1, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_A=3, tick_y=1, θ=θ_t1)
+	cos_curve_plot = plot_trig_function(cos, cos_color, A=R_t1, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_A=3, tick_y=1, θ=θ_t1)
 	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
 end
 
 # ╔═╡ 962cb2da-7f45-40aa-a081-468841dfa617
 let
 	circle_plot = plot_trig_circle(θ_t2, c_x=cx_t2, c_y=cy_t2, max_x=3, max_y=4, show_sin=true, show_cos=true)
-	sin_curve_plot = plot_trig_function(sin, sin_color, k=cy_t2, max_θ=4π, tick_θ=2π, max_y=3, tick_y=1, θ=θ_t2)
-	cos_curve_plot = plot_trig_function(cos, cos_color, k=cx_t2, max_θ=4π, tick_θ=2π, max_y=3, tick_y=1, θ=θ_t2)
+	sin_curve_plot = plot_trig_function(sin, sin_color, k=cy_t2, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=3, tick_y=1, θ=θ_t2)
+	cos_curve_plot = plot_trig_function(cos, cos_color, k=cx_t2, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=3, tick_y=1, θ=θ_t2)
 	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
 end
 
 # ╔═╡ 1c959bee-c340-41cf-a142-2d6cd3839684
 let
-	circle_plot = plot_trig_circle(θ_t3, R=R_t3, c_x=cx_t3, c_y=cy_t3, max_x=4, max_y=5, show_sin=true, show_cos=true)
-	sin_curve_plot = plot_trig_function(sin, sin_color, A=R_t3, k=cy_t3, max_θ=4π, tick_θ=2π, max_y=4, tick_y=2, θ=θ_t3)
-	cos_curve_plot = plot_trig_function(cos, cos_color, A=R_t3, k=cx_t3, max_θ=4π, tick_θ=2π, max_y=4, tick_y=2, θ=θ_t3)
+	circle_plot = plot_trig_circle(θ_t3, R=R_t3, c_x=cx_t3, c_y=cy_t3, max_x=4, max_y=5, R_tick=2, show_sin=true, show_cos=true)
+	sin_curve_plot = plot_trig_function(sin, sin_color, A=R_t3, k=cy_t3, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=4, θ=θ_t3)
+	cos_curve_plot = plot_trig_function(cos, cos_color, A=R_t3, k=cx_t3, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=4, θ=θ_t3)
 	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
 end
 
 # ╔═╡ db66a1ef-6f40-447e-8e09-1b612bd98d3b
 begin
 	plot_trig_function(sin, 3, A=2, T=2, show_label=false)
-	png("MQ 6 - Sine Graph.png")
-end
+	png("exports/MQ 6 - Sine Graph.png")
+
+	plot_trig_function(sin, 3, A=1.5, tick_y=0.5, tickstyle=:πfraction, show_curve=false, show_label=false)
+	png("exports/MQ 7 - Empty Plot.png")
+
+	plot_trig_function(cos, 3, A=2, k=2, T=π, tickstyle=:πfraction, show_label=false)
+	png("exports/MQ 8 - Graph 1.png")
+
+	plot_trig_function(sin, 3, A=-3, k=-1, T=2, show_label=false)
+	png("exports/MQ 8 - Graph 2.png")
+
+	plot_trig_function(sin, 3, A=4, tickstyle=:πfraction, show_curve=false, show_label=false)
+	png("exports/MQ 9 - Empty Plot Scaled 1.png")
+
+	plot_trig_function(sin, 3, A=4, T=1, show_curve=false, show_label=false)
+	png("exports/MQ 9 - Empty Plot Scaled 2.png")
+end;
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1740,12 +1800,12 @@ version = "1.4.1+1"
 # ╟─3bb2ca7f-c283-4574-a45a-bebf068dfe71
 # ╠═289f7931-8511-4650-960e-54a20a180320
 # ╠═8fd2edc7-5063-4033-a9cb-5e7623467fb5
-# ╟─1577dff0-f4b6-4c39-8d2a-f7ff6fe5b044
-# ╠═652bfa10-aa36-48e4-bf26-622dda24351a
-# ╠═64840f00-2529-4ad9-bf9e-33610dc4cfcc
-# ╠═30e87a64-2d1a-4198-8039-8bb0be7632f3
 # ╟─048a7a2b-2be3-4a79-9992-c0b745000952
 # ╠═f1b9dda1-31da-4324-8d4f-e73735630d4a
+# ╟─1577dff0-f4b6-4c39-8d2a-f7ff6fe5b044
+# ╠═64840f00-2529-4ad9-bf9e-33610dc4cfcc
+# ╠═4ed19a7f-cfbb-4df4-84bf-613223891141
+# ╠═30e87a64-2d1a-4198-8039-8bb0be7632f3
 # ╟─26e8e204-a74e-4bc8-8bc0-28ba4eb26620
 # ╠═279fa764-91aa-415d-86ed-47ed3ecfc720
 # ╠═54eb2768-7b9e-442e-8818-b373f8b6d49e
