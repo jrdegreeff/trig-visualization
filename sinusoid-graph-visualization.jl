@@ -16,10 +16,11 @@ end
 
 # ╔═╡ e503d9f6-84f0-486f-aa0f-b9cf6aa88b69
 begin
+	using DataStructures
 	using Plots
 	using PlutoUI
 
-	import Base.Fix2
+	import Base.Fix1
 	import Printf.@sprintf
 end
 
@@ -331,7 +332,7 @@ We will call the ratio between these two rates ``b``.
 
 If ``b`` is large we will go around the circle faster, so the wave value will go up and down more quickly. Conversely, if ``b`` is small we will go around the circle more slowly, so the wave value will go up and down more slowly.
 
-[Side note]: in physics this quantity is sometimes called the *angular frequency* of the wave and denoted with the greek letter omega (``\omega``) but in this class we won't use that term to avoid confusion.
+[Side note]: in physics this quantity is sometimes called the *angular frequency* of the wave and denoted with the Greek letter omega (``\omega``) but in this class we won't use that term to avoid confusion.
 
 ``θ:\quad`` $(@bind θ_t4 Slider(-4π:π/12:4π, default=0.0))
 
@@ -538,7 +539,7 @@ begin
 	
 	round_label(x) = isapproxinteger(x) ? round(Int, x) : round(x, digits=3)
 	
-	angle_label(θ, d=5040) = isapproxinteger(θ/(π/d)) ?
+	format_label(θ, d=5040) = isapproxinteger(θ/(π/d)) ?
 		π_label(round(Int, θ/(π/d)) // d) :
 		round_label(θ)
 end;
@@ -548,102 +549,10 @@ md"""
 ## Appendix: Sinusoid Manipulation
 """
 
-# ╔═╡ 66af7c57-3063-448f-baef-2898cb262c22
-begin
-	transform(f; A=1, k=0, b=1, h=0) = θ -> A * f(b * (θ - h)) + k
-	invert_inner(x; b=1, h=0) = x / b + h
-
-	plus_label(x) = iszero(x) ? "" : " $(x > 0 ? "+" : "-") $(angle_label(abs(x)))"
-	times_label(x; space=true) = isone(x) ? "" : "$(angle_label(x))$(space ? " " : "")"
-
-	function transformation_label(f; A=1, k=0, b=1, h=0, is_text=false)
-		"$(times_label(A))$(string(f))($(transformation_label(identity; b, h, is_text)))$(plus_label(k))"
-	end
-	function  transformation_label(f::typeof(identity); b=1, h=0, is_text=false)
-		parenthesize = !isone(b) && !iszero(h)
-		times_label(b, space=is_text && !parenthesize) *
-		(parenthesize ? "(θ$(plus_label(-h)))" : "θ$(plus_label(-h))")
-	end
-end;
-
 # ╔═╡ 1577dff0-f4b6-4c39-8d2a-f7ff6fe5b044
 md"""
 ## Appendix: Tables
 """
-
-# ╔═╡ 64840f00-2529-4ad9-bf9e-33610dc4cfcc
-begin
-	special_angles = [
-		0, π/6, π/4, π/3, π/2, 2π/3, 3π/4, 5π/6, π,
-		7π/6, 5π/4, 4π/3, 3π/2, 5π/3, 7π/4, 11π/6, 2π
-	]
-	n_special_angles = length(special_angles)
-	critical_angles = [
-		0, π/2, π, 3π/2, 2π
-	]
-	
-	function format_table(columns; column_width=6)
-		line_span = repeat("-", column_width)
-		line = "+-" * join((line_span for _ in columns), "-+-") * "-+\n"
-		
-		pad(text) = lpad(text, column_width, " ")
-		header = "| " * join((pad(c[1]) for c in columns), " | ") * " |\n"
-		rows = ("| " * join((pad(v) for v in r), " | ") * " |\n" for r in zip([c[2] for c in columns]...))
-		
-		Text(line * header * line * reduce(*, rows) * line)
-	end
-
-	function format_special_angles_table(columns; n_angles=n_special_angles, critical_only=false, b=1, h=0, column_width=6)
-		angles = critical_only ? critical_angles : special_angles
-		n_angles = min(n_angles, length(angles))
-		selected_angles = invert_inner.(angles[1:n_angles]; b, h)
-		columns = (
-			transformation_label(f; kwargs..., is_text=true) => [
-				selected_angles .|> transform(f; kwargs...) .|> (f == identity ? angle_label : round_to_hundredths);
-				fill("", length(angles) - n_angles)
-			] for (f, kwargs) in vcat([(identity) => ()], columns)
-		)
-		format_table(columns, column_width=column_width)
-	end
-end;
-
-# ╔═╡ 12e416c5-6f4e-4c84-ab04-20ba300adfc3
-md"""
-Let's write down the sine values for the special angles, and round to 2 decimal places.
-
-$(@bind sin_slider Slider(0:n_special_angles))
-"""
-
-# ╔═╡ ebdbcb08-bdfa-46e4-9d20-898b25d77d15
-format_special_angles_table([(sin, ())], n_angles=sin_slider)
-
-# ╔═╡ 1159e991-073f-4e4d-88f8-c8cd0104a6e2
-md"""
-Let's write down the cosine values for the special angles, and round to 2 decimal places.
-
-$(@bind cos_slider Slider(0:n_special_angles))
-"""
-
-# ╔═╡ c3550f70-8b7b-432e-aa5e-7ab5084cf69f
-format_special_angles_table([(cos, ())], n_angles=cos_slider)
-
-# ╔═╡ 8aee1e87-7b32-4f71-9685-12e15ba9b246
-format_special_angles_table([(sin, ()), (sin, (A=A_t1,))], critical_only=critical_only_t1, column_width=11)
-
-# ╔═╡ 32e5c347-5dd3-41ab-9382-deaff3089657
-format_special_angles_table([(sin, ()), (sin, (k=k_t2,))], critical_only=critical_only_t2, column_width=12)
-
-# ╔═╡ 9ffa7538-c969-4e7a-8bd6-6b568d7e1a03
-format_special_angles_table([(sin, ()), (sin, (A=A_t3, k=k_t3))], critical_only=critical_only_t3, column_width=16)
-
-# ╔═╡ 25a533c4-61dc-4ba0-8ab2-eba55f69b21f
-format_special_angles_table([(identity, (b=b2_t4,)), (sin, (b=b2_t4,))], critical_only=critical_only_t4, b=b2_t4, column_width=11)
-
-# ╔═╡ 050c6975-e92b-48b1-a0d5-b12f1005b611
-format_special_angles_table([(identity, (h=h2_t5,)), (sin, (h=h2_t5,)), (cos, (h=h2_t5,))], critical_only=critical_only_t5, h=h2_t5, column_width=15)
-
-# ╔═╡ bc101546-cb14-40e5-ba6a-1f3b084be914
-format_special_angles_table([(identity, (b=b2_t6, h=h2_t6)), (sin, (A=A_t6, k=k_t6, b=b2_t6, h=h2_t6))], critical_only=critical_only_t3, b=b2_t6, h=h2_t6, column_width=25)
 
 # ╔═╡ 26e8e204-a74e-4bc8-8bc0-28ba4eb26620
 md"""
@@ -657,6 +566,134 @@ begin
 	hyp_color = 3
 end;
 
+# ╔═╡ 66af7c57-3063-448f-baef-2898cb262c22
+begin
+	struct Wave{F} <: Function
+		f::F
+		color
+		A::Real
+		k::Real
+		b::Real
+		h::Real
+
+		function Wave(
+			func=identity; color=default_color(func),
+			A=1, k=0, b=1, h=0, T=nothing, f=nothing
+		)
+			@assert isnothing(T) || isnothing(f)
+			!isnothing(T) && (b = 2π/T)
+			!isnothing(f) && (b = 2πf)
+			
+			new{typeof(func)}(func, color, A, k, b, h)
+		end
+	end
+	
+	(w::Wave)(θ) = w.A * w.f(w.b * (θ - w.h)) + w.k
+	invert(w::Wave) = (x) -> inverse_table[w.f]((1 / w.A) * (x - w.k)) / w.b + w.h
+	
+	period(w::Wave) = 2π / w.b
+	freqeuncy(w::Wave) = w.b / (2π)
+
+	inner(w::Wave; color=w.color) = Wave(; color, b=w.b, h=w.h)
+	invert_inner(w::Wave, x) = invert(inner(w))(x)
+
+	plus_label(x) = iszero(x) ? "" : " $(x > 0 ? "+" : "-") $(format_label(abs(x)))"
+	times_label(x; space=true) = isone(x) ? "" : "$(format_label(x))$(space ? " " : "")"
+	
+	function Base.show(io::IO, w::Wave{typeof(identity)})
+		parenthesize = !isone(w.b) && !iszero(w.h)
+		print(
+			io, times_label(w.b, space=false), parenthesize ? "(θ" : "θ", plus_label(-w.h), parenthesize ? ")" : ""
+		)
+	end
+	Base.show(io::IO, w::Wave) = print(
+		io, times_label(w.A), w.f, "(", inner(w), ")", plus_label(w.k)
+	)
+	eval_label(w::Wave, θ) = "$(w) = $(format_label(w(θ)))"
+
+	default_colors = Dict([sin => sin_color, cos => cos_color])
+	default_color(func) = get(default_colors, func, 3)
+	inverse_table = Dict([sin => asin, cos => acos, identity => identity])
+end;
+
+# ╔═╡ 64840f00-2529-4ad9-bf9e-33610dc4cfcc
+begin
+	special_angles = [
+		0, π/6, π/4, π/3, π/2, 2π/3, 3π/4, 5π/6, π,
+		7π/6, 5π/4, 4π/3, 3π/2, 5π/3, 7π/4, 11π/6, 2π
+	]
+	n_special_angles = length(special_angles)
+	critical_angles = [
+		0, π/2, π, 3π/2, 2π
+	]
+	
+	function format_table(columns; column_width)
+		line_span = repeat("-", column_width)
+		line = "+-" * join((line_span for _ in columns), "-+-") * "-+\n"
+		
+		pad(text) = lpad(text, column_width, " ")
+		header = "| " * join((pad(c[1]) for c in columns), " | ") * " |\n"
+		rows = ("| " * join((pad(v) for v in r), " | ") * " |\n" for r in zip([c[2] for c in columns]...))
+		
+		Text(line * header * line * reduce(*, rows) * line)
+	end
+
+	function format_special_angles_table(
+		columns::Vector{<:Wave};
+		n_angles=n_special_angles, critical_only=false, column_width=6
+	)
+		@assert length(columns) > 0
+		angles = critical_only ? critical_angles : special_angles
+		n_angles = min(n_angles, length(angles))
+		selected_angles = Fix1(invert_inner, columns[1]).(angles[1:n_angles])
+		columns = (
+			string(wave) => [
+				selected_angles .|> wave .|> (wave.f == identity ? format_label : round_to_hundredths);
+				fill("", length(angles) - n_angles)
+			] for wave in vcat([Wave()], columns)
+		)
+		format_table(columns, column_width=column_width)
+	end
+end;
+
+# ╔═╡ 12e416c5-6f4e-4c84-ab04-20ba300adfc3
+md"""
+Let's write down the sine values for the special angles, and round to 2 decimal places.
+
+$(@bind sin_slider Slider(0:n_special_angles))
+"""
+
+# ╔═╡ ebdbcb08-bdfa-46e4-9d20-898b25d77d15
+format_special_angles_table([Wave(sin)], n_angles=sin_slider)
+
+# ╔═╡ 1159e991-073f-4e4d-88f8-c8cd0104a6e2
+md"""
+Let's write down the cosine values for the special angles, and round to 2 decimal places.
+
+$(@bind cos_slider Slider(0:n_special_angles))
+"""
+
+# ╔═╡ c3550f70-8b7b-432e-aa5e-7ab5084cf69f
+format_special_angles_table([Wave(cos)], n_angles=cos_slider)
+
+# ╔═╡ 8aee1e87-7b32-4f71-9685-12e15ba9b246
+format_special_angles_table([Wave(sin), Wave(sin, A=A_t1)], critical_only=critical_only_t1, column_width=11)
+
+# ╔═╡ 32e5c347-5dd3-41ab-9382-deaff3089657
+format_special_angles_table([Wave(sin), Wave(sin, k=k_t2)], critical_only=critical_only_t2, column_width=12)
+
+# ╔═╡ 9ffa7538-c969-4e7a-8bd6-6b568d7e1a03
+format_special_angles_table([Wave(sin), Wave(sin, A=A_t3, k=k_t3)], critical_only=critical_only_t3, column_width=16)
+
+# ╔═╡ 25a533c4-61dc-4ba0-8ab2-eba55f69b21f
+format_special_angles_table([Wave(b=b2_t4), Wave(sin, b=b2_t4)], critical_only=critical_only_t4, column_width=11)
+
+# ╔═╡ 050c6975-e92b-48b1-a0d5-b12f1005b611
+format_special_angles_table([Wave(h=h2_t5), Wave(sin, h=h2_t5), Wave(cos, h=h2_t5)], critical_only=critical_only_t5, column_width=15)
+
+# ╔═╡ bc101546-cb14-40e5-ba6a-1f3b084be914
+format_special_angles_table([Wave(b=b2_t6, h=h2_t6), Wave(sin, A=A_t6, k=k_t6, b=b2_t6, h=h2_t6)], critical_only=critical_only_t3, column_width=26)
+
 # ╔═╡ 279fa764-91aa-415d-86ed-47ed3ecfc720
 function plot_trig_circle(
 	θ;
@@ -664,27 +701,22 @@ function plot_trig_circle(
 	max_x=nothing, max_y=nothing, R_tick=1, circle_resolution=0.01π,
 	show_sin=false, show_cos=false
 )
-	circle_start, circle_end = invert_inner(0; b, h), invert_inner(2π; b, h)
+	θ_func = Wave(identity; b, h)
+	sin_func = Wave(sin; A=R, k=y₀, b, h)
+	cos_func = Wave(cos; A=R, k=x₀, b, h)
+
+	sin_func_radius = Wave(sin; A=1.1R, k=y₀, b, h)
+	cos_func_radius = Wave(cos; A=1.1R, k=x₀, b, h)
+	
+	angle_radius = isnothing(max_x) || isnothing(max_y) ? 0.1 : 0.1min(max_x, max_y)
+	sin_func_angle = Wave(sin; A=angle_radius, k=y₀, b, h)
+	cos_func_angle = Wave(cos; A=angle_radius, k=x₀, b, h)
+
+	circle_start, circle_end = invert(θ_func)(0), invert(θ_func)(2π)
 	circle_range = circle_start:circle_resolution:circle_end
 	
 	θ_rev = abs(θ) ÷ circle_end
 	θ_range = 0:((θ ≥ 0 ? 1 : -1) * circle_resolution):θ
-	
-	angle_radius = isnothing(max_x) || isnothing(max_y) ? 0.1 : 0.1min(max_x, max_y)
-
-	θ_func = transform(identity; b, h)
-	sin_func = transform(sin; A=R, k=y₀, b, h)
-	cos_func = transform(cos; A=R, k=x₀, b, h)
-
-	sin_func_radius = transform(sin; A=1.1R, k=y₀, b, h)
-	cos_func_radius = transform(cos; A=1.1R, k=x₀, b, h)
-	
-	sin_func_angle = transform(sin; A=angle_radius, k=y₀, b, h)
-	cos_func_angle = transform(cos; A=angle_radius, k=x₀, b, h)
-	
-	θ_label = "$(transformation_label(identity; b, h)) = $(angle_label(θ_func(θ)))"
-	sin_label = show_sin && "$(transformation_label(sin; A=R, k=y₀, b, h)) = $(round_label(sin_func(θ)))"
-	cos_label = show_cos && "$(transformation_label(cos; A=R, k=x₀, b, h)) = $(round_label(cos_func(θ)))"
 	
 	p = plot(framestyle = :origin, aspect_ratio=:equal)
 
@@ -721,7 +753,7 @@ function plot_trig_circle(
 	)
 	plot!(  # angle % 2π
 		cos_func_angle.(θ_range), sin_func_angle.(θ_range),
-		lw=2(θ_rev + 1), color=:gray, label=θ_label
+		lw=2(θ_rev + 1), color=:gray, label=eval_label(θ_func, θ)
 	)
 	plot!(  # vertical offset
 		[x₀, x₀], [0,  y₀],
@@ -737,11 +769,11 @@ function plot_trig_circle(
 	)
 	plot!(  # vertical edge of triangle
 		[cos_func(θ), cos_func(θ)], [y₀, sin_func(θ)],
-		lw=3, color=sin_color, label=sin_label
+		lw=3, color=sin_color, label=show_sin && eval_label(sin_func, θ)
 	)
 	plot!(  # horizontal edge of triangle
 		[x₀, cos_func(θ)], [y₀, y₀],
-		lw=3, color=cos_color, label=cos_label
+		lw=3, color=cos_color, label=show_cos && eval_label(cos_func, θ)
 	)
 	scatter!(  # point on circle
 		[cos_func(θ)], [sin_func(θ)],
@@ -764,32 +796,24 @@ plot_trig_circle(θ_t2, x₀=x₀_t2, y₀=y₀_t2, max_x=4, max_y=3, show_sin=t
 
 # ╔═╡ 54eb2768-7b9e-442e-8818-b373f8b6d49e
 function plot_trig_function(
-	base_func, color;  # TODO: more flexibility here
-	A=1, k=0, b=1, h=0,
-	T=nothing, f=nothing,
+	wave;
 	max_θ=nothing, circle_resolution=0.01π, tick_θ=nothing, tickstyle=:decimal,
-	max_A=abs(A), max_y=nothing, tick_y=nothing,
+	max_A=abs(wave.A), max_y=nothing, tick_y=nothing,
 	show_curve=true, show_label=true,
 	show_positive=false, show_negative=false,
 	n_angles=n_special_angles, critical_only=false,
 	θ=nothing, show_period=false, show_shift=false
-)
-	@assert isnothing(T) || isnothing(f)
-	!isnothing(T) && (b = 2π/T)
-	!isnothing(f) && (b = 2πf)
-	T, f = 2π/b, b/2π
-	isnothing(max_θ) && (max_θ = T)
+)	
+	isnothing(max_θ) && (max_θ = period(wave))
 	isnothing(tick_θ) && (tick_θ = max_θ/4)
 	isnothing(tick_y) && (tick_y = isnothing(max_y) ? max_A/2 : max_y/2)
-	
-	func = transform(base_func; A, k, b, h)
-	label = transformation_label(base_func; A, k, b, h)
 
 	angles = critical_only ? critical_angles : special_angles
-	selected_angles = invert_inner.(angles[1:min(n_angles, length(angles))]; b, h)
-	selected_angles = selected_angles[selected_angles .≤ max_θ]
+	n_angles = min(n_angles, length(angles))
+	selected_angles = Fix1(invert_inner, wave).(angles[1:n_angles])
+	filter!(a -> a ≤ max_θ, selected_angles)
 	
-	p = plot(framestyle=:origin, minorgrid=true, legend=show_label && :topright, xminorticks=6, yminorticks=4)
+	p = plot(framestyle=:origin, minorgrid=true, legend=show_label && :topright)
 
 	@assert isinteger(max_θ / tick_θ)
 	θ_ticks = -max_θ:tick_θ:max_θ
@@ -802,150 +826,150 @@ function plot_trig_function(
 		@assert isinteger(π / tick_θ)
 		θ_labels = π_label.(Int.(θ_ticks ./ tick_θ) .// Int(π / tick_θ))
 	end
-	plot!(xlim=(-max_θ, max_θ) .* 1.1, xticks=(collect(θ_ticks), θ_labels))
+	plot!(xlim=(-max_θ, max_θ) .* 1.1, xticks=(collect(θ_ticks), θ_labels), xminorticks=6)
 
 	legend_size = count([show_curve, !isnothing(θ)])
 	legend_space = show_label && legend_size > 0 ? (1.25 + 0.25legend_size) : 1.0
 	if isnothing(max_y)
-		y_lim = (-max_A, legend_space * max_A) .* 1.1 .+ k
-		y_ticks = (k - max_A):tick_y:(k + max_A)
+		y_lim = (-max_A, legend_space * max_A) .* 1.1 .+ wave.k
+		y_ticks = (wave.k - max_A):tick_y:(wave.k + max_A)
 	else
 		y_lim = (-max_y, legend_space * max_y) .* 1.1
 		y_ticks = -max_y:tick_y:max_y
 	end
-	plot!(ylim=y_lim, yticks=(collect(y_ticks), round_label.(y_ticks)))
+	plot!(ylim=y_lim, yticks=(collect(y_ticks), round_label.(y_ticks)), yminorticks=4)
 	
 	show_curve && plot!(  # the function itself
-		-max_θ:circle_resolution:max_θ, func,
-		lw=3, color=color, label=label
+		-max_θ:circle_resolution:max_θ, wave,
+		lw=3, color=wave.color, label=string(wave)
 	)
 	show_positive && scatter!(  # positive special angles
-		selected_angles, func,
-		color=color, label=false
+		selected_angles, wave,
+		color=wave.color, label=false
 	)
 	show_negative && scatter!(  # negative special angles
-		selected_angles .* -1, func,
-		color=color, label=false
+		-selected_angles, wave,
+		color=wave.color, label=false
 	)
 	!isnothing(θ) && plot!(  # vertical line at indicated point
-		[θ, θ], [0, func(θ)],
-		lw=3, color=color, label=false
+		[θ, θ], [0, wave(θ)],
+		lw=3, color=wave.color, label=false
 	)
 	!isnothing(θ) && scatter!(  # indicated point
-		[θ], [func(θ)],
-		ms=6, msw=3, color=:white, msc=color, label=round_label(func(θ))
+		[θ], [wave(θ)],
+		ms=6, msw=3, color=:white, msc=wave.color, label=round_label(wave(θ))
 	)
 	show_period && vline!(  # period markers
-		sort(vcat(0:-T:-max_θ, 0:T:max_θ)),
+		sort(vcat(0:-period(wave):-max_θ, 0:period(wave):max_θ)),
 		lw=2, color=4, style=:dash, label=false
 	)
-	show_shift && vline!(  # period markers
-		[h],
+	show_shift && vline!(  # phase marker
+		[wave.h],
 		lw=2, color=5, style=:dash, label=false
 	)
 	p
 end;
 
 # ╔═╡ f87b8e3f-4943-47e6-9317-6516a8c8a31a
-plot_trig_function(sin, sin_color, tickstyle=:πfraction, show_curve=show_sin_curve, show_positive=show_sin_positive, show_negative=show_sin_negative, n_angles=sin_slider)
+plot_trig_function(Wave(sin), tickstyle=:πfraction, show_curve=show_sin_curve, show_positive=show_sin_positive, show_negative=show_sin_negative, n_angles=sin_slider)
 
 # ╔═╡ ce0ca1d7-8ebf-4761-89e3-b53fc46216e0
 let
 	sin_circle_plot = plot_trig_circle(θ_sin, max_x=3, max_y=1, show_sin=true)
-	sin_curve_plot = plot_trig_function(sin, sin_color, max_θ=4π, θ=θ_sin,  tickstyle=:πmultiple)
+	sin_curve_plot = plot_trig_function(Wave(sin), max_θ=4π, θ=θ_sin,  tickstyle=:πmultiple)
 	plot(sin_circle_plot, sin_curve_plot, layout=(2, 1))
 end
 
 # ╔═╡ e520ba54-bef4-44b9-a09c-feeb6519292e
-plot_trig_function(sin, sin_color, max_θ=4π, tickstyle=:πmultiple, show_period=show_sin_period)
+plot_trig_function(Wave(sin), max_θ=4π, tickstyle=:πmultiple, show_period=show_sin_period)
 
 # ╔═╡ 882dcccd-3c97-4bc3-9e95-014f90d7a795
-plot_trig_function(cos, cos_color, tickstyle=:πfraction, show_curve=show_cos_curve, show_positive=show_cos_positive, show_negative=show_cos_negative, n_angles=cos_slider)
+plot_trig_function(Wave(cos), tickstyle=:πfraction, show_curve=show_cos_curve, show_positive=show_cos_positive, show_negative=show_cos_negative, n_angles=cos_slider)
 
 # ╔═╡ 25408447-3e76-4bfc-94c9-4bede0a44351
 let
 	cos_circle_plot = plot_trig_circle(θ_cos, max_x=3, max_y=1, show_cos=true)
-	cos_curve_plot = plot_trig_function(cos, cos_color, max_θ=4π, θ=θ_cos, tickstyle=:πmultiple)
+	cos_curve_plot = plot_trig_function(Wave(cos), max_θ=4π, θ=θ_cos, tickstyle=:πmultiple)
 	plot(cos_circle_plot, cos_curve_plot, layout=(2, 1))
 end
 
 # ╔═╡ 6a031d8c-ff65-4a6b-b8b6-76203dc56f2a
 let
 	circle_plot = plot_trig_circle(θ₁, max_x=1, max_y=1.5, R_tick=0.5, show_sin=true, show_cos=true)
-	sin_curve_plot = plot_trig_function(sin, sin_color, max_θ=2π, tick_θ=π, tickstyle=:πmultiple, θ=θ₁)
-	cos_curve_plot = plot_trig_function(cos, cos_color, max_θ=2π, tick_θ=π, tickstyle=:πmultiple, θ=θ₁)
+	sin_curve_plot = plot_trig_function(Wave(sin), max_θ=2π, tick_θ=π, tickstyle=:πmultiple, θ=θ₁)
+	cos_curve_plot = plot_trig_function(Wave(cos), max_θ=2π, tick_θ=π, tickstyle=:πmultiple, θ=θ₁)
 	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
 end
 
 # ╔═╡ 8927df0f-b092-4933-b7c2-d712a1d2e8b2
 let
 	circle_plot = plot_trig_circle(θ_t1, R=R_t1, max_x=4, max_y=5, R_tick=2, show_sin=true, show_cos=true)
-	sin_curve_plot = plot_trig_function(sin, sin_color, A=R_t1, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_A=3, tick_y=1, θ=θ_t1)
-	cos_curve_plot = plot_trig_function(cos, cos_color, A=R_t1, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_A=3, tick_y=1, θ=θ_t1)
+	sin_curve_plot = plot_trig_function(Wave(sin, A=R_t1), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_A=3, tick_y=1, θ=θ_t1)
+	cos_curve_plot = plot_trig_function(Wave(cos, A=R_t1), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_A=3, tick_y=1, θ=θ_t1)
 	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
 end
 
 # ╔═╡ e29c8789-202f-4d93-ae34-7642b0b80d74
-plot_trig_function(sin, sin_color, A=A_t1, max_θ=2π, tickstyle=:πfraction, max_A=3, tick_y=1, show_curve=show_curve_t1, show_positive=true, critical_only=critical_only_t1)
+plot_trig_function(Wave(sin, A=A_t1), max_θ=2π, tickstyle=:πfraction, max_A=3, tick_y=1, show_curve=show_curve_t1, show_positive=true, critical_only=critical_only_t1)
 
 # ╔═╡ 962cb2da-7f45-40aa-a081-468841dfa617
 let
 	circle_plot = plot_trig_circle(θ_t2, x₀=x₀_t2, y₀=y₀_t2, max_x=3, max_y=4, show_sin=true, show_cos=true)
-	sin_curve_plot = plot_trig_function(sin, sin_color, k=y₀_t2, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=3, tick_y=1, θ=θ_t2)
-	cos_curve_plot = plot_trig_function(cos, cos_color, k=x₀_t2, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=3, tick_y=1, θ=θ_t2)
+	sin_curve_plot = plot_trig_function(Wave(sin, k=y₀_t2), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=3, tick_y=1, θ=θ_t2)
+	cos_curve_plot = plot_trig_function(Wave(cos, k=x₀_t2), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=3, tick_y=1, θ=θ_t2)
 	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
 end
 
 # ╔═╡ 055c68c2-4fca-4a3e-ab26-28cf6c0cdef8
-plot_trig_function(sin, sin_color, k=k_t2, max_θ=2π, tickstyle=:πfraction, max_y=3, tick_y=1, show_curve=show_curve_t2, show_positive=true, critical_only=critical_only_t2)
+plot_trig_function(Wave(sin, k=k_t2), max_θ=2π, tickstyle=:πfraction, max_y=3, tick_y=1, show_curve=show_curve_t2, show_positive=true, critical_only=critical_only_t2)
 
 # ╔═╡ 1c959bee-c340-41cf-a142-2d6cd3839684
 let
 	circle_plot = plot_trig_circle(θ_t3, R=R_t3, x₀=x₀_t3, y₀=y₀_t3, max_x=4, max_y=5, R_tick=2, show_sin=true, show_cos=true)
-	sin_curve_plot = plot_trig_function(sin, sin_color, A=R_t3, k=y₀_t3, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=4, θ=θ_t3)
-	cos_curve_plot = plot_trig_function(cos, cos_color, A=R_t3, k=x₀_t3, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=4, θ=θ_t3)
+	sin_curve_plot = plot_trig_function(Wave(sin, A=R_t3, k=y₀_t3), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=4, θ=θ_t3)
+	cos_curve_plot = plot_trig_function(Wave(cos, A=R_t3, k=x₀_t3), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=4, θ=θ_t3)
 	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
 end
 
 # ╔═╡ d26018da-e17d-430d-baf9-84265352cd8c
-plot_trig_function(sin, sin_color, A=A_t3, k=k_t3, max_θ=2π, tickstyle=:πfraction, max_y=4, tick_y=1, show_curve=show_curve_t3, show_positive=true, critical_only=critical_only_t3)
+plot_trig_function(Wave(sin, A=A_t3, k=k_t3), max_θ=2π, tickstyle=:πfraction, max_y=4, tick_y=1, show_curve=show_curve_t3, show_positive=true, critical_only=critical_only_t3)
 
 # ╔═╡ 9a34a196-0a73-4aee-a097-ad4d5b193a42
 let
 	circle_plot = plot_trig_circle(θ_t4, b=b_t4, max_x=1, max_y=1.5, R_tick=0.5, show_sin=true, show_cos=true)
-	sin_curve_plot = plot_trig_function(sin, sin_color, b=b_t4, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, θ=θ_t4)
-	cos_curve_plot = plot_trig_function(cos, cos_color, b=b_t4, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, θ=θ_t4)
+	sin_curve_plot = plot_trig_function(Wave(sin, b=b_t4), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, θ=θ_t4)
+	cos_curve_plot = plot_trig_function(Wave(cos, b=b_t4), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, θ=θ_t4)
 	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
 end
 
 # ╔═╡ 0112eae5-6f4c-400f-b636-9fd4e3786153
-plot_trig_function(sin, sin_color, b=b2_t4, max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t4, show_positive=true, critical_only=critical_only_t4, show_period=show_period_t4)
+plot_trig_function(Wave(sin, b=b2_t4), max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t4, show_positive=true, critical_only=critical_only_t4, show_period=show_period_t4)
 
 # ╔═╡ 7c6ba1e8-9e6c-4fbb-aea2-493bb3b7fcd9
 let
 	circle_plot = plot_trig_circle(θ_t5, h=h_t5, max_x=1, max_y=1.5, R_tick=0.5, show_sin=true, show_cos=true)
-	sin_curve_plot = plot_trig_function(sin, sin_color, h=h_t5, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, θ=θ_t5)
-	cos_curve_plot = plot_trig_function(cos, cos_color, h=h_t5, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, θ=θ_t5)
+	sin_curve_plot = plot_trig_function(Wave(sin, h=h_t5), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, θ=θ_t5)
+	cos_curve_plot = plot_trig_function(Wave(cos, h=h_t5), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, θ=θ_t5)
 	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
 end
 
 # ╔═╡ c675e5ee-185e-41d1-b879-939357ffb5c7
 let
-	sin_plot = plot_trig_function(sin, sin_color, h=h2_t5, max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t5, show_positive=true, critical_only=critical_only_t5, show_shift=show_shift_t5)
-	cos_plot = plot_trig_function(cos, cos_color, h=h2_t5, max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t5, show_positive=true, critical_only=critical_only_t5, show_shift=show_shift_t5)
+	sin_plot = plot_trig_function(Wave(sin, h=h2_t5), max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t5, show_positive=true, critical_only=critical_only_t5, show_shift=show_shift_t5)
+	cos_plot = plot_trig_function(Wave(cos, h=h2_t5), max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t5, show_positive=true, critical_only=critical_only_t5, show_shift=show_shift_t5)
 	plot(sin_plot, cos_plot, layout=(2,1))
 end
 
 # ╔═╡ dc1e4c73-f7e1-4f7f-b139-0b82797da6c6
 let
 	circle_plot = plot_trig_circle(θ_t6, R=R_t6, x₀=x₀_t6, y₀=y₀_t6, b=b_t6, h=h_t6, max_x=4, max_y=5, R_tick=2, show_sin=true, show_cos=true)
-	sin_curve_plot = plot_trig_function(sin, sin_color, A=R_t6, k=y₀_t6, b=b_t6, h=h_t6, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=4, θ=θ_t6)
-	cos_curve_plot = plot_trig_function(cos, cos_color, A=R_t6, k=x₀_t6, b=b_t6, h=h_t6, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=4, θ=θ_t6)
+	sin_curve_plot = plot_trig_function(Wave(sin, A=R_t6, k=y₀_t6, b=b_t6, h=h_t6), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=4, θ=θ_t6)
+	cos_curve_plot = plot_trig_function(Wave(cos, A=R_t6, k=x₀_t6, b=b_t6, h=h_t6), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=4, θ=θ_t6)
 	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
 end
 
 # ╔═╡ f530f155-fd4e-4dae-ab85-994ea0ebe8b2
-plot_trig_function(sin, sin_color, A=A_t6, k=k_t6, b=b2_t6, h=h2_t6, max_θ=2π, tickstyle=:πfraction, max_y=5, tick_y=1, show_curve=show_curve_t6, show_positive=true, critical_only=critical_only_t6, show_period=show_period_t6, show_shift=show_shift_t6)
+plot_trig_function(Wave(sin, A=A_t6, k=k_t6, b=b2_t6, h=h2_t6), max_θ=2π, tickstyle=:πfraction, max_y=5, tick_y=1, show_curve=show_curve_t6, show_positive=true, critical_only=critical_only_t6, show_period=show_period_t6, show_shift=show_shift_t6)
 
 # ╔═╡ 819075e8-0058-4606-9a29-93fe169263be
 md"""
@@ -954,33 +978,35 @@ md"""
 
 # ╔═╡ db66a1ef-6f40-447e-8e09-1b612bd98d3b
 begin
-	plot_trig_function(sin, 3, A=2, T=2, show_label=false)
+	plot_trig_function(Wave(sin, color=3, A=2, T=2), show_label=false)
 	png("exports/MQ 6 - Sine Graph.png")
 
-	plot_trig_function(sin, 3, A=1.5, tick_y=0.5, tickstyle=:πfraction, show_curve=false, show_label=false)
+	plot_trig_function(Wave(A=1.5), tick_y=0.5, tickstyle=:πfraction, show_curve=false, show_label=false)
 	png("exports/MQ 7 - Empty Plot.png")
 
-	plot_trig_function(cos, 3, A=2, k=2, T=π, tickstyle=:πfraction, show_label=false)
+	plot_trig_function(Wave(cos, color=3, A=2, k=2, T=π), tickstyle=:πfraction, show_label=false)
 	png("exports/MQ 8 - Graph 1.png")
 
-	plot_trig_function(sin, 3, A=-3, k=-1, T=2, show_label=false)
+	plot_trig_function(Wave(sin, color=3, A=-3, k=-1, T=2), show_label=false)
 	png("exports/MQ 8 - Graph 2.png")
 
-	plot_trig_function(sin, 3, A=4, tickstyle=:πfraction, show_curve=false, show_label=false)
+	plot_trig_function(Wave(A=4), tickstyle=:πfraction, show_curve=false, show_label=false)
 	png("exports/MQ 9 - Empty Plot Scaled 1.png")
 
-	plot_trig_function(sin, 3, A=1.5, T=1, tick_y=0.5, show_curve=false, show_label=false)
+	plot_trig_function(Wave(T=1), max_A=1.5, tick_y=0.5, show_curve=false, show_label=false)
 	png("exports/MQ 9 - Empty Plot Scaled 2.png")
 end;
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
+DataStructures = "~0.18.15"
 Plots = "~1.39.0"
 PlutoUI = "~0.7.52"
 """
@@ -991,7 +1017,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.9.3"
 manifest_format = "2.0"
-project_hash = "cb5f1983a8361ccf57715aaa3c116aaafb65302f"
+project_hash = "09deb9ef67d44b6c98d4306f01026619d7120bc6"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
