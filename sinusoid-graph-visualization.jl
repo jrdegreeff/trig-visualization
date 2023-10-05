@@ -527,8 +527,8 @@ begin
 	function π_label(x::Real)
 		iszero(x) && return "0"
 		S = x < 0 ? "-" : ""
-		n = isinteger(x) ? Int(x) : x
-		N = isone(abs(n)) ? "" : n
+		n = abs(isinteger(x) ? Int(x) : x)
+		N = isone(n) ? "" : n
 		"$(S)$(N)π"
 	end
 	function π_label(x::Rational)
@@ -638,6 +638,9 @@ begin
 		Text(line * header * line * reduce(*, rows) * line)
 	end
 
+	function format_special_angles_table(column::Wave; kwargs...)
+		format_special_angles_table([column]; kwargs...)
+	end
 	function format_special_angles_table(
 		columns::Vector{<:Wave};
 		n_angles=n_special_angles, critical_only=false, column_width=6
@@ -645,13 +648,10 @@ begin
 		@assert length(columns) > 0
 		angles = critical_only ? critical_angles : special_angles
 		n_angles = min(n_angles, length(angles))
-		selected_angles = Fix1(invert_inner, columns[1]).(angles[1:n_angles])
-		columns = (
-			string(wave) => [
-				selected_angles .|> wave .|> (wave.f == identity ? format_label : round_to_hundredths);
-				fill("", length(angles) - n_angles)
-			] for wave in vcat([Wave()], columns)
-		)
+		adjusted_angles = Fix1(invert_inner, columns[1]).(angles)
+		columns = ["θ" => adjusted_angles .|> format_label, (string(wave) => vcat(
+			adjusted_angles[1:n_angles] .|> wave .|> (wave.f == identity ? format_label : round_to_hundredths), fill("", length(angles) - n_angles)
+		) for wave in columns)...]
 		format_table(columns, column_width=column_width)
 	end
 end;
@@ -664,7 +664,7 @@ $(@bind sin_slider Slider(0:n_special_angles))
 """
 
 # ╔═╡ ebdbcb08-bdfa-46e4-9d20-898b25d77d15
-format_special_angles_table([Wave(sin)], n_angles=sin_slider)
+format_special_angles_table(Wave(sin), n_angles=sin_slider)
 
 # ╔═╡ 1159e991-073f-4e4d-88f8-c8cd0104a6e2
 md"""
@@ -674,7 +674,7 @@ $(@bind cos_slider Slider(0:n_special_angles))
 """
 
 # ╔═╡ c3550f70-8b7b-432e-aa5e-7ab5084cf69f
-format_special_angles_table([Wave(cos)], n_angles=cos_slider)
+format_special_angles_table(Wave(cos), n_angles=cos_slider)
 
 # ╔═╡ 8aee1e87-7b32-4f71-9685-12e15ba9b246
 format_special_angles_table([Wave(sin), Wave(sin, A=A_t1)], critical_only=critical_only_t1, column_width=11)
@@ -692,7 +692,7 @@ format_special_angles_table([Wave(b=b2_t4), Wave(sin, b=b2_t4)], critical_only=c
 format_special_angles_table([Wave(h=h2_t5), Wave(sin, h=h2_t5), Wave(cos, h=h2_t5)], critical_only=critical_only_t5, column_width=15)
 
 # ╔═╡ bc101546-cb14-40e5-ba6a-1f3b084be914
-format_special_angles_table([Wave(b=b2_t6, h=h2_t6), Wave(sin, A=A_t6, k=k_t6, b=b2_t6, h=h2_t6)], critical_only=critical_only_t3, column_width=26)
+format_special_angles_table([Wave(b=b2_t6, h=h2_t6), Wave(sin, A=A_t6, k=k_t6, b=b2_t6, h=h2_t6)], critical_only=critical_only_t6, column_width=26)
 
 # ╔═╡ 279fa764-91aa-415d-86ed-47ed3ecfc720
 function plot_trig_circle(
@@ -797,21 +797,17 @@ plot_trig_circle(θ_t2, x₀=x₀_t2, y₀=y₀_t2, max_x=4, max_y=3, show_sin=t
 # ╔═╡ 54eb2768-7b9e-442e-8818-b373f8b6d49e
 function plot_trig_function(
 	wave;
-	max_θ=nothing, circle_resolution=0.01π, tick_θ=nothing, tickstyle=:decimal,
-	max_A=abs(wave.A), max_y=nothing, tick_y=nothing,
+	max_θ=period(wave), circle_resolution=0.01π, tick_θ=max_θ/4, tickstyle=:decimal,
+	max_A=abs(wave.A), max_y=nothing, tick_y=isnothing(max_y) ? max_A/2 : max_y/2,
 	show_curve=true, show_label=true,
 	show_positive=false, show_negative=false,
 	n_angles=n_special_angles, critical_only=false,
 	θ=nothing, show_period=false, show_shift=false
-)	
-	isnothing(max_θ) && (max_θ = period(wave))
-	isnothing(tick_θ) && (tick_θ = max_θ/4)
-	isnothing(tick_y) && (tick_y = isnothing(max_y) ? max_A/2 : max_y/2)
-
+)
 	angles = critical_only ? critical_angles : special_angles
 	n_angles = min(n_angles, length(angles))
-	selected_angles = Fix1(invert_inner, wave).(angles[1:n_angles])
-	filter!(a -> a ≤ max_θ, selected_angles)
+	displayed_angles = Fix1(invert_inner, wave).(angles[1:n_angles])
+	filter!(a -> a ≤ max_θ, displayed_angles)
 	
 	p = plot(framestyle=:origin, minorgrid=true, legend=show_label && :topright)
 
@@ -844,11 +840,11 @@ function plot_trig_function(
 		lw=3, color=wave.color, label=string(wave)
 	)
 	show_positive && scatter!(  # positive special angles
-		selected_angles, wave,
+		displayed_angles, wave,
 		color=wave.color, label=false
 	)
 	show_negative && scatter!(  # negative special angles
-		-selected_angles, wave,
+		-displayed_angles, wave,
 		color=wave.color, label=false
 	)
 	!isnothing(θ) && plot!(  # vertical line at indicated point
@@ -865,7 +861,7 @@ function plot_trig_function(
 	)
 	show_shift && vline!(  # phase marker
 		[wave.h],
-		lw=2, color=5, style=:dash, label=false
+		lw=2, color=5, style=:dashdot, label=false
 	)
 	p
 end;
