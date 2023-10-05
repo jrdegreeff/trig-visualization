@@ -19,6 +19,7 @@ begin
 	using Plots
 	using PlutoUI
 
+	import Base.Fix2
 	import Printf.@sprintf
 end
 
@@ -156,7 +157,9 @@ When identifying the function for a basic sinusoid, use the following steps:
 1. Identify whether the sinusoid is sine or cosine (check behavior at ``0``).
 2. Identify whether the sinusoid is vertically flipped (check behavior at ``0``).
 
-The functional form is ``\pm \sin \theta`` or ``\pm \cos \theta``. If the sinusoid is vertically flipped, the sign will be ``-`` otherwise it will be ``+``.
+If the sinusoid is vertically flipped, the sign will be ``-`` otherwise it will be ``+``.
+
+The functional form is ``\boxed{\pm \sin \theta}`` or ``\boxed{\pm \cos \theta}``.
 """
 
 # ╔═╡ da783d24-3ae2-4618-8eac-af1b2a32f657
@@ -166,6 +169,8 @@ md"""
 We have now seen that the graphs of ``\sin \theta`` and ``\cos \theta`` come from reading lengths as we vary ``\theta`` in the unit circle.
 
 We will now apply the same process to other circles. This will give us new sinusoids that we can write down formulas for in terms ``\sin`` and ``\cos``.
+
+We will first look at **Vertical Transformations** which scale or shift the *output* of the wave functions. We will then look at **Horizontal Transformations** which scale or shift the *input* of the wave functions which is ``\theta``. Keep in mind that *vertical* and *horizontal* refer to graphs of the waves, not the plane of the unit circle.
 """
 
 # ╔═╡ 618edeb0-411a-4c4f-9ddb-2497b40241aa
@@ -205,6 +210,19 @@ Let's look at the transformation ``A \sin(\theta)`` in tabular form.
 
 "critical angles" only: $(@bind critical_only_t1 CheckBox(default=true)) ``\quad``
 show curve: $(@bind show_curve_t1 CheckBox(default=true)) ``\quad``
+"""
+
+# ╔═╡ e1a9cf02-5f46-4ea8-bbbe-b8f1b9224be1
+md"""
+### Identifying Vertical Scaling
+When identifying the function for a vertically scaled sinusoid, use the following steps:
+
+1. Identify whether the sinusoid is sine or cosine (check behavior at ``0``).
+2. Identify whether the sinusoid is vertically flipped (check behavior at ``0``).
+3. Find the maximum and minimum value of the sinusoid.
+4. Calculate ``A = \frac{max\ -\ min}{2}``.
+
+The functional form is ``\boxed{\pm A \sin\left(\theta\right)}`` or ``\boxed{\pm A \cos\left(\theta\right)}``.
 """
 
 # ╔═╡ f14d6ab2-1e06-4e72-86c1-6defaedd58c3
@@ -249,6 +267,19 @@ Let's look at the transformation ``\sin(\theta) + k`` in tabular form.
 show curve: $(@bind show_curve_t2 CheckBox(default=true)) ``\quad``
 """
 
+# ╔═╡ eb96720e-1a36-4295-a68f-e087c4d8a59b
+md"""
+### Identifying Vertical Shifting
+When identifying the function for a vertically shifted sinusoid, use the following steps:
+
+1. Identify whether the sinusoid is sine or cosine (check behavior at ``0``).
+2. Identify whether the sinusoid is vertically flipped (check behavior at ``0``).
+3. Find the maximum and minimum value of the sinusoid.
+4. Calculate ``k = \frac{max\ +\ min}{2}``.
+
+The functional form is ``\boxed{\pm \sin\left(\theta\right) + k}`` or ``\boxed{\pm \cos\left(\theta\right) + k}``.
+"""
+
 # ╔═╡ 3690445c-4878-4f9c-949b-222c2e31176e
 md"""
 ## Putting it Together: Vertical Transformations
@@ -271,7 +302,7 @@ Let's look at the transformation ``A \sin(\theta) + k`` in tabular form.
 
 ``A:\quad`` $(@bind A_t3 Slider(-2.0:0.5:2.0, default=1.0, show_value=true))
 
-``k:\quad`` $(@bind k_t3 Slider(-2.0:0.5:2.0, default=0, show_value=true))
+``k:\quad`` $(@bind k_t3 Slider(-2.0:0.5:2.0, default=0.0, show_value=true))
 
 "critical angles" only: $(@bind critical_only_t3 CheckBox(default=true)) ``\quad``
 show curve: $(@bind show_curve_t3 CheckBox(default=true)) ``\quad``
@@ -285,29 +316,169 @@ When identifying the function for a vertically transformed sinusoid, use the fol
 1. Identify whether the sinusoid is sine or cosine (check behavior at ``0``).
 2. Identify whether the sinusoid is vertically flipped (check behavior at ``0``).
 3. Find the maximum and minimum value of the sinusoid.
-4. Calculate ``k = \frac{max\ +\ min}{2}``.
-5. Calculate ``A = \frac{max\ -\ min}{2}``.
+4. Calculate ``A = \frac{max\ -\ min}{2}``.
+5. Calculate ``k = \frac{max\ +\ min}{2}``.
 
-The functional form is ``\pm A \sin(\theta) + k`` or ``\pm A \cos(\theta) + k``. If the sinusoid is vertically flipped, the sign will be ``-`` otherwise it will be ``+``.
+The functional form is ``\boxed{\pm A \sin\left(\theta\right) + k}`` or ``\boxed{\pm A \cos\left(\theta\right) + k}``.
 """
 
 # ╔═╡ 48e3d3c0-a6f1-48a3-9ca1-c239fa15fc62
 md"""
 ## Horizontal Scaling
+Horizontal scaling decouples the rate at which we move along the ``\theta``-axis in the wave space and the rate at which we rotate around the circle.
 
+We will call the ratio between these two rates ``b``.
+
+If ``b`` is large we will go around the circle faster, so the wave value will go up and down more quickly. Conversely, if ``b`` is small we will go around the circle more slowly, so the wave value will go up and down more slowly.
+
+[Side note]: in physics this quantity is sometimes called the *angular frequency* of the wave and denoted with the greek letter omega (``\omega``) but in this class we won't use that term to avoid confusion.
+
+``θ:\quad`` $(@bind θ_t4 Slider(-4π:π/12:4π, default=0.0))
+
+``b:\quad`` $(@bind b_t4 Slider(0.25:0.25:2.0, default=1.0, show_value=true))
 """
 
-# ╔═╡ 9a34a196-0a73-4aee-a097-ad4d5b193a42
-# TODO
+# ╔═╡ 7a03612e-4116-4063-ba89-3e73028b115f
+md"""
+### Horiztonal Scaling in a Table
+Let's look at the transformation ``\sin(b * \theta)`` in tabular form.
+
+``b:\quad`` $(@bind b2_t4 Slider(0.5:0.5:4.0, default=1.0, show_value=true))
+
+"critical angles" only: $(@bind critical_only_t4 CheckBox(default=true)) ``\quad``
+show curve: $(@bind show_curve_t4 CheckBox(default=true)) ``\quad``
+show period: $(@bind show_period_t4 CheckBox(default=true)) ``\quad``
+"""
+
+# ╔═╡ c2d7a315-56c8-4e14-9a16-219d7669e3cb
+md"""
+Looking at this graph, we can see that the first period is completed when ``b\theta = 2\pi``. At this point, ``\theta = T``, so rearranging we have that the **period** ``\boxed{T = \frac{2\pi}{b}}``.
+
+Another quantity that we sometimes use when talking about waves (especially electromagnetic waves) is the **frequency** which is represented by ``f``. This is simply defined as the inverse of the period. In other words ``\boxed{ f = \frac{1}{T} = \frac{b}{2\pi}}``.
+"""
+
+# ╔═╡ b7b3afbb-5aeb-4f24-9beb-7f69a0c6629b
+md"""
+### Identifying Horizontal Scaling
+When identifying the function for a horizontally scaled sinusoid, use the following steps:
+
+1. Identify whether the sinusoid is sine or cosine (check behavior at ``0``).
+2. Identify whether the sinusoid is vertically flipped (check behavior at ``0``).
+3. Identify the period ``T``.
+
+The functional form is ``\boxed{\pm \sin\left(\frac{2\pi}{T}\theta\right)}`` or ``\boxed{\pm \cos\left(\frac{2\pi}{T}\theta\right)}``.
+"""
 
 # ╔═╡ 21c01e95-814a-4760-bc27-b31f45eb72b2
 md"""
 ## Horizontal Shifting
+The final type of transformation is a shift along the ``\theta``-axis. This corresponds to changing the starting point of our angle measurements in the circle.
 
+We call the shift in the wave space ``h``.
+
+[Side note]: the shift in the starting point of the circle is called a *phase shift* and is often denoted with the Greek letter phi (``\phi``). Specifically with our sign and naming conventions, ``\phi = bh`` and it represents a change in the negative (clockwise) direction.
+
+``θ:\quad`` $(@bind θ_t5 Slider(-4π:π/12:4π, default=0.0))
+
+``h:\quad`` $(@bind h_t5 Slider(-2π:π/12:2π, default=0.0))
 """
 
-# ╔═╡ 7c6ba1e8-9e6c-4fbb-aea2-493bb3b7fcd9
-# TODO
+# ╔═╡ ea4c2b2f-1419-4334-a545-f16dd6dd3e76
+md"""
+### Horiztonal Scaling in a Table
+Let's look at the transformations ``\sin(\theta - h)`` and ``\cos(\theta - h)`` in tabular form.
+
+``h:\quad`` $(@bind h2_t5 Slider(-2π:π/12:2π, default=0.0))
+
+"critical angles" only: $(@bind critical_only_t5 CheckBox(default=true)) ``\quad``
+show curve: $(@bind show_curve_t5 CheckBox(default=true)) ``\quad``
+show shift: $(@bind show_shift_t5 CheckBox(default=true)) ``\quad``
+"""
+
+# ╔═╡ 49c21509-8821-4299-a725-814e54d0954d
+md"""
+**Observations**
+
+1. For ``\sin`` the shift line occurs at an upward-sloping midline point.
+2. For ``\cos`` the shift line occurs at a maximum point.
+3. ``\sin\left(\theta + \frac{\pi}{2}\right) = \cos\left(\theta\right)``.
+4. ``\cos\left(\theta - \frac{\pi}{2}\right) = \sin\left(\theta\right)``.
+5. ``\sin\left(\theta - \pi\right) = -\sin\left(\theta\right)``.
+6. ``\cos\left(\theta - \pi\right) = -\cos\left(\theta\right)``.
+5. ``\sin\left(\theta - 2\pi k\right) = \sin\left(\theta\right)`` for all integers ``k``.
+6. ``\cos\left(\theta - 2\pi k\right) = \cos\left(\theta\right)`` for all integers ``k``.
+
+Points 1-2 help us identify values for ``h`` when looking at a graph.
+
+Points 3-4 are interesting identities that we will explore later in the course.
+
+Points 5-8 imply that there are many possible functions in this form that have the same graph.
+"""
+
+# ╔═╡ 6a786e0f-6ab6-4c72-aa3d-cb0eff518d6d
+md"""
+### Identifying Horizontal Shifting
+When identifying the function for a horizontally shifted sinusoid, use the following steps:
+
+1. Choose whether you are going to use ``\sin`` or ``\cos``.
+2. If using ``\sin`` find the ``\theta``-coordinate, ``h``, of an upward-sloping midline point.
+3. If using ``\cos`` find the ``\theta``-coordinate, ``h``, of a maximum point.
+
+The functional form is ``\boxed{\sin\left(\theta - h\right)}`` or ``\boxed{\cos\left(\theta - h\right)}``.
+"""
+
+# ╔═╡ dd21e219-6c97-4f15-8fe7-803184aa6d6f
+md"""
+## Putting it Together: All Transformations
+Finally, let's look at all four transformations together.
+
+``θ:\quad`` $(@bind θ_t6 Slider(-4π:π/12:4π, default=0.0))
+
+``x₀:\quad`` $(@bind x₀_t6 Slider(-2:1:2, default=0, show_value=true))
+
+``y₀:\quad`` $(@bind y₀_t6 Slider(-2:1:2, default=0, show_value=true))
+
+``R:\quad`` $(@bind R_t6 Slider(0.5:0.25:2.0, default=1.0, show_value=true))
+
+``b:\quad`` $(@bind b_t6 Slider(0.25:0.25:2.0, default=1.0, show_value=true))
+
+``h:\quad`` $(@bind h_t6 Slider(-2π:π/12:2π, default=0.0))
+"""
+
+# ╔═╡ b264e6e2-1ed9-4a01-8ca9-f0825de0482c
+md"""
+### Combined Transformation in a Table
+Let's look at the transformation ``A\sin(b(\theta - h)) + k`` in tabular form.
+
+``A:\quad`` $(@bind A_t6 Slider(-3:1:3, default=1, show_value=true))
+
+``k:\quad`` $(@bind k_t6 Slider(-2:1:2, default=0, show_value=true))
+
+``b:\quad`` $(@bind b2_t6 Slider(0.5:0.5:5, default=1.0, show_value=true))
+
+``h:\quad`` $(@bind h2_t6 Slider(-2π:π/12:2π, default=0.0))
+
+"critical angles" only: $(@bind critical_only_t6 CheckBox(default=true)) ``\quad``
+show curve: $(@bind show_curve_t6 CheckBox(default=true)) ``\quad``
+show period: $(@bind show_period_t6 CheckBox(default=true)) ``\quad``
+show shift: $(@bind show_shift_t6 CheckBox(default=true)) ``\quad``
+"""
+
+# ╔═╡ bb83958a-3700-4246-8b37-c94642a88c31
+md"""
+### Identifying Combined Transformations
+When identifying the function for an arbitrarily transformed sinusoid, use the following steps:
+
+1. Choose whether you are going to use ``\sin`` or ``\cos``.
+2. If using ``\sin`` find the ``\theta``-coordinate, ``h``, of an upward-sloping midline point.
+3. If using ``\cos`` find the ``\theta``-coordinate, ``h``, of a maximum point.
+4. Identify the period ``T``.
+5. Find the maximum and minimum value of the sinusoid.
+6. Calculate ``A = \frac{max\ -\ min}{2}``.
+7. Calculate ``k = \frac{max\ +\ min}{2}``.
+
+The functional form is ``\boxed{A\sin\left(\frac{2\pi}{T}(\theta - h)\right) + k}`` or ``\boxed{A\cos\left(\frac{2\pi}{T}(\theta - h)\right) + k}``.
+"""
 
 # ╔═╡ 1a408b82-fe7e-4930-94d2-cfa89c7340b8
 # Empty header cell to be a blank end-of-presentation screen.
@@ -348,7 +519,7 @@ md"""
 
 # ╔═╡ 10737f1b-f132-468f-95f2-089705bd7488
 begin
-	round_to_hundredths(x::Float64) = @sprintf("%.2f", x);
+	round_to_hundredths(x::Float64) = replace(@sprintf("%.2f", x), "-0.00" => "0.00")
 
 	isapproxinteger = x -> abs(x - round(Int, x)) < 1e-6
 	
@@ -365,15 +536,34 @@ begin
 	    isone(d) ? n : "$(n)/$(d)"
 	end
 	
-	round_label = x -> isapproxinteger(x) ? round(Int, x) : round(x, digits=3)
+	round_label(x) = isapproxinteger(x) ? round(Int, x) : round(x, digits=3)
 	
-	plus_label = x -> iszero(x) ? "" : " $(x > 0 ? "+" : "-") $(round_label(abs(x)))"
-	times_label = x -> isone(x) ? "" : "$(round_label(x)) "
-	
-	angle_label = (θ, d) -> isapproxinteger(θ/(π/d)) ? π_label(round(Int, θ/(π/d)) // d) : round_label(θ)
-	transformation_label(f; A=1, k=0) = "$(times_label(A))$(string(f))(θ)$(plus_label(k))"  # TODO: label inner
+	angle_label(θ, d=5040) = isapproxinteger(θ/(π/d)) ?
+		π_label(round(Int, θ/(π/d)) // d) :
+		round_label(θ)
+end;
 
-	transform(f; A=1, k=0, T=2π, h=0) = θ -> A * f(2π/T * (θ - h)) + k
+# ╔═╡ 3e4e081f-d8ab-4b82-85ed-aaecc192a46b
+md"""
+## Appendix: Sinusoid Manipulation
+"""
+
+# ╔═╡ 66af7c57-3063-448f-baef-2898cb262c22
+begin
+	transform(f; A=1, k=0, b=1, h=0) = θ -> A * f(b * (θ - h)) + k
+	invert_inner(x; b=1, h=0) = x / b + h
+
+	plus_label(x) = iszero(x) ? "" : " $(x > 0 ? "+" : "-") $(angle_label(abs(x)))"
+	times_label(x; space=true) = isone(x) ? "" : "$(angle_label(x))$(space ? " " : "")"
+
+	function transformation_label(f; A=1, k=0, b=1, h=0, is_text=false)
+		"$(times_label(A))$(string(f))($(transformation_label(identity; b, h, is_text)))$(plus_label(k))"
+	end
+	function  transformation_label(f::typeof(identity); b=1, h=0, is_text=false)
+		parenthesize = !isone(b) && !iszero(h)
+		times_label(b, space=is_text && !parenthesize) *
+		(parenthesize ? "(θ$(plus_label(-h)))" : "θ$(plus_label(-h))")
+	end
 end;
 
 # ╔═╡ 1577dff0-f4b6-4c39-8d2a-f7ff6fe5b044
@@ -392,7 +582,7 @@ begin
 		0, π/2, π, 3π/2, 2π
 	]
 	
-	function format_two_column(columns; column_width=6)
+	function format_table(columns; column_width=6)
 		line_span = repeat("-", column_width)
 		line = "+-" * join((line_span for _ in columns), "-+-") * "-+\n"
 		
@@ -403,15 +593,17 @@ begin
 		Text(line * header * line * reduce(*, rows) * line)
 	end
 
-	function format_special_angles_table(columns; n_angles=n_special_angles, critical_only=false, column_width=6)
+	function format_special_angles_table(columns; n_angles=n_special_angles, critical_only=false, b=1, h=0, column_width=6)
 		angles = critical_only ? critical_angles : special_angles
 		n_angles = min(n_angles, length(angles))
-		format_two_column(["θ" => angle_label.(angles, 12), (
-			transformation_label(f; kwargs...) => [
-				angles[1:n_angles] .|> transform(f; kwargs...) .|> round_to_hundredths;
+		selected_angles = invert_inner.(angles[1:n_angles]; b, h)
+		columns = (
+			transformation_label(f; kwargs..., is_text=true) => [
+				selected_angles .|> transform(f; kwargs...) .|> (f == identity ? angle_label : round_to_hundredths);
 				fill("", length(angles) - n_angles)
-			] for (f, kwargs) in columns
-		)...], column_width=column_width)
+			] for (f, kwargs) in vcat([(identity) => ()], columns)
+		)
+		format_table(columns, column_width=column_width)
 	end
 end;
 
@@ -444,6 +636,15 @@ format_special_angles_table([(sin, ()), (sin, (k=k_t2,))], critical_only=critica
 # ╔═╡ 9ffa7538-c969-4e7a-8bd6-6b568d7e1a03
 format_special_angles_table([(sin, ()), (sin, (A=A_t3, k=k_t3))], critical_only=critical_only_t3, column_width=16)
 
+# ╔═╡ 25a533c4-61dc-4ba0-8ab2-eba55f69b21f
+format_special_angles_table([(identity, (b=b2_t4,)), (sin, (b=b2_t4,))], critical_only=critical_only_t4, b=b2_t4, column_width=11)
+
+# ╔═╡ 050c6975-e92b-48b1-a0d5-b12f1005b611
+format_special_angles_table([(identity, (h=h2_t5,)), (sin, (h=h2_t5,)), (cos, (h=h2_t5,))], critical_only=critical_only_t5, h=h2_t5, column_width=15)
+
+# ╔═╡ bc101546-cb14-40e5-ba6a-1f3b084be914
+format_special_angles_table([(identity, (b=b2_t6, h=h2_t6)), (sin, (A=A_t6, k=k_t6, b=b2_t6, h=h2_t6))], critical_only=critical_only_t3, b=b2_t6, h=h2_t6, column_width=25)
+
 # ╔═╡ 26e8e204-a74e-4bc8-8bc0-28ba4eb26620
 md"""
 ## Appendix: Plotting
@@ -459,23 +660,31 @@ end;
 # ╔═╡ 279fa764-91aa-415d-86ed-47ed3ecfc720
 function plot_trig_circle(
 	θ;
-	R=1, x₀=0, y₀=0,
+	R=1, x₀=0, y₀=0, b=1, h=0,
 	max_x=nothing, max_y=nothing, R_tick=1, circle_resolution=0.01π,
 	show_sin=false, show_cos=false
-)	
-	circle_range = 0:circle_resolution:2π
-	θ_range = 0:((θ ≥ 0 ? 1 : -1) * circle_resolution):rem(θ, 2π)
-
-	sin_func = transform(sin, A=R, k=y₀)
-	cos_func = transform(cos, A=R, k=x₀)
-
-	angle_radius = isnothing(max_x) || isnothing(max_y) ? 0.1 : 0.1min(max_x, max_y)
-	sin_func_angle = transform(sin, A=angle_radius, k=y₀)
-	cos_func_angle = transform(cos, A=angle_radius, k=x₀)
+)
+	circle_start, circle_end = invert_inner(0; b, h), invert_inner(2π; b, h)
+	circle_range = circle_start:circle_resolution:circle_end
 	
-	θ_label = "θ = $(angle_label(θ, 12))"
-	sin_label = show_sin && transformation_label(sin, A=R, k=y₀) * " = $(round_label(sin_func(θ))))"
-	cos_label = show_cos && transformation_label(cos, A=R, k=x₀) * " = $(round_label(cos_func(θ)))"
+	θ_rev = abs(θ) ÷ circle_end
+	θ_range = 0:((θ ≥ 0 ? 1 : -1) * circle_resolution):θ
+	
+	angle_radius = isnothing(max_x) || isnothing(max_y) ? 0.1 : 0.1min(max_x, max_y)
+
+	θ_func = transform(identity; b, h)
+	sin_func = transform(sin; A=R, k=y₀, b, h)
+	cos_func = transform(cos; A=R, k=x₀, b, h)
+
+	sin_func_radius = transform(sin; A=1.1R, k=y₀, b, h)
+	cos_func_radius = transform(cos; A=1.1R, k=x₀, b, h)
+	
+	sin_func_angle = transform(sin; A=angle_radius, k=y₀, b, h)
+	cos_func_angle = transform(cos; A=angle_radius, k=x₀, b, h)
+	
+	θ_label = "$(transformation_label(identity; b, h)) = $(angle_label(θ_func(θ)))"
+	sin_label = show_sin && "$(transformation_label(sin; A=R, k=y₀, b, h)) = $(round_label(sin_func(θ)))"
+	cos_label = show_cos && "$(transformation_label(cos; A=R, k=x₀, b, h)) = $(round_label(cos_func(θ)))"
 	
 	p = plot(framestyle = :origin, aspect_ratio=:equal)
 
@@ -499,7 +708,7 @@ function plot_trig_circle(
 		ms=6, msw=0, color=:black, label=false
 	)
 	plot!(  # radius
-		[x₀, x₀ + 1.1R], [y₀, y₀],
+		[x₀, cos_func_radius(0)], [y₀, sin_func_radius(0)],
 		lw=3, color=:black, label=false
 	)
 	plot!(  # circle
@@ -508,11 +717,11 @@ function plot_trig_circle(
 	)
 	plot!(  # angle - (angle % 2π)
 		cos_func_angle.(circle_range), sin_func_angle.(circle_range),
-		lw=2abs(θ ÷ 2π), color=:gray, label=false
+		lw=2θ_rev, color=:gray, label=false
 	)
 	plot!(  # angle % 2π
 		cos_func_angle.(θ_range), sin_func_angle.(θ_range),
-		lw=2(abs(θ ÷ 2π) + 1), color=:gray, label=θ_label
+		lw=2(θ_rev + 1), color=:gray, label=θ_label
 	)
 	plot!(  # vertical offset
 		[x₀, x₀], [0,  y₀],
@@ -555,22 +764,32 @@ plot_trig_circle(θ_t2, x₀=x₀_t2, y₀=y₀_t2, max_x=4, max_y=3, show_sin=t
 
 # ╔═╡ 54eb2768-7b9e-442e-8818-b373f8b6d49e
 function plot_trig_function(
-	f, color;  # TODO: more flexibility here
-	A=1, k=0, T=2π, h=0,  # TODO: more flexibility here
-	max_θ=T, circle_resolution=0.01π, tick_θ=max_θ/4, tickstyle=:decimal,
-	max_A=abs(A), max_y=nothing, tick_y=isnothing(max_y) ? max_A/2 : max_y/2,
+	base_func, color;  # TODO: more flexibility here
+	A=1, k=0, b=1, h=0,
+	T=nothing, f=nothing,
+	max_θ=nothing, circle_resolution=0.01π, tick_θ=nothing, tickstyle=:decimal,
+	max_A=abs(A), max_y=nothing, tick_y=nothing,
 	show_curve=true, show_label=true,
 	show_positive=false, show_negative=false,
 	n_angles=n_special_angles, critical_only=false,
-	θ=nothing, show_period=false
+	θ=nothing, show_period=false, show_shift=false
 )
-	func = transform(f; A, k, T, h)
-	label = show_label && transformation_label(f; A, k)
+	@assert isnothing(T) || isnothing(f)
+	!isnothing(T) && (b = 2π/T)
+	!isnothing(f) && (b = 2πf)
+	T, f = 2π/b, b/2π
+	isnothing(max_θ) && (max_θ = T)
+	isnothing(tick_θ) && (tick_θ = max_θ/4)
+	isnothing(tick_y) && (tick_y = isnothing(max_y) ? max_A/2 : max_y/2)
+	
+	func = transform(base_func; A, k, b, h)
+	label = transformation_label(base_func; A, k, b, h)
 
 	angles = critical_only ? critical_angles : special_angles
-	n_angles = min(n_angles, length(angles))
+	selected_angles = invert_inner.(angles[1:min(n_angles, length(angles))]; b, h)
+	selected_angles = selected_angles[selected_angles .≤ max_θ]
 	
-	p = plot(framestyle=:origin, minorgrid=true, xminorticks=6, yminorticks=4)
+	p = plot(framestyle=:origin, minorgrid=true, legend=show_label && :topright, xminorticks=6, yminorticks=4)
 
 	@assert isinteger(max_θ / tick_θ)
 	θ_ticks = -max_θ:tick_θ:max_θ
@@ -584,12 +803,14 @@ function plot_trig_function(
 		θ_labels = π_label.(Int.(θ_ticks ./ tick_θ) .// Int(π / tick_θ))
 	end
 	plot!(xlim=(-max_θ, max_θ) .* 1.1, xticks=(collect(θ_ticks), θ_labels))
-	
+
+	legend_size = count([show_curve, !isnothing(θ)])
+	legend_space = show_label && legend_size > 0 ? (1.25 + 0.25legend_size) : 1.0
 	if isnothing(max_y)
-		y_lim = (-max_A, max_A) .* 1.1 .+ k
+		y_lim = (-max_A, legend_space * max_A) .* 1.1 .+ k
 		y_ticks = (k - max_A):tick_y:(k + max_A)
 	else
-		y_lim = (-max_y, max_y) .* 1.1
+		y_lim = (-max_y, legend_space * max_y) .* 1.1
 		y_ticks = -max_y:tick_y:max_y
 	end
 	plot!(ylim=y_lim, yticks=(collect(y_ticks), round_label.(y_ticks)))
@@ -599,11 +820,11 @@ function plot_trig_function(
 		lw=3, color=color, label=label
 	)
 	show_positive && scatter!(  # positive special angles
-		angles[1:n_angles], func,
+		selected_angles, func,
 		color=color, label=false
 	)
 	show_negative && scatter!(  # negative special angles
-		angles[1:n_angles] .* -1, func,
+		selected_angles .* -1, func,
 		color=color, label=false
 	)
 	!isnothing(θ) && plot!(  # vertical line at indicated point
@@ -617,6 +838,10 @@ function plot_trig_function(
 	show_period && vline!(  # period markers
 		sort(vcat(0:-T:-max_θ, 0:T:max_θ)),
 		lw=2, color=4, style=:dash, label=false
+	)
+	show_shift && vline!(  # period markers
+		[h],
+		lw=2, color=5, style=:dash, label=false
 	)
 	p
 end;
@@ -661,7 +886,7 @@ let
 end
 
 # ╔═╡ e29c8789-202f-4d93-ae34-7642b0b80d74
-plot_trig_function(sin, sin_color, A=A_t1, max_θ=2π, tickstyle=:πfraction, max_A=3, tick_y=1, show_curve=show_curve_t1, show_positive=true, show_negative=true, critical_only=critical_only_t1)
+plot_trig_function(sin, sin_color, A=A_t1, max_θ=2π, tickstyle=:πfraction, max_A=3, tick_y=1, show_curve=show_curve_t1, show_positive=true, critical_only=critical_only_t1)
 
 # ╔═╡ 962cb2da-7f45-40aa-a081-468841dfa617
 let
@@ -672,7 +897,7 @@ let
 end
 
 # ╔═╡ 055c68c2-4fca-4a3e-ab26-28cf6c0cdef8
-plot_trig_function(sin, sin_color, k=k_t2, max_θ=2π, tickstyle=:πfraction, max_y=3, tick_y=1, show_curve=show_curve_t2, show_positive=true, show_negative=true, critical_only=critical_only_t2)
+plot_trig_function(sin, sin_color, k=k_t2, max_θ=2π, tickstyle=:πfraction, max_y=3, tick_y=1, show_curve=show_curve_t2, show_positive=true, critical_only=critical_only_t2)
 
 # ╔═╡ 1c959bee-c340-41cf-a142-2d6cd3839684
 let
@@ -683,7 +908,44 @@ let
 end
 
 # ╔═╡ d26018da-e17d-430d-baf9-84265352cd8c
-plot_trig_function(sin, sin_color, A=A_t3, k=k_t3, max_θ=2π, tickstyle=:πfraction, max_y=4, tick_y=1, show_curve=show_curve_t3, show_positive=true, show_negative=true, critical_only=critical_only_t3)
+plot_trig_function(sin, sin_color, A=A_t3, k=k_t3, max_θ=2π, tickstyle=:πfraction, max_y=4, tick_y=1, show_curve=show_curve_t3, show_positive=true, critical_only=critical_only_t3)
+
+# ╔═╡ 9a34a196-0a73-4aee-a097-ad4d5b193a42
+let
+	circle_plot = plot_trig_circle(θ_t4, b=b_t4, max_x=1, max_y=1.5, R_tick=0.5, show_sin=true, show_cos=true)
+	sin_curve_plot = plot_trig_function(sin, sin_color, b=b_t4, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, θ=θ_t4)
+	cos_curve_plot = plot_trig_function(cos, cos_color, b=b_t4, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, θ=θ_t4)
+	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
+end
+
+# ╔═╡ 0112eae5-6f4c-400f-b636-9fd4e3786153
+plot_trig_function(sin, sin_color, b=b2_t4, max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t4, show_positive=true, critical_only=critical_only_t4, show_period=show_period_t4)
+
+# ╔═╡ 7c6ba1e8-9e6c-4fbb-aea2-493bb3b7fcd9
+let
+	circle_plot = plot_trig_circle(θ_t5, h=h_t5, max_x=1, max_y=1.5, R_tick=0.5, show_sin=true, show_cos=true)
+	sin_curve_plot = plot_trig_function(sin, sin_color, h=h_t5, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, θ=θ_t5)
+	cos_curve_plot = plot_trig_function(cos, cos_color, h=h_t5, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, θ=θ_t5)
+	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
+end
+
+# ╔═╡ c675e5ee-185e-41d1-b879-939357ffb5c7
+let
+	sin_plot = plot_trig_function(sin, sin_color, h=h2_t5, max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t5, show_positive=true, critical_only=critical_only_t5, show_shift=show_shift_t5)
+	cos_plot = plot_trig_function(cos, cos_color, h=h2_t5, max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t5, show_positive=true, critical_only=critical_only_t5, show_shift=show_shift_t5)
+	plot(sin_plot, cos_plot, layout=(2,1))
+end
+
+# ╔═╡ dc1e4c73-f7e1-4f7f-b139-0b82797da6c6
+let
+	circle_plot = plot_trig_circle(θ_t6, R=R_t6, x₀=x₀_t6, y₀=y₀_t6, b=b_t6, h=h_t6, max_x=4, max_y=5, R_tick=2, show_sin=true, show_cos=true)
+	sin_curve_plot = plot_trig_function(sin, sin_color, A=R_t6, k=y₀_t6, b=b_t6, h=h_t6, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=4, θ=θ_t6)
+	cos_curve_plot = plot_trig_function(cos, cos_color, A=R_t6, k=x₀_t6, b=b_t6, h=h_t6, max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=4, θ=θ_t6)
+	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
+end
+
+# ╔═╡ f530f155-fd4e-4dae-ab85-994ea0ebe8b2
+plot_trig_function(sin, sin_color, A=A_t6, k=k_t6, b=b2_t6, h=h2_t6, max_θ=2π, tickstyle=:πfraction, max_y=5, tick_y=1, show_curve=show_curve_t6, show_positive=true, critical_only=critical_only_t6, show_period=show_period_t6, show_shift=show_shift_t6)
 
 # ╔═╡ 819075e8-0058-4606-9a29-93fe169263be
 md"""
@@ -1848,6 +2110,7 @@ version = "1.4.1+1"
 # ╟─53bb3aa6-a858-4040-86c3-c94d8bb6848b
 # ╟─8aee1e87-7b32-4f71-9685-12e15ba9b246
 # ╟─e29c8789-202f-4d93-ae34-7642b0b80d74
+# ╟─e1a9cf02-5f46-4ea8-bbbe-b8f1b9224be1
 # ╟─f14d6ab2-1e06-4e72-86c1-6defaedd58c3
 # ╟─e58f6c8b-ffcd-4f06-a1c3-6a02055ae428
 # ╟─7086d5eb-6f81-4bfc-8ba0-1ea83268059f
@@ -1856,22 +2119,41 @@ version = "1.4.1+1"
 # ╟─af6ca434-aabe-4c95-9a4f-9155c861f2e2
 # ╟─32e5c347-5dd3-41ab-9382-deaff3089657
 # ╟─055c68c2-4fca-4a3e-ab26-28cf6c0cdef8
+# ╟─eb96720e-1a36-4295-a68f-e087c4d8a59b
 # ╟─3690445c-4878-4f9c-949b-222c2e31176e
 # ╟─1c959bee-c340-41cf-a142-2d6cd3839684
 # ╟─827b1c6b-e992-4135-a491-cabf39ac906c
 # ╟─9ffa7538-c969-4e7a-8bd6-6b568d7e1a03
 # ╟─d26018da-e17d-430d-baf9-84265352cd8c
 # ╟─1bfcc315-531b-482d-b712-14589d2489f7
-# ╠═48e3d3c0-a6f1-48a3-9ca1-c239fa15fc62
-# ╠═9a34a196-0a73-4aee-a097-ad4d5b193a42
-# ╠═21c01e95-814a-4760-bc27-b31f45eb72b2
-# ╠═7c6ba1e8-9e6c-4fbb-aea2-493bb3b7fcd9
+# ╟─48e3d3c0-a6f1-48a3-9ca1-c239fa15fc62
+# ╟─9a34a196-0a73-4aee-a097-ad4d5b193a42
+# ╟─7a03612e-4116-4063-ba89-3e73028b115f
+# ╟─25a533c4-61dc-4ba0-8ab2-eba55f69b21f
+# ╟─0112eae5-6f4c-400f-b636-9fd4e3786153
+# ╟─c2d7a315-56c8-4e14-9a16-219d7669e3cb
+# ╟─b7b3afbb-5aeb-4f24-9beb-7f69a0c6629b
+# ╟─21c01e95-814a-4760-bc27-b31f45eb72b2
+# ╟─7c6ba1e8-9e6c-4fbb-aea2-493bb3b7fcd9
+# ╟─ea4c2b2f-1419-4334-a545-f16dd6dd3e76
+# ╟─050c6975-e92b-48b1-a0d5-b12f1005b611
+# ╟─c675e5ee-185e-41d1-b879-939357ffb5c7
+# ╟─49c21509-8821-4299-a725-814e54d0954d
+# ╟─6a786e0f-6ab6-4c72-aa3d-cb0eff518d6d
+# ╟─dd21e219-6c97-4f15-8fe7-803184aa6d6f
+# ╟─dc1e4c73-f7e1-4f7f-b139-0b82797da6c6
+# ╟─b264e6e2-1ed9-4a01-8ca9-f0825de0482c
+# ╟─bc101546-cb14-40e5-ba6a-1f3b084be914
+# ╟─f530f155-fd4e-4dae-ab85-994ea0ebe8b2
+# ╟─bb83958a-3700-4246-8b37-c94642a88c31
 # ╟─1a408b82-fe7e-4930-94d2-cfa89c7340b8
 # ╟─3bb2ca7f-c283-4574-a45a-bebf068dfe71
 # ╠═289f7931-8511-4650-960e-54a20a180320
 # ╠═8fd2edc7-5063-4033-a9cb-5e7623467fb5
 # ╟─7e6d7f4f-e68c-41ff-8dcc-14cf326279da
 # ╠═10737f1b-f132-468f-95f2-089705bd7488
+# ╟─3e4e081f-d8ab-4b82-85ed-aaecc192a46b
+# ╠═66af7c57-3063-448f-baef-2898cb262c22
 # ╟─1577dff0-f4b6-4c39-8d2a-f7ff6fe5b044
 # ╠═64840f00-2529-4ad9-bf9e-33610dc4cfcc
 # ╟─26e8e204-a74e-4bc8-8bc0-28ba4eb26620
