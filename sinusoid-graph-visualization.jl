@@ -590,9 +590,12 @@ begin
 	
 	(w::Wave)(θ) = w.A * w.f(w.b * (θ - w.h)) + w.k
 	invert(w::Wave) = (x) -> inverse_table[w.f]((1 / w.A) * (x - w.k)) / w.b + w.h
-	
+
+	amplitude(w::Wave) = abs(w.A)
+	midline(w::Wave) = w.k
 	period(w::Wave) = 2π / w.b
 	freqeuncy(w::Wave) = w.b / (2π)
+	phase_shift(w::Wave) = -w.b * w.h
 
 	inner(w::Wave; color=w.color) = Wave(; color, b=w.b, h=w.h)
 	invert_inner(w::Wave, x) = invert(inner(w))(x)
@@ -707,18 +710,18 @@ function plot_trig_circle(
 
 	sin_func_radius = Wave(sin; A=1.1R, k=y₀, b, h)
 	cos_func_radius = Wave(cos; A=1.1R, k=x₀, b, h)
-	
+
 	angle_radius = isnothing(max_x) || isnothing(max_y) ? 0.1 : 0.1min(max_x, max_y)
 	sin_func_angle = Wave(sin; A=angle_radius, k=y₀, b, h)
 	cos_func_angle = Wave(cos; A=angle_radius, k=x₀, b, h)
 
 	circle_start, circle_end = invert(θ_func)(0), invert(θ_func)(2π)
 	circle_range = circle_start:circle_resolution:circle_end
-	
+
 	θ_rev = abs(θ) ÷ circle_end
 	θ_range = 0:((θ ≥ 0 ? 1 : -1) * circle_resolution):θ
-	
-	p = plot(framestyle = :origin, aspect_ratio=:equal)
+
+	p = plot(framestyle=:origin, aspect_ratio=:equal)
 
 	if !isnothing(max_x)
 		x_ticks = -(max_x ÷ R_tick)R_tick:R_tick:(max_x ÷ R_tick)R_tick
@@ -734,7 +737,7 @@ function plot_trig_circle(
 			yticks=(collect(y_ticks), round_label.(y_ticks))
 		)
 	end
-	
+
 	scatter!(  # center
 		[x₀], [y₀],
 		ms=6, msw=0, color=:black, label=false
@@ -795,75 +798,86 @@ plot_trig_circle(θ_t1, R=R_t1, max_x=4, max_y=3, show_sin=true, show_cos=true)
 plot_trig_circle(θ_t2, x₀=x₀_t2, y₀=y₀_t2, max_x=4, max_y=3, show_sin=true, show_cos=true)
 
 # ╔═╡ 54eb2768-7b9e-442e-8818-b373f8b6d49e
-function plot_trig_function(
-	wave;
-	max_θ=period(wave), circle_resolution=0.01π, tick_θ=max_θ/4, tickstyle=:decimal,
-	max_A=abs(wave.A), max_y=nothing, tick_y=isnothing(max_y) ? max_A/2 : max_y/2,
-	show_curve=true, show_label=true,
-	show_positive=false, show_negative=false,
-	n_angles=n_special_angles, critical_only=false,
-	θ=nothing, show_period=false, show_shift=false
-)
-	angles = critical_only ? critical_angles : special_angles
-	n_angles = min(n_angles, length(angles))
-	displayed_angles = Fix1(invert_inner, wave).(angles[1:n_angles])
-	filter!(a -> a ≤ max_θ, displayed_angles)
-	
-	p = plot(framestyle=:origin, minorgrid=true, legend=show_label && :topright)
-
-	@assert isinteger(max_θ / tick_θ)
-	θ_ticks = -max_θ:tick_θ:max_θ
-	if tickstyle == :decimal
-		θ_labels = round_label.(θ_ticks)
-	elseif tickstyle == :πmultiple
-		@assert isinteger(tick_θ / π)
-		θ_labels = π_label.(θ_ticks ./ π)
-	else tickstyle == :πfraction
-		@assert isinteger(π / tick_θ)
-		θ_labels = π_label.(Int.(θ_ticks ./ tick_θ) .// Int(π / tick_θ))
+begin
+	function plot_trig_function(wave::Wave; kwargs...)
+		plot_trig_function([wave]; kwargs...)
 	end
-	plot!(xlim=(-max_θ, max_θ) .* 1.1, xticks=(collect(θ_ticks), θ_labels), xminorticks=6)
-
-	legend_size = count([show_curve, !isnothing(θ)])
-	legend_space = show_label && legend_size > 0 ? (1.25 + 0.25legend_size) : 1.0
-	if isnothing(max_y)
-		y_lim = (-max_A, legend_space * max_A) .* 1.1 .+ wave.k
-		y_ticks = (wave.k - max_A):tick_y:(wave.k + max_A)
-	else
-		y_lim = (-max_y, legend_space * max_y) .* 1.1
-		y_ticks = -max_y:tick_y:max_y
-	end
-	plot!(ylim=y_lim, yticks=(collect(y_ticks), round_label.(y_ticks)), yminorticks=4)
+	function plot_trig_function(
+		waves::Vector{<:Wave};
+		max_θ=maximum(period.(waves)), circle_resolution=0.01π,
+		tick_θ=max_θ/4, tickstyle=:decimal,
+		max_A=maximum(amplitude.(waves)), max_y=nothing,
+		min_k=minimum(midline.(waves)), max_k=maximum(midline.(waves)),
+		tick_y=isnothing(max_y) ? max_A/2 : max_y/2,
+		show_curve=true, show_label=true,
+		show_positive=false, show_negative=false,
+		n_angles=n_special_angles, critical_only=false,
+		θ=nothing, show_period=false, show_shift=false
+	)
+		p = plot(framestyle=:origin, minorgrid=true, legend=show_label)
 	
-	show_curve && plot!(  # the function itself
-		-max_θ:circle_resolution:max_θ, wave,
-		lw=3, color=wave.color, label=string(wave)
-	)
-	show_positive && scatter!(  # positive special angles
-		displayed_angles, wave,
-		color=wave.color, label=false
-	)
-	show_negative && scatter!(  # negative special angles
-		-displayed_angles, wave,
-		color=wave.color, label=false
-	)
-	!isnothing(θ) && plot!(  # vertical line at indicated point
-		[θ, θ], [0, wave(θ)],
-		lw=3, color=wave.color, label=false
-	)
-	!isnothing(θ) && scatter!(  # indicated point
-		[θ], [wave(θ)],
-		ms=6, msw=3, color=:white, msc=wave.color, label=round_label(wave(θ))
-	)
-	show_period && vline!(  # period markers
-		sort(vcat(0:-period(wave):-max_θ, 0:period(wave):max_θ)),
-		lw=2, color=4, style=:dash, label=false
-	)
-	show_shift && vline!(  # phase marker
-		[wave.h],
-		lw=2, color=5, style=:dashdot, label=false
-	)
-	p
+		@assert isinteger(max_θ / tick_θ)
+		θ_ticks = -max_θ:tick_θ:max_θ
+		if tickstyle == :decimal
+			θ_labels = round_label.(θ_ticks)
+		elseif tickstyle == :πmultiple
+			@assert isinteger(tick_θ / π)
+			θ_labels = π_label.(θ_ticks ./ π)
+		else tickstyle == :πfraction
+			@assert isinteger(π / tick_θ)
+			θ_labels = π_label.(Int.(θ_ticks ./ tick_θ) .// Int(π / tick_θ))
+		end
+		plot!(xlim=(-1.1max_θ, 1.1max_θ), xticks=(collect(θ_ticks), θ_labels), xminorticks=6)
+	
+		if isnothing(max_y)
+			y_lim = (min_k - 1.1max_A, max_k + 1.1max_A)
+			y_ticks = (min_k - max_A):tick_y:(max_k + max_A)
+		else
+			y_lim = (-1.1max_y, 1.1max_y)
+			y_ticks = -max_y:tick_y:max_y
+		end
+		plot!(ylim=y_lim, yticks=(collect(y_ticks), round_label.(y_ticks)), yminorticks=4)
+
+		for wave in waves
+			show_curve && plot!(  # the function itself
+				-max_θ:circle_resolution:max_θ, wave, label=string(wave),
+				lw=3, color=wave.color
+			)
+	
+			angles = critical_only ? critical_angles : special_angles
+			n_angles = min(n_angles, length(angles))
+			displayed_angles = Fix1(invert_inner, wave).(angles[1:n_angles])
+			filter!(a -> a ≤ max_θ, displayed_angles)
+	
+			show_positive && scatter!(  # positive special angles
+				displayed_angles, wave, label=false,
+				color=wave.color
+			)
+			show_negative && scatter!(  # negative special angles
+				-displayed_angles, wave, label=false,
+				color=wave.color
+			)
+	
+			!isnothing(θ) && plot!(  # vertical line at indicated point
+				[θ, θ], [0, wave(θ)], label=false,
+				lw=3, color=wave.color
+			)
+			!isnothing(θ) && scatter!(  # indicated point
+				[θ], [wave(θ)], label=round_label(wave(θ)),
+				ms=6, msw=3, color=:white, msc=wave.color
+			)
+	
+			show_period && vline!(  # period markers
+				sort(vcat(0:-period(wave):-max_θ, 0:period(wave):max_θ)), 
+				label=false, lw=2, color=4, style=:dash
+			)
+			show_shift && vline!(  # phase marker
+				[wave.h], label=false,
+				lw=2, color=5, style=:dashdot
+			)
+		end
+		p
+	end
 end;
 
 # ╔═╡ f87b8e3f-4943-47e6-9317-6516a8c8a31a
