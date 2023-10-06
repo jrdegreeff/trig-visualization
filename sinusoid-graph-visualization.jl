@@ -205,12 +205,16 @@ The waves ``R \sin \theta`` and ``R \cos \theta`` have a maximum value of ``R`` 
 # ╔═╡ 53bb3aa6-a858-4040-86c3-c94d8bb6848b
 md"""
 ### Vertical Scaling in a Table
-Let's look at the transformation ``A \sin(\theta)`` in tabular form.
+Let's look at the transformation ``A \sin(\theta)`` in tabular form and see how that relates to its graph.
 
 ``A:\quad`` $(@bind A_t1 Slider(-3.0:0.5:3.0, default=1.0, show_value=true))
 
 "critical angles" only: $(@bind critical_only_t1 CheckBox(default=true)) ``\quad``
+show table: $(@bind show_table_t1 CheckBox(default=true)) ``\quad``
+show points: $(@bind show_points_t1 CheckBox(default=true)) ``\quad``
 show curve: $(@bind show_curve_t1 CheckBox(default=true)) ``\quad``
+
+show max and min: $(@bind show_max_min_t1 CheckBox(default=true)) ``\quad``
 """
 
 # ╔═╡ e1a9cf02-5f46-4ea8-bbbe-b8f1b9224be1
@@ -260,12 +264,16 @@ The wave ``\sin(\theta) + c_y`` has a maximum value of ``c_y + 1`` and a minimum
 # ╔═╡ af6ca434-aabe-4c95-9a4f-9155c861f2e2
 md"""
 ### Vertical Shifting in a Table
-Let's look at the transformation ``\sin(\theta) + k`` in tabular form.
+Let's look at the transformation ``\sin(\theta) + k`` in tabular form and see how that relates to its graph.
 
 ``k:\quad`` $(@bind k_t2 Slider(-2.0:0.5:2.0, default=0, show_value=true))
 
 "critical angles" only: $(@bind critical_only_t2 CheckBox(default=true)) ``\quad``
+show table: $(@bind show_table_t2 CheckBox(default=true)) ``\quad``
+show points: $(@bind show_points_t2 CheckBox(default=true)) ``\quad``
 show curve: $(@bind show_curve_t2 CheckBox(default=true)) ``\quad``
+
+show midline: $(@bind show_v_shift_t2 CheckBox(default=true)) ``\quad``
 """
 
 # ╔═╡ eb96720e-1a36-4295-a68f-e087c4d8a59b
@@ -299,14 +307,19 @@ If we combine changes in the **center** and **radius** of the circle, we see com
 # ╔═╡ 827b1c6b-e992-4135-a491-cabf39ac906c
 md"""
 ### Combined Vertical Transformations in a Table
-Let's look at the transformation ``A \sin(\theta) + k`` in tabular form.
+Let's look at the transformation ``A \sin(\theta) + k`` in tabular form and see how that relates to its graph.
 
 ``A:\quad`` $(@bind A_t3 Slider(-2.0:0.5:2.0, default=1.0, show_value=true))
 
 ``k:\quad`` $(@bind k_t3 Slider(-2.0:0.5:2.0, default=0.0, show_value=true))
 
 "critical angles" only: $(@bind critical_only_t3 CheckBox(default=true)) ``\quad``
+show table: $(@bind show_table_t3 CheckBox(default=true)) ``\quad``
+show points: $(@bind show_points_t3 CheckBox(default=true)) ``\quad``
 show curve: $(@bind show_curve_t3 CheckBox(default=true)) ``\quad``
+
+show max and min: $(@bind show_max_min_t3 CheckBox(default=true)) ``\quad``
+show midline: $(@bind show_v_shift_t3 CheckBox(default=true)) ``\quad``
 """
 
 # ╔═╡ 1bfcc315-531b-482d-b712-14589d2489f7
@@ -342,12 +355,15 @@ If ``b`` is large we will go around the circle faster, so the wave value will go
 # ╔═╡ 7a03612e-4116-4063-ba89-3e73028b115f
 md"""
 ### Horiztonal Scaling in a Table
-Let's look at the transformation ``\sin(b * \theta)`` in tabular form.
+Let's look at the transformation ``\sin(b * \theta)`` in tabular form and see how that relates to its graph.
 
 ``b:\quad`` $(@bind b2_t4 Slider(0.5:0.5:4.0, default=1.0, show_value=true))
 
 "critical angles" only: $(@bind critical_only_t4 CheckBox(default=true)) ``\quad``
+show table: $(@bind show_table_t4 CheckBox(default=true)) ``\quad``
+show points: $(@bind show_points_t4 CheckBox(default=true)) ``\quad``
 show curve: $(@bind show_curve_t4 CheckBox(default=true)) ``\quad``
+
 show period: $(@bind show_period_t4 CheckBox(default=true)) ``\quad``
 """
 
@@ -387,13 +403,16 @@ We call the shift in the wave space ``h``.
 # ╔═╡ ea4c2b2f-1419-4334-a545-f16dd6dd3e76
 md"""
 ### Horiztonal Scaling in a Table
-Let's look at the transformations ``\sin(\theta - h)`` and ``\cos(\theta - h)`` in tabular form.
+Let's look at the transformations ``\sin(\theta - h)`` and ``\cos(\theta - h)`` in tabular form and see how that relates to their graphs.
 
 ``h:\quad`` $(@bind h2_t5 Slider(-2π:π/12:2π, default=0.0))
 
 "critical angles" only: $(@bind critical_only_t5 CheckBox(default=true)) ``\quad``
+show table: $(@bind show_table_t5 CheckBox(default=true)) ``\quad``
+show points: $(@bind show_points_t5 CheckBox(default=true)) ``\quad``
 show curve: $(@bind show_curve_t5 CheckBox(default=true)) ``\quad``
-show shift: $(@bind show_shift_t5 CheckBox(default=true)) ``\quad``
+
+show ``h``: $(@bind show_h_shift_t5 CheckBox(default=true)) ``\quad``
 """
 
 # ╔═╡ 49c21509-8821-4299-a725-814e54d0954d
@@ -449,7 +468,7 @@ Finally, let's look at all four transformations together.
 # ╔═╡ b264e6e2-1ed9-4a01-8ca9-f0825de0482c
 md"""
 ### Combined Transformation in a Table
-Let's look at the transformation ``A\sin(b(\theta - h)) + k`` in tabular form.
+Let's look at the transformation ``A\sin(b(\theta - h)) + k`` in tabular form and see how that relates to its graph.
 
 ``A:\quad`` $(@bind A_t6 Slider(-3:1:3, default=1, show_value=true))
 
@@ -460,9 +479,14 @@ Let's look at the transformation ``A\sin(b(\theta - h)) + k`` in tabular form.
 ``h:\quad`` $(@bind h2_t6 Slider(-2π:π/12:2π, default=0.0))
 
 "critical angles" only: $(@bind critical_only_t6 CheckBox(default=true)) ``\quad``
+show table: $(@bind show_table_t6 CheckBox(default=true)) ``\quad``
+show points: $(@bind show_points_t6 CheckBox(default=true)) ``\quad``
 show curve: $(@bind show_curve_t6 CheckBox(default=true)) ``\quad``
+
+show max and min: $(@bind show_max_min_t6 CheckBox(default=true)) ``\quad``
+show midline: $(@bind show_v_shift_t6 CheckBox(default=true)) ``\quad``
 show period: $(@bind show_period_t6 CheckBox(default=true)) ``\quad``
-show shift: $(@bind show_shift_t6 CheckBox(default=true)) ``\quad``
+show ``h``: $(@bind show_h_shift_t6 CheckBox(default=true)) ``\quad``
 """
 
 # ╔═╡ bb83958a-3700-4246-8b37-c94642a88c31
@@ -593,9 +617,17 @@ begin
 
 	amplitude(w::Wave) = abs(w.A)
 	midline(w::Wave) = w.k
-	period(w::Wave) = 2π / w.b
-	freqeuncy(w::Wave) = w.b / (2π)
-	phase_shift(w::Wave) = -w.b * w.h
+	angular_frequency(w::Wave) = w.b
+	h_shift(w::Wave) = w.h
+	
+	Base.maximum(w::Wave) = midline(w) + amplitude(w)
+	Base.minimum(w::Wave) = midline(w) - amplitude(w)
+	period(w::Wave) = 2π / angular_frequency(w)
+	freqeuncy(w::Wave) = angular_frequency(w) / (2π)
+	phase_shift(w::Wave) = -angular_frequency(w) * h_shift(w)
+
+	Plots.get_series_color(w::Wave, sp::Plots.Subplot, n::Int, seriestype) =
+		Plots.get_series_color(w.color, sp, n, seriestype)
 
 	inner(w::Wave; color=w.color) = Wave(; color, b=w.b, h=w.h)
 	invert_inner(w::Wave, x) = invert(inner(w))(x)
@@ -680,22 +712,22 @@ $(@bind cos_slider Slider(0:n_special_angles))
 format_special_angles_table(Wave(cos), n_angles=cos_slider)
 
 # ╔═╡ 8aee1e87-7b32-4f71-9685-12e15ba9b246
-format_special_angles_table([Wave(sin), Wave(sin, A=A_t1)], critical_only=critical_only_t1, column_width=11)
+show_table_t1 ? format_special_angles_table([Wave(sin), Wave(sin, A=A_t1)], critical_only=critical_only_t1, column_width=11) : nothing
 
 # ╔═╡ 32e5c347-5dd3-41ab-9382-deaff3089657
-format_special_angles_table([Wave(sin), Wave(sin, k=k_t2)], critical_only=critical_only_t2, column_width=12)
+show_table_t2 ? format_special_angles_table([Wave(sin), Wave(sin, k=k_t2)], critical_only=critical_only_t2, column_width=12) : nothing
 
 # ╔═╡ 9ffa7538-c969-4e7a-8bd6-6b568d7e1a03
-format_special_angles_table([Wave(sin), Wave(sin, A=A_t3, k=k_t3)], critical_only=critical_only_t3, column_width=16)
+show_table_t3 ? format_special_angles_table([Wave(sin), Wave(sin, A=A_t3, k=k_t3)], critical_only=critical_only_t3, column_width=16) : nothing
 
 # ╔═╡ 25a533c4-61dc-4ba0-8ab2-eba55f69b21f
-format_special_angles_table([Wave(b=b2_t4), Wave(sin, b=b2_t4)], critical_only=critical_only_t4, column_width=11)
+show_table_t4 ? format_special_angles_table([Wave(b=b2_t4), Wave(sin, b=b2_t4)], critical_only=critical_only_t4, column_width=11) : nothing
 
 # ╔═╡ 050c6975-e92b-48b1-a0d5-b12f1005b611
-format_special_angles_table([Wave(h=h2_t5), Wave(sin, h=h2_t5), Wave(cos, h=h2_t5)], critical_only=critical_only_t5, column_width=15)
+show_table_t5 ? format_special_angles_table([Wave(h=h2_t5), Wave(sin, h=h2_t5), Wave(cos, h=h2_t5)], critical_only=critical_only_t5, column_width=15) : nothing
 
 # ╔═╡ bc101546-cb14-40e5-ba6a-1f3b084be914
-format_special_angles_table([Wave(b=b2_t6, h=h2_t6), Wave(sin, A=A_t6, k=k_t6, b=b2_t6, h=h2_t6)], critical_only=critical_only_t6, column_width=26)
+show_table_t6 ? format_special_angles_table([Wave(b=b2_t6, h=h2_t6), Wave(sin, A=A_t6, k=k_t6, b=b2_t6, h=h2_t6)], critical_only=critical_only_t6, column_width=26) : nothing
 
 # ╔═╡ 279fa764-91aa-415d-86ed-47ed3ecfc720
 function plot_trig_circle(
@@ -806,13 +838,15 @@ begin
 		waves::Vector{<:Wave};
 		max_θ=maximum(period.(waves)), circle_resolution=0.01π,
 		tick_θ=max_θ/4, tickstyle=:decimal,
-		max_A=maximum(amplitude.(waves)), max_y=nothing,
+		max_A=maximum(amplitude.(waves)), max_y=nothing,  #TODO
 		min_k=minimum(midline.(waves)), max_k=maximum(midline.(waves)),
 		tick_y=isnothing(max_y) ? max_A/2 : max_y/2,
 		show_curve=true, show_label=true,
 		show_positive=false, show_negative=false,
 		n_angles=n_special_angles, critical_only=false,
-		θ=nothing, show_period=false, show_shift=false
+		θ=nothing,
+		show_max_min=false, show_period=false,
+		show_v_shift=false, show_h_shift=false
 	)
 		p = plot(framestyle=:origin, minorgrid=true, legend=show_label)
 	
@@ -839,9 +873,32 @@ begin
 		plot!(ylim=y_lim, yticks=(collect(y_ticks), round_label.(y_ticks)), yminorticks=4)
 
 		for wave in waves
+			show_v_shift && plot!(  # midline marker
+				[-max_θ, max_θ], [midline(wave), midline(wave)],
+				label=false, lw=3, color=:gray, style=:dash
+			)
+			show_h_shift && vline!(  # phase marker
+				[h_shift(wave)],
+				label=false, lw=3, color=:gray, style=:dash
+			)
+			show_period && vline!(  # period markers
+				sort(vcat(
+					h_shift(wave):-period(wave):-max_θ, h_shift(wave):period(wave):max_θ)
+				), label=false, lw=2, color=4, style=:dash
+			)
+			show_max_min && plot!(  # max and min markers
+				[-max_θ, max_θ], [maximum(wave), maximum(wave)],
+				label=false, lw=2, color=5, style=:dash
+			)
+			show_max_min && plot!(  # max and min markers
+				[-max_θ, max_θ], [minimum(wave), minimum(wave)],
+				label=false, lw=2, color=5, style=:dash
+			)
+
+			
 			show_curve && plot!(  # the function itself
 				-max_θ:circle_resolution:max_θ, wave, label=string(wave),
-				lw=3, color=wave.color
+				lw=3, color=wave
 			)
 	
 			angles = critical_only ? critical_angles : special_angles
@@ -850,30 +907,18 @@ begin
 			filter!(a -> a ≤ max_θ, displayed_angles)
 	
 			show_positive && scatter!(  # positive special angles
-				displayed_angles, wave, label=false,
-				color=wave.color
+				displayed_angles, wave, label=false, color=wave
 			)
 			show_negative && scatter!(  # negative special angles
-				-displayed_angles, wave, label=false,
-				color=wave.color
+				-displayed_angles, wave, label=false, color=wave
 			)
 	
 			!isnothing(θ) && plot!(  # vertical line at indicated point
-				[θ, θ], [0, wave(θ)], label=false,
-				lw=3, color=wave.color
+				[θ, θ], [0, wave(θ)], label=false, lw=3, color=wave
 			)
 			!isnothing(θ) && scatter!(  # indicated point
 				[θ], [wave(θ)], label=round_label(wave(θ)),
-				ms=6, msw=3, color=:white, msc=wave.color
-			)
-	
-			show_period && vline!(  # period markers
-				sort(vcat(0:-period(wave):-max_θ, 0:period(wave):max_θ)), 
-				label=false, lw=2, color=4, style=:dash
-			)
-			show_shift && vline!(  # phase marker
-				[wave.h], label=false,
-				lw=2, color=5, style=:dashdot
+				ms=6, msw=3, color=:white, msc=wave
 			)
 		end
 		p
@@ -920,7 +965,7 @@ let
 end
 
 # ╔═╡ e29c8789-202f-4d93-ae34-7642b0b80d74
-plot_trig_function(Wave(sin, A=A_t1), max_θ=2π, tickstyle=:πfraction, max_A=3, tick_y=1, show_curve=show_curve_t1, show_positive=true, critical_only=critical_only_t1)
+plot_trig_function(Wave(sin, A=A_t1), max_θ=2π, tickstyle=:πfraction, max_A=3, tick_y=1, show_curve=show_curve_t1, show_positive=show_points_t1, critical_only=critical_only_t1, show_max_min=show_max_min_t1)
 
 # ╔═╡ 962cb2da-7f45-40aa-a081-468841dfa617
 let
@@ -931,7 +976,7 @@ let
 end
 
 # ╔═╡ 055c68c2-4fca-4a3e-ab26-28cf6c0cdef8
-plot_trig_function(Wave(sin, k=k_t2), max_θ=2π, tickstyle=:πfraction, max_y=3, tick_y=1, show_curve=show_curve_t2, show_positive=true, critical_only=critical_only_t2)
+plot_trig_function(Wave(sin, k=k_t2), max_θ=2π, tickstyle=:πfraction, max_y=3, tick_y=1, show_curve=show_curve_t2, show_positive=show_points_t2, critical_only=critical_only_t2, show_v_shift=show_v_shift_t2)
 
 # ╔═╡ 1c959bee-c340-41cf-a142-2d6cd3839684
 let
@@ -942,7 +987,7 @@ let
 end
 
 # ╔═╡ d26018da-e17d-430d-baf9-84265352cd8c
-plot_trig_function(Wave(sin, A=A_t3, k=k_t3), max_θ=2π, tickstyle=:πfraction, max_y=4, tick_y=1, show_curve=show_curve_t3, show_positive=true, critical_only=critical_only_t3)
+plot_trig_function(Wave(sin, A=A_t3, k=k_t3), max_θ=2π, tickstyle=:πfraction, max_y=4, tick_y=1, show_curve=show_curve_t3, show_positive=show_points_t3, critical_only=critical_only_t3, show_max_min=show_max_min_t3, show_v_shift=show_v_shift_t3)
 
 # ╔═╡ 9a34a196-0a73-4aee-a097-ad4d5b193a42
 let
@@ -953,7 +998,7 @@ let
 end
 
 # ╔═╡ 0112eae5-6f4c-400f-b636-9fd4e3786153
-plot_trig_function(Wave(sin, b=b2_t4), max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t4, show_positive=true, critical_only=critical_only_t4, show_period=show_period_t4)
+plot_trig_function(Wave(sin, b=b2_t4), max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t4, show_positive=show_points_t4, critical_only=critical_only_t4, show_period=show_period_t4)
 
 # ╔═╡ 7c6ba1e8-9e6c-4fbb-aea2-493bb3b7fcd9
 let
@@ -965,8 +1010,8 @@ end
 
 # ╔═╡ c675e5ee-185e-41d1-b879-939357ffb5c7
 let
-	sin_plot = plot_trig_function(Wave(sin, h=h2_t5), max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t5, show_positive=true, critical_only=critical_only_t5, show_shift=show_shift_t5)
-	cos_plot = plot_trig_function(Wave(cos, h=h2_t5), max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t5, show_positive=true, critical_only=critical_only_t5, show_shift=show_shift_t5)
+	sin_plot = plot_trig_function(Wave(sin, h=h2_t5), max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t5, show_positive=show_points_t5, critical_only=critical_only_t5, show_h_shift=show_h_shift_t5)
+	cos_plot = plot_trig_function(Wave(cos, h=h2_t5), max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t5, show_positive=show_points_t5, critical_only=critical_only_t5, show_h_shift=show_h_shift_t5)
 	plot(sin_plot, cos_plot, layout=(2,1))
 end
 
@@ -979,7 +1024,7 @@ let
 end
 
 # ╔═╡ f530f155-fd4e-4dae-ab85-994ea0ebe8b2
-plot_trig_function(Wave(sin, A=A_t6, k=k_t6, b=b2_t6, h=h2_t6), max_θ=2π, tickstyle=:πfraction, max_y=5, tick_y=1, show_curve=show_curve_t6, show_positive=true, critical_only=critical_only_t6, show_period=show_period_t6, show_shift=show_shift_t6)
+plot_trig_function(Wave(sin, A=A_t6, k=k_t6, b=b2_t6, h=h2_t6), max_θ=2π, tickstyle=:πfraction, max_y=5, tick_y=1, show_curve=show_curve_t6, show_positive=show_points_t6, critical_only=critical_only_t6, show_max_min=show_max_min_t6, show_period=show_period_t6, show_v_shift=show_v_shift_t6, show_h_shift=show_h_shift_t6)
 
 # ╔═╡ 819075e8-0058-4606-9a29-93fe169263be
 md"""
