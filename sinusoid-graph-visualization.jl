@@ -836,15 +836,12 @@ begin
 	end
 	function plot_trig_function(
 		waves::Vector{<:Wave};
-		max_θ=maximum(period.(waves)), circle_resolution=0.01π,
-		tick_θ=max_θ/4, tickstyle=:decimal,
-		max_A=maximum(amplitude.(waves)), max_y=nothing,  #TODO
-		min_k=minimum(midline.(waves)), max_k=maximum(midline.(waves)),
-		tick_y=isnothing(max_y) ? max_A/2 : max_y/2,
+		max_θ=maximum(period.(waves)), tick_θ=max_θ/4, tickstyle=:decimal,
+		max_y=nothing, tick_y=nothing,
+		circle_resolution=0.01π, θ=nothing,
 		show_curve=true, show_label=true,
-		show_positive=false, show_negative=false,
 		n_angles=n_special_angles, critical_only=false,
-		θ=nothing,
+		show_positive=false, show_negative=false,
 		show_max_min=false, show_period=false,
 		show_v_shift=false, show_h_shift=false
 	)
@@ -857,20 +854,32 @@ begin
 		elseif tickstyle == :πmultiple
 			@assert isinteger(tick_θ / π)
 			θ_labels = π_label.(θ_ticks ./ π)
-		else tickstyle == :πfraction
+		elseif tickstyle == :πfraction
 			@assert isinteger(π / tick_θ)
 			θ_labels = π_label.(Int.(θ_ticks ./ tick_θ) .// Int(π / tick_θ))
+		else
+			error("unexpected tickstyle: $tickstyle")
 		end
-		plot!(xlim=(-1.1max_θ, 1.1max_θ), xticks=(collect(θ_ticks), θ_labels), xminorticks=6)
+		plot!(
+			xlim=(-1.1max_θ, 1.1max_θ),
+			xticks=(collect(θ_ticks), θ_labels),
+			xminorticks=6
+		)
 	
 		if isnothing(max_y)
-			y_lim = (min_k - 1.1max_A, max_k + 1.1max_A)
-			y_ticks = (min_k - max_A):tick_y:(max_k + max_A)
+			max_y = maximum(maximum.(waves))
+			min_y = minimum(minimum.(waves))
 		else
-			y_lim = (-1.1max_y, 1.1max_y)
-			y_ticks = -max_y:tick_y:max_y
+			min_y = -max_y
 		end
-		plot!(ylim=y_lim, yticks=(collect(y_ticks), round_label.(y_ticks)), yminorticks=4)
+		pad_y = (max_y - min_y) / 20
+		isnothing(tick_y) && (tick_y = (max_y - min_y) / 4)
+		
+		plot!(
+			ylim=(min_y - pad_y, max_y + pad_y),
+			yticks=(collect(min_y:tick_y:max_y), round_label.(min_y:tick_y:max_y)),
+			yminorticks=4
+		)
 
 		for wave in waves
 			show_v_shift && plot!(  # midline marker
@@ -948,65 +957,17 @@ let
 	plot(cos_circle_plot, cos_curve_plot, layout=(2, 1))
 end
 
-# ╔═╡ 6a031d8c-ff65-4a6b-b8b6-76203dc56f2a
-let
-	circle_plot = plot_trig_circle(θ₁, max_x=1, max_y=1.5, R_tick=0.5, show_sin=true, show_cos=true)
-	sin_curve_plot = plot_trig_function(Wave(sin), max_θ=2π, tick_θ=π, tickstyle=:πmultiple, θ=θ₁)
-	cos_curve_plot = plot_trig_function(Wave(cos), max_θ=2π, tick_θ=π, tickstyle=:πmultiple, θ=θ₁)
-	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
-end
-
-# ╔═╡ 8927df0f-b092-4933-b7c2-d712a1d2e8b2
-let
-	circle_plot = plot_trig_circle(θ_t1, R=R_t1, max_x=4, max_y=5, R_tick=2, show_sin=true, show_cos=true)
-	sin_curve_plot = plot_trig_function(Wave(sin, A=R_t1), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_A=3, tick_y=1, θ=θ_t1)
-	cos_curve_plot = plot_trig_function(Wave(cos, A=R_t1), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_A=3, tick_y=1, θ=θ_t1)
-	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
-end
-
 # ╔═╡ e29c8789-202f-4d93-ae34-7642b0b80d74
-plot_trig_function(Wave(sin, A=A_t1), max_θ=2π, tickstyle=:πfraction, max_A=3, tick_y=1, show_curve=show_curve_t1, show_positive=show_points_t1, critical_only=critical_only_t1, show_max_min=show_max_min_t1)
-
-# ╔═╡ 962cb2da-7f45-40aa-a081-468841dfa617
-let
-	circle_plot = plot_trig_circle(θ_t2, x₀=x₀_t2, y₀=y₀_t2, max_x=3, max_y=4, show_sin=true, show_cos=true)
-	sin_curve_plot = plot_trig_function(Wave(sin, k=y₀_t2), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=3, tick_y=1, θ=θ_t2)
-	cos_curve_plot = plot_trig_function(Wave(cos, k=x₀_t2), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=3, tick_y=1, θ=θ_t2)
-	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
-end
+plot_trig_function(Wave(sin, A=A_t1), max_θ=2π, tickstyle=:πfraction, max_y=3, tick_y=1, show_curve=show_curve_t1, show_positive=show_points_t1, critical_only=critical_only_t1, show_max_min=show_max_min_t1)
 
 # ╔═╡ 055c68c2-4fca-4a3e-ab26-28cf6c0cdef8
 plot_trig_function(Wave(sin, k=k_t2), max_θ=2π, tickstyle=:πfraction, max_y=3, tick_y=1, show_curve=show_curve_t2, show_positive=show_points_t2, critical_only=critical_only_t2, show_v_shift=show_v_shift_t2)
 
-# ╔═╡ 1c959bee-c340-41cf-a142-2d6cd3839684
-let
-	circle_plot = plot_trig_circle(θ_t3, R=R_t3, x₀=x₀_t3, y₀=y₀_t3, max_x=4, max_y=5, R_tick=2, show_sin=true, show_cos=true)
-	sin_curve_plot = plot_trig_function(Wave(sin, A=R_t3, k=y₀_t3), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=4, θ=θ_t3)
-	cos_curve_plot = plot_trig_function(Wave(cos, A=R_t3, k=x₀_t3), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=4, θ=θ_t3)
-	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
-end
-
 # ╔═╡ d26018da-e17d-430d-baf9-84265352cd8c
 plot_trig_function(Wave(sin, A=A_t3, k=k_t3), max_θ=2π, tickstyle=:πfraction, max_y=4, tick_y=1, show_curve=show_curve_t3, show_positive=show_points_t3, critical_only=critical_only_t3, show_max_min=show_max_min_t3, show_v_shift=show_v_shift_t3)
 
-# ╔═╡ 9a34a196-0a73-4aee-a097-ad4d5b193a42
-let
-	circle_plot = plot_trig_circle(θ_t4, b=b_t4, max_x=1, max_y=1.5, R_tick=0.5, show_sin=true, show_cos=true)
-	sin_curve_plot = plot_trig_function(Wave(sin, b=b_t4), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, θ=θ_t4)
-	cos_curve_plot = plot_trig_function(Wave(cos, b=b_t4), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, θ=θ_t4)
-	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
-end
-
 # ╔═╡ 0112eae5-6f4c-400f-b636-9fd4e3786153
 plot_trig_function(Wave(sin, b=b2_t4), max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t4, show_positive=show_points_t4, critical_only=critical_only_t4, show_period=show_period_t4)
-
-# ╔═╡ 7c6ba1e8-9e6c-4fbb-aea2-493bb3b7fcd9
-let
-	circle_plot = plot_trig_circle(θ_t5, h=h_t5, max_x=1, max_y=1.5, R_tick=0.5, show_sin=true, show_cos=true)
-	sin_curve_plot = plot_trig_function(Wave(sin, h=h_t5), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, θ=θ_t5)
-	cos_curve_plot = plot_trig_function(Wave(cos, h=h_t5), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, θ=θ_t5)
-	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
-end
 
 # ╔═╡ c675e5ee-185e-41d1-b879-939357ffb5c7
 let
@@ -1015,16 +976,52 @@ let
 	plot(sin_plot, cos_plot, layout=(2,1))
 end
 
-# ╔═╡ dc1e4c73-f7e1-4f7f-b139-0b82797da6c6
-let
-	circle_plot = plot_trig_circle(θ_t6, R=R_t6, x₀=x₀_t6, y₀=y₀_t6, b=b_t6, h=h_t6, max_x=4, max_y=5, R_tick=2, show_sin=true, show_cos=true)
-	sin_curve_plot = plot_trig_function(Wave(sin, A=R_t6, k=y₀_t6, b=b_t6, h=h_t6), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=4, θ=θ_t6)
-	cos_curve_plot = plot_trig_function(Wave(cos, A=R_t6, k=x₀_t6, b=b_t6, h=h_t6), max_θ=4π, tick_θ=2π, tickstyle=:πmultiple, max_y=4, θ=θ_t6)
-	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
-end
-
 # ╔═╡ f530f155-fd4e-4dae-ab85-994ea0ebe8b2
 plot_trig_function(Wave(sin, A=A_t6, k=k_t6, b=b2_t6, h=h2_t6), max_θ=2π, tickstyle=:πfraction, max_y=5, tick_y=1, show_curve=show_curve_t6, show_positive=show_points_t6, critical_only=critical_only_t6, show_max_min=show_max_min_t6, show_period=show_period_t6, show_v_shift=show_v_shift_t6, show_h_shift=show_h_shift_t6)
+
+# ╔═╡ 6b76e577-317b-48ab-989e-7b716602aadb
+function plot_side_by_side(
+	θ; R=1, x₀=0, y₀=0, b=1, h=0,
+	circle_max_x=1, circle_max_y=1.5, circle_tick=0.5,
+	max_θ=2π, tick_θ=max_θ/2, tickstyle=:πmultiple,
+	wave_max_y=1, wave_tick_y=wave_max_y/2
+)
+	circle_plot = plot_trig_circle(
+		θ; R, x₀, y₀, b, h,
+		max_x=circle_max_x, max_y=circle_max_y, R_tick=circle_tick,
+		show_sin=true, show_cos=true
+	)
+	sin_curve_plot = plot_trig_function(
+		Wave(sin; A=R, k=y₀, b, h);
+		max_θ, tick_θ, tickstyle, max_y=wave_max_y, tick_y=wave_tick_y, θ
+	)
+	cos_curve_plot = plot_trig_function(
+		Wave(cos; A=R, k=x₀, b, h);
+		max_θ, tick_θ, tickstyle, max_y=wave_max_y, tick_y=wave_tick_y, θ
+	)
+	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
+end;
+
+# ╔═╡ a8c7df79-e9bc-4ab0-a1c9-b3dde44adeb3
+plot_side_by_side(θ₁)
+
+# ╔═╡ 33eb69c3-7391-44cb-b31f-8e2e724028c8
+plot_side_by_side(θ_t1, R=R_t1, circle_max_x=4, circle_max_y=5, circle_tick=1, max_θ=4π, wave_max_y=3, wave_tick_y=1)
+
+# ╔═╡ 1b50e6b9-e161-4b86-b771-787f34352a8a
+plot_side_by_side(θ_t2, x₀=x₀_t2, y₀=y₀_t2, circle_max_x=3, circle_max_y=4, circle_tick=1, max_θ=4π, wave_max_y=3, wave_tick_y=1)
+
+# ╔═╡ ec00618a-5042-4aaf-a17a-b60f67f95aa9
+plot_side_by_side(θ_t3, R=R_t3, x₀=x₀_t3, y₀=y₀_t3, circle_max_x=4, circle_max_y=5, circle_tick=2, max_θ=4π, wave_max_y=4)
+
+# ╔═╡ dfed3645-85e2-440b-965b-eaef0585a823
+plot_side_by_side(θ_t4, b=b_t4, max_θ=4π)
+
+# ╔═╡ e4751115-51e2-4bab-ad19-b7cf4a8f56ad
+plot_side_by_side(θ_t5, h=h_t5, max_θ=4π)
+
+# ╔═╡ ee7b9d4e-6b25-4951-95b8-7d3992294aee
+plot_side_by_side(θ_t6, R=R_t6, x₀=x₀_t6, y₀=y₀_t6, b=b_t6, h=h_t6, circle_max_x=4, circle_max_y=5, circle_tick=2, max_θ=4π, wave_max_y=4)
 
 # ╔═╡ 819075e8-0058-4606-9a29-93fe169263be
 md"""
@@ -1048,7 +1045,7 @@ begin
 	plot_trig_function(Wave(A=4), tickstyle=:πfraction, show_curve=false, show_label=false)
 	png("exports/MQ 9 - Empty Plot Scaled 1.png")
 
-	plot_trig_function(Wave(T=1), max_A=1.5, tick_y=0.5, show_curve=false, show_label=false)
+	plot_trig_function(Wave(T=1), max_y=1.5, tick_y=0.5, show_curve=false, show_label=false)
 	png("exports/MQ 9 - Empty Plot Scaled 2.png")
 end;
 
@@ -2180,13 +2177,13 @@ version = "1.4.1+1"
 # ╟─25408447-3e76-4bfc-94c9-4bede0a44351
 # ╟─7f34b696-8844-40e5-8cf0-14ceb0f56868
 # ╟─f8ccdf01-abc9-4fd9-95c1-e5c77e3527ef
-# ╟─6a031d8c-ff65-4a6b-b8b6-76203dc56f2a
+# ╟─a8c7df79-e9bc-4ab0-a1c9-b3dde44adeb3
 # ╟─8b95ef50-fbac-4653-8819-757fdf77a4dd
 # ╟─da783d24-3ae2-4618-8eac-af1b2a32f657
 # ╟─618edeb0-411a-4c4f-9ddb-2497b40241aa
 # ╟─ebc4c86d-621b-4c0a-b7bd-e9ea8e87d36d
 # ╟─eaa13afa-3efd-42dd-9eb3-a41569e063dc
-# ╟─8927df0f-b092-4933-b7c2-d712a1d2e8b2
+# ╟─33eb69c3-7391-44cb-b31f-8e2e724028c8
 # ╟─de7960c4-9177-4ded-b0bf-6140c10e69f0
 # ╟─53bb3aa6-a858-4040-86c3-c94d8bb6848b
 # ╟─8aee1e87-7b32-4f71-9685-12e15ba9b246
@@ -2195,34 +2192,34 @@ version = "1.4.1+1"
 # ╟─f14d6ab2-1e06-4e72-86c1-6defaedd58c3
 # ╟─e58f6c8b-ffcd-4f06-a1c3-6a02055ae428
 # ╟─7086d5eb-6f81-4bfc-8ba0-1ea83268059f
-# ╟─962cb2da-7f45-40aa-a081-468841dfa617
+# ╟─1b50e6b9-e161-4b86-b771-787f34352a8a
 # ╟─81d21cce-1374-4d64-9230-8216ff71ee38
 # ╟─af6ca434-aabe-4c95-9a4f-9155c861f2e2
 # ╟─32e5c347-5dd3-41ab-9382-deaff3089657
 # ╟─055c68c2-4fca-4a3e-ab26-28cf6c0cdef8
 # ╟─eb96720e-1a36-4295-a68f-e087c4d8a59b
 # ╟─3690445c-4878-4f9c-949b-222c2e31176e
-# ╟─1c959bee-c340-41cf-a142-2d6cd3839684
+# ╟─ec00618a-5042-4aaf-a17a-b60f67f95aa9
 # ╟─827b1c6b-e992-4135-a491-cabf39ac906c
 # ╟─9ffa7538-c969-4e7a-8bd6-6b568d7e1a03
 # ╟─d26018da-e17d-430d-baf9-84265352cd8c
 # ╟─1bfcc315-531b-482d-b712-14589d2489f7
 # ╟─48e3d3c0-a6f1-48a3-9ca1-c239fa15fc62
-# ╟─9a34a196-0a73-4aee-a097-ad4d5b193a42
+# ╟─dfed3645-85e2-440b-965b-eaef0585a823
 # ╟─7a03612e-4116-4063-ba89-3e73028b115f
 # ╟─25a533c4-61dc-4ba0-8ab2-eba55f69b21f
 # ╟─0112eae5-6f4c-400f-b636-9fd4e3786153
 # ╟─c2d7a315-56c8-4e14-9a16-219d7669e3cb
 # ╟─b7b3afbb-5aeb-4f24-9beb-7f69a0c6629b
 # ╟─21c01e95-814a-4760-bc27-b31f45eb72b2
-# ╟─7c6ba1e8-9e6c-4fbb-aea2-493bb3b7fcd9
+# ╟─e4751115-51e2-4bab-ad19-b7cf4a8f56ad
 # ╟─ea4c2b2f-1419-4334-a545-f16dd6dd3e76
 # ╟─050c6975-e92b-48b1-a0d5-b12f1005b611
 # ╟─c675e5ee-185e-41d1-b879-939357ffb5c7
 # ╟─49c21509-8821-4299-a725-814e54d0954d
 # ╟─6a786e0f-6ab6-4c72-aa3d-cb0eff518d6d
 # ╟─dd21e219-6c97-4f15-8fe7-803184aa6d6f
-# ╟─dc1e4c73-f7e1-4f7f-b139-0b82797da6c6
+# ╟─ee7b9d4e-6b25-4951-95b8-7d3992294aee
 # ╟─b264e6e2-1ed9-4a01-8ca9-f0825de0482c
 # ╟─bc101546-cb14-40e5-ba6a-1f3b084be914
 # ╟─f530f155-fd4e-4dae-ab85-994ea0ebe8b2
@@ -2241,6 +2238,7 @@ version = "1.4.1+1"
 # ╠═30e87a64-2d1a-4198-8039-8bb0be7632f3
 # ╠═279fa764-91aa-415d-86ed-47ed3ecfc720
 # ╠═54eb2768-7b9e-442e-8818-b373f8b6d49e
+# ╠═6b76e577-317b-48ab-989e-7b716602aadb
 # ╟─819075e8-0058-4606-9a29-93fe169263be
 # ╠═db66a1ef-6f40-447e-8e09-1b612bd98d3b
 # ╟─00000000-0000-0000-0000-000000000001
