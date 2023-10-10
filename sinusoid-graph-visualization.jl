@@ -16,31 +16,28 @@ end
 
 # ╔═╡ e503d9f6-84f0-486f-aa0f-b9cf6aa88b69
 begin
-	using DataStructures
 	using Plots
+	using PlutoLinks
 	using PlutoUI
+end;
 
-	import Base.Fix1
-	import Printf.@sprintf
+# ╔═╡ 9a65324e-594f-11ee-3a9b-dff0ec87117f
+begin
+	logo = Resource("https://raw.githubusercontent.com/jrdegreeff/trig-visualization/main/MX_Shield_Red.png", :height => 28)
+	md"""
+	# ``\quad`` $(logo) ``\quad`` Graphing Trig Functions``\quad`` $(logo) ``\quad``
+	This notebook was designed to complement Middlesex School's *Math 32 -- Pre-calculus: Trigonometry* class. Specifically, it is an interactive visual aide for PART II: Graphing Period Functions.
+	"""
 end
 
-# ╔═╡ d55da43e-9ba9-4527-8fec-72493e7996f3
-html"""<script>
-document.presentAndReset = function() {
-	window.present();
-	window.scrollTo(0, 0);
-	setTimeout(function() {  // need to wait for body update
-		if(document.body.classList.contains("presentation")) {
-			document.getElementsByClassName("changeslide next")[0].click();
-		}
-	}, 10);
-}
-window.addEventListener('keyup', function(e) {
-	if (e.keyCode === 13 && e.altKey) {  // toggle presentation with alt + enter
-		document.presentAndReset();
-	}
-});
-</script>"""
+# ╔═╡ 178903b9-1112-4f42-8995-dab542e293fe
+html"""
+<div style="display: flex; flex-align: center; flex-direction: column;">
+	<button onclick=document.presentAndReset()>
+		Toggle Presentation Mode 
+	</button>
+</div>
+"""
 
 # ╔═╡ ffa59d87-7b68-4192-a52f-6582e67f1cbd
 md"""
@@ -511,185 +508,21 @@ md"""
 ##
 """
 
-# ╔═╡ 3bb2ca7f-c283-4574-a45a-bebf068dfe71
+# ╔═╡ 93f8a6d5-6764-441a-aa89-39211dcf9358
 md"""
-## Appendix: Elements
+## Appendix: Dependencies
 """
 
-# ╔═╡ 289f7931-8511-4650-960e-54a20a180320
-presentation_mode_button = html"""
-<div style="display: flex; flex-align: center; flex-direction: column;">
-	<button onclick=document.presentAndReset()>
-		Toggle Presentation Mode 
-	</button>
-</div>
-""";
-
-# ╔═╡ 178903b9-1112-4f42-8995-dab542e293fe
-presentation_mode_button
-
-# ╔═╡ 8fd2edc7-5063-4033-a9cb-5e7623467fb5
-logo = Resource("https://raw.githubusercontent.com/jrdegreeff/trig-visualization/main/MX_Shield_Red.png", :height => 28);
-
-# ╔═╡ 9a65324e-594f-11ee-3a9b-dff0ec87117f
-md"""
-# ``\quad`` $(logo) ``\quad`` Graphing Trig Functions``\quad`` $(logo) ``\quad``
-This notebook was designed to complement Middlesex School's *Math 32 -- Pre-calculus: Trigonometry* class. Specifically, it is an interactive visual aide for PART II: Graphing Period Functions.
-"""
-
-# ╔═╡ 7e6d7f4f-e68c-41ff-8dcc-14cf326279da
-md"""
-## Appendix: Number Formatting
-"""
-
-# ╔═╡ 10737f1b-f132-468f-95f2-089705bd7488
+# ╔═╡ b64195b9-b27d-4702-a445-05118709faf9
 begin
-	round_to_hundredths(x::Float64) = replace(@sprintf("%.2f", x), "-0.00" => "0.00")
+	SP = @ingredients "./sinusoid-plotting.jl"
+	import .SP: Wave,
+	            format_special_angles_table, n_special_angles,
+	            plot_trig_circle, plot_trig_function, plot_side_by_side
+end
 
-	isapproxinteger = x -> abs(x - round(Int, x)) < 1e-6
-	
-	function π_label(x::Real)
-		iszero(x) && return "0"
-		S = x < 0 ? "-" : ""
-		n = abs(isinteger(x) ? Int(x) : x)
-		N = isone(n) ? "" : n
-		"$(S)$(N)π"
-	end
-	function π_label(x::Rational)
-	    iszero(x) && return "0"
-		n, d = π_label(numerator(x)), denominator(x)
-	    isone(d) ? n : "$(n)/$(d)"
-	end
-	
-	round_label(x) = isapproxinteger(x) ? round(Int, x) : round(x, digits=3)
-	
-	format_label(θ, d=5040) = isapproxinteger(θ/(π/d)) ?
-		π_label(round(Int, θ/(π/d)) // d) :
-		round_label(θ)
-end;
-
-# ╔═╡ 3e4e081f-d8ab-4b82-85ed-aaecc192a46b
-md"""
-## Appendix: Sinusoid Manipulation
-"""
-
-# ╔═╡ 1577dff0-f4b6-4c39-8d2a-f7ff6fe5b044
-md"""
-## Appendix: Tables
-"""
-
-# ╔═╡ 26e8e204-a74e-4bc8-8bc0-28ba4eb26620
-md"""
-## Appendix: Plotting
-"""
-
-# ╔═╡ 30e87a64-2d1a-4198-8039-8bb0be7632f3
-begin
-	sin_color = 1
-	cos_color = 2
-	hyp_color = 3
-end;
-
-# ╔═╡ 66af7c57-3063-448f-baef-2898cb262c22
-begin
-	struct Wave{F} <: Function
-		f::F
-		color
-		A::Real
-		k::Real
-		b::Real
-		h::Real
-
-		function Wave(
-			func=identity; color=default_color(func),
-			A=1, k=0, b=1, h=0, T=nothing, f=nothing
-		)
-			@assert isnothing(T) || isnothing(f)
-			!isnothing(T) && (b = 2π/T)
-			!isnothing(f) && (b = 2πf)
-			
-			new{typeof(func)}(func, color, A, k, b, h)
-		end
-	end
-	
-	(w::Wave)(θ) = w.A * w.f(w.b * (θ - w.h)) + w.k
-	invert(w::Wave) = (x) -> inverse_table[w.f]((1 / w.A) * (x - w.k)) / w.b + w.h
-
-	amplitude(w::Wave) = abs(w.A)
-	midline(w::Wave) = w.k
-	angular_frequency(w::Wave) = w.b
-	h_shift(w::Wave) = w.h
-	
-	Base.maximum(w::Wave) = midline(w) + amplitude(w)
-	Base.minimum(w::Wave) = midline(w) - amplitude(w)
-	period(w::Wave) = 2π / angular_frequency(w)
-	freqeuncy(w::Wave) = angular_frequency(w) / (2π)
-	phase_shift(w::Wave) = -angular_frequency(w) * h_shift(w)
-
-	Plots.get_series_color(w::Wave, sp::Plots.Subplot, n::Int, seriestype) =
-		Plots.get_series_color(w.color, sp, n, seriestype)
-
-	inner(w::Wave; color=w.color) = Wave(; color, b=w.b, h=w.h)
-	invert_inner(w::Wave, x) = invert(inner(w))(x)
-
-	plus_label(x) = iszero(x) ? "" : " $(x > 0 ? "+" : "-") $(format_label(abs(x)))"
-	times_label(x; space=true) = isone(x) ? "" : "$(format_label(x))$(space ? " " : "")"
-	
-	function Base.show(io::IO, w::Wave{typeof(identity)})
-		parenthesize = !isone(w.b) && !iszero(w.h)
-		print(
-			io, times_label(w.b, space=false), parenthesize ? "(θ" : "θ", plus_label(-w.h), parenthesize ? ")" : ""
-		)
-	end
-	Base.show(io::IO, w::Wave) = print(
-		io, times_label(w.A), w.f, "(", inner(w), ")", plus_label(w.k)
-	)
-	eval_label(w::Wave, θ) = "$(w) = $(format_label(w(θ)))"
-
-	default_colors = Dict([sin => sin_color, cos => cos_color])
-	default_color(func) = get(default_colors, func, 3)
-	inverse_table = Dict([sin => asin, cos => acos, identity => identity])
-end;
-
-# ╔═╡ 64840f00-2529-4ad9-bf9e-33610dc4cfcc
-begin
-	special_angles = [
-		0, π/6, π/4, π/3, π/2, 2π/3, 3π/4, 5π/6, π,
-		7π/6, 5π/4, 4π/3, 3π/2, 5π/3, 7π/4, 11π/6, 2π
-	]
-	n_special_angles = length(special_angles)
-	critical_angles = [
-		0, π/2, π, 3π/2, 2π
-	]
-	
-	function format_table(columns; column_width)
-		line_span = repeat("-", column_width)
-		line = "+-" * join((line_span for _ in columns), "-+-") * "-+\n"
-		
-		pad(text) = lpad(text, column_width, " ")
-		header = "| " * join((pad(c[1]) for c in columns), " | ") * " |\n"
-		rows = ("| " * join((pad(v) for v in r), " | ") * " |\n" for r in zip([c[2] for c in columns]...))
-		
-		Text(line * header * line * reduce(*, rows) * line)
-	end
-
-	function format_special_angles_table(column::Wave; kwargs...)
-		format_special_angles_table([column]; kwargs...)
-	end
-	function format_special_angles_table(
-		columns::Vector{<:Wave};
-		n_angles=n_special_angles, critical_only=false, column_width=6
-	)
-		@assert length(columns) > 0
-		angles = critical_only ? critical_angles : special_angles
-		n_angles = min(n_angles, length(angles))
-		adjusted_angles = Fix1(invert_inner, columns[1]).(angles)
-		columns = ["θ" => adjusted_angles .|> format_label, (string(wave) => vcat(
-			adjusted_angles[1:n_angles] .|> wave .|> (wave.f == identity ? format_label : round_to_hundredths), fill("", length(angles) - n_angles)
-		) for wave in columns)...]
-		format_table(columns, column_width=column_width)
-	end
-end;
+# ╔═╡ 7f924a27-3a75-47ba-a0e9-d5b841a49bb1
+plot_trig_circle(θ_sin, max_x=1.5, max_y=1, R_tick=0.5, show_sin=true)
 
 # ╔═╡ 12e416c5-6f4e-4c84-ab04-20ba300adfc3
 md"""
@@ -700,237 +533,6 @@ $(@bind sin_slider Slider(0:n_special_angles))
 
 # ╔═╡ ebdbcb08-bdfa-46e4-9d20-898b25d77d15
 format_special_angles_table(Wave(sin), n_angles=sin_slider)
-
-# ╔═╡ 1159e991-073f-4e4d-88f8-c8cd0104a6e2
-md"""
-Let's write down the cosine values for the special angles, and round to 2 decimal places.
-
-$(@bind cos_slider Slider(0:n_special_angles))
-"""
-
-# ╔═╡ c3550f70-8b7b-432e-aa5e-7ab5084cf69f
-format_special_angles_table(Wave(cos), n_angles=cos_slider)
-
-# ╔═╡ 8aee1e87-7b32-4f71-9685-12e15ba9b246
-show_table_t1 ? format_special_angles_table([Wave(sin), Wave(sin, A=A_t1)], critical_only=critical_only_t1, column_width=11) : nothing
-
-# ╔═╡ 32e5c347-5dd3-41ab-9382-deaff3089657
-show_table_t2 ? format_special_angles_table([Wave(sin), Wave(sin, k=k_t2)], critical_only=critical_only_t2, column_width=12) : nothing
-
-# ╔═╡ 9ffa7538-c969-4e7a-8bd6-6b568d7e1a03
-show_table_t3 ? format_special_angles_table([Wave(sin), Wave(sin, A=A_t3, k=k_t3)], critical_only=critical_only_t3, column_width=16) : nothing
-
-# ╔═╡ 25a533c4-61dc-4ba0-8ab2-eba55f69b21f
-show_table_t4 ? format_special_angles_table([Wave(b=b2_t4), Wave(sin, b=b2_t4)], critical_only=critical_only_t4, column_width=11) : nothing
-
-# ╔═╡ 050c6975-e92b-48b1-a0d5-b12f1005b611
-show_table_t5 ? format_special_angles_table([Wave(h=h2_t5), Wave(sin, h=h2_t5), Wave(cos, h=h2_t5)], critical_only=critical_only_t5, column_width=15) : nothing
-
-# ╔═╡ bc101546-cb14-40e5-ba6a-1f3b084be914
-show_table_t6 ? format_special_angles_table([Wave(b=b2_t6, h=h2_t6), Wave(sin, A=A_t6, k=k_t6, b=b2_t6, h=h2_t6)], critical_only=critical_only_t6, column_width=26) : nothing
-
-# ╔═╡ 279fa764-91aa-415d-86ed-47ed3ecfc720
-function plot_trig_circle(
-	θ;
-	R=1, x₀=0, y₀=0, b=1, h=0,
-	max_x=nothing, max_y=nothing, R_tick=1, circle_resolution=0.01π,
-	show_sin=false, show_cos=false
-)
-	θ_func = Wave(identity; b, h)
-	sin_func = Wave(sin; A=R, k=y₀, b, h)
-	cos_func = Wave(cos; A=R, k=x₀, b, h)
-
-	sin_func_radius = Wave(sin; A=1.1R, k=y₀, b, h)
-	cos_func_radius = Wave(cos; A=1.1R, k=x₀, b, h)
-
-	angle_radius = isnothing(max_x) || isnothing(max_y) ? 0.1 : 0.1min(max_x, max_y)
-	sin_func_angle = Wave(sin; A=angle_radius, k=y₀, b, h)
-	cos_func_angle = Wave(cos; A=angle_radius, k=x₀, b, h)
-
-	circle_start, circle_end = invert(θ_func)(0), invert(θ_func)(2π)
-	circle_range = circle_start:circle_resolution:circle_end
-
-	θ_rev = abs(θ) ÷ circle_end
-	θ_range = 0:((θ ≥ 0 ? 1 : -1) * circle_resolution):θ
-
-	p = plot(framestyle=:origin, aspect_ratio=:equal)
-
-	if !isnothing(max_x)
-		x_ticks = -(max_x ÷ R_tick)R_tick:R_tick:(max_x ÷ R_tick)R_tick
-		plot!(
-			xlim=(-max_x, max_x) .* 1.1,
-			xticks=(collect(x_ticks), round_label.(x_ticks))
-		)
-	end
-	if !isnothing(max_y)
-		y_ticks = -(max_y ÷ R_tick)R_tick:R_tick:(max_y ÷ R_tick)R_tick
-		plot!(
-			ylim=(-max_y, max_y) .* 1.1,
-			yticks=(collect(y_ticks), round_label.(y_ticks))
-		)
-	end
-
-	scatter!(  # center
-		[x₀], [y₀],
-		ms=6, msw=0, color=:black, label=false
-	)
-	plot!(  # radius
-		[x₀, cos_func_radius(0)], [y₀, sin_func_radius(0)],
-		lw=3, color=:black, label=false
-	)
-	plot!(  # circle
-		cos_func.(circle_range), sin_func.(circle_range),
-		lw=2, color=:black, label=false
-	)
-	plot!(  # angle - (angle % 2π)
-		cos_func_angle.(circle_range), sin_func_angle.(circle_range),
-		lw=2θ_rev, color=:gray, label=false
-	)
-	plot!(  # angle % 2π
-		cos_func_angle.(θ_range), sin_func_angle.(θ_range),
-		lw=2(θ_rev + 1), color=:gray, label=eval_label(θ_func, θ)
-	)
-	plot!(  # vertical offset
-		[x₀, x₀], [0,  y₀],
-		lw=3, color=sin_color, label=false
-	)
-	plot!(  # horizontal offset
-		[0, x₀], [0,  0],
-		lw=3, color=cos_color, label=false
-	)
-	plot!(  # hypotenuse of triangle
-		[x₀, cos_func(θ)], [y₀, sin_func(θ)],
-		lw=3, color=hyp_color, label=false
-	)
-	plot!(  # vertical edge of triangle
-		[cos_func(θ), cos_func(θ)], [y₀, sin_func(θ)],
-		lw=3, color=sin_color, label=show_sin && eval_label(sin_func, θ)
-	)
-	plot!(  # horizontal edge of triangle
-		[x₀, cos_func(θ)], [y₀, y₀],
-		lw=3, color=cos_color, label=show_cos && eval_label(cos_func, θ)
-	)
-	scatter!(  # point on circle
-		[cos_func(θ)], [sin_func(θ)],
-		ms=6, msw=3, color=:white, msc=:black, label=false
-	)
-	p
-end;
-
-# ╔═╡ 7f924a27-3a75-47ba-a0e9-d5b841a49bb1
-plot_trig_circle(θ_sin, max_x=1.5, max_y=1, R_tick=0.5, show_sin=true)
-
-# ╔═╡ 0e2de8ba-3a25-4158-abc0-bed956dfe470
-plot_trig_circle(θ_cos, max_x=1.5, max_y=1, R_tick=0.5, show_cos=true)
-
-# ╔═╡ ebc4c86d-621b-4c0a-b7bd-e9ea8e87d36d
-plot_trig_circle(θ_t1, R=R_t1, max_x=4, max_y=3, show_sin=true, show_cos=true)
-
-# ╔═╡ e58f6c8b-ffcd-4f06-a1c3-6a02055ae428
-plot_trig_circle(θ_t2, x₀=x₀_t2, y₀=y₀_t2, max_x=4, max_y=3, show_sin=true, show_cos=true)
-
-# ╔═╡ 54eb2768-7b9e-442e-8818-b373f8b6d49e
-begin
-	function plot_trig_function(wave::Wave; kwargs...)
-		plot_trig_function([wave]; kwargs...)
-	end
-	function plot_trig_function(
-		waves::Vector{<:Wave};
-		max_θ=maximum(period.(waves)), tick_θ=max_θ/4, tickstyle=:decimal,
-		max_y=nothing, tick_y=nothing,
-		circle_resolution=tick_θ/100, θ=nothing,
-		show_curve=true, show_label=true,
-		n_angles=n_special_angles, critical_only=false,
-		show_positive=false, show_negative=false,
-		show_max_min=false, show_period=false,
-		show_v_shift=false, show_h_shift=false
-	)
-		p = plot(
-			framestyle=:origin, minorgrid=true, legend=show_label,
-			xminorticks=6, yminorticks=4, minorgridlinewidth=1
-		)
-	
-		@assert isinteger(max_θ / tick_θ)
-		θ_ticks = -max_θ:tick_θ:max_θ
-		if tickstyle == :decimal
-			θ_labels = round_label.(θ_ticks)
-		elseif tickstyle == :πmultiple
-			@assert isinteger(tick_θ / π)
-			θ_labels = π_label.(θ_ticks ./ π)
-		elseif tickstyle == :πfraction
-			@assert isinteger(π / tick_θ)
-			θ_labels = π_label.(Int.(θ_ticks ./ tick_θ) .// Int(π / tick_θ))
-		else
-			error("unexpected tickstyle: $tickstyle")
-		end
-		plot!(xlim=(-1.1max_θ, 1.1max_θ), xticks=(collect(θ_ticks), θ_labels))
-	
-		if isnothing(max_y)
-			max_y = maximum(maximum.(waves))
-			min_y = minimum(minimum.(waves))
-		else
-			min_y = -max_y
-		end
-		pad_y = (max_y - min_y) / 20
-		isnothing(tick_y) && (tick_y = (max_y - min_y) / 4)
-		
-		plot!(
-			ylim=(min_y - pad_y, max_y + pad_y),
-			yticks=(collect(min_y:tick_y:max_y), round_label.(min_y:tick_y:max_y))
-		)
-
-		for wave in waves
-			show_v_shift && plot!(  # midline marker
-				[-max_θ, max_θ], [midline(wave), midline(wave)],
-				label=false, lw=3, color=:gray, style=:dash
-			)
-			show_h_shift && vline!(  # phase marker
-				[h_shift(wave)],
-				label=false, lw=3, color=:gray, style=:dash
-			)
-			show_period && vline!(  # period markers
-				sort(vcat(
-					h_shift(wave):-period(wave):-max_θ, h_shift(wave):period(wave):max_θ)
-				), label=false, lw=2, color=4, style=:dash
-			)
-			show_max_min && plot!(  # max and min markers
-				[-max_θ, max_θ], [maximum(wave), maximum(wave)],
-				label=false, lw=2, color=5, style=:dash
-			)
-			show_max_min && plot!(  # max and min markers
-				[-max_θ, max_θ], [minimum(wave), minimum(wave)],
-				label=false, lw=2, color=5, style=:dash
-			)
-
-			
-			show_curve && plot!(  # the function itself
-				-max_θ:circle_resolution:max_θ, wave, label=string(wave),
-				lw=3, color=wave
-			)
-	
-			angles = critical_only ? critical_angles : special_angles
-			n_angles = min(n_angles, length(angles))
-			displayed_angles = Fix1(invert_inner, wave).(angles[1:n_angles])
-			filter!(a -> a ≤ max_θ, displayed_angles)
-	
-			show_positive && scatter!(  # positive special angles
-				displayed_angles, wave, label=false, color=wave
-			)
-			show_negative && scatter!(  # negative special angles
-				-displayed_angles, wave, label=false, color=wave
-			)
-	
-			!isnothing(θ) && plot!(  # vertical line at indicated point
-				[θ, θ], [0, wave(θ)], label=false, lw=3, color=wave
-			)
-			!isnothing(θ) && scatter!(  # indicated point
-				[θ], [wave(θ)], label=round_label(wave(θ)),
-				ms=6, msw=3, color=:white, msc=wave
-			)
-		end
-		p
-	end
-end;
 
 # ╔═╡ f87b8e3f-4943-47e6-9317-6516a8c8a31a
 plot_trig_function(Wave(sin), tickstyle=:πfraction, show_curve=show_sin_curve, show_positive=show_sin_positive, show_negative=show_sin_negative, n_angles=sin_slider)
@@ -945,6 +547,19 @@ end
 # ╔═╡ e520ba54-bef4-44b9-a09c-feeb6519292e
 plot_trig_function(Wave(sin), max_θ=4π, tickstyle=:πmultiple, show_period=show_sin_period)
 
+# ╔═╡ 0e2de8ba-3a25-4158-abc0-bed956dfe470
+plot_trig_circle(θ_cos, max_x=1.5, max_y=1, R_tick=0.5, show_cos=true)
+
+# ╔═╡ 1159e991-073f-4e4d-88f8-c8cd0104a6e2
+md"""
+Let's write down the cosine values for the special angles, and round to 2 decimal places.
+
+$(@bind cos_slider Slider(0:n_special_angles))
+"""
+
+# ╔═╡ c3550f70-8b7b-432e-aa5e-7ab5084cf69f
+format_special_angles_table(Wave(cos), n_angles=cos_slider)
+
 # ╔═╡ 882dcccd-3c97-4bc3-9e95-014f90d7a795
 plot_trig_function(Wave(cos), tickstyle=:πfraction, show_curve=show_cos_curve, show_positive=show_cos_positive, show_negative=show_cos_negative, n_angles=cos_slider)
 
@@ -955,17 +570,56 @@ let
 	plot(cos_circle_plot, cos_curve_plot, layout=(2, 1))
 end
 
+# ╔═╡ a8c7df79-e9bc-4ab0-a1c9-b3dde44adeb3
+plot_side_by_side(θ₁)
+
+# ╔═╡ ebc4c86d-621b-4c0a-b7bd-e9ea8e87d36d
+plot_trig_circle(θ_t1, R=R_t1, max_x=4, max_y=3, show_sin=true, show_cos=true)
+
+# ╔═╡ 33eb69c3-7391-44cb-b31f-8e2e724028c8
+plot_side_by_side(θ_t1, R=R_t1, circle_max_x=4, circle_max_y=5, circle_tick=1, max_θ=4π, wave_max_y=3, wave_tick_y=1)
+
+# ╔═╡ 8aee1e87-7b32-4f71-9685-12e15ba9b246
+show_table_t1 ? format_special_angles_table([Wave(sin), Wave(sin, A=A_t1)], critical_only=critical_only_t1, column_width=11) : nothing
+
 # ╔═╡ e29c8789-202f-4d93-ae34-7642b0b80d74
 plot_trig_function(Wave(sin, A=A_t1), max_θ=2π, tickstyle=:πfraction, max_y=3, tick_y=1, show_curve=show_curve_t1, show_positive=show_points_t1, critical_only=critical_only_t1, show_max_min=show_max_min_t1)
+
+# ╔═╡ e58f6c8b-ffcd-4f06-a1c3-6a02055ae428
+plot_trig_circle(θ_t2, x₀=x₀_t2, y₀=y₀_t2, max_x=4, max_y=3, show_sin=true, show_cos=true)
+
+# ╔═╡ 1b50e6b9-e161-4b86-b771-787f34352a8a
+plot_side_by_side(θ_t2, x₀=x₀_t2, y₀=y₀_t2, circle_max_x=3, circle_max_y=4, circle_tick=1, max_θ=4π, wave_max_y=3, wave_tick_y=1)
+
+# ╔═╡ 32e5c347-5dd3-41ab-9382-deaff3089657
+show_table_t2 ? format_special_angles_table([Wave(sin), Wave(sin, k=k_t2)], critical_only=critical_only_t2, column_width=12) : nothing
 
 # ╔═╡ 055c68c2-4fca-4a3e-ab26-28cf6c0cdef8
 plot_trig_function(Wave(sin, k=k_t2), max_θ=2π, tickstyle=:πfraction, max_y=3, tick_y=1, show_curve=show_curve_t2, show_positive=show_points_t2, critical_only=critical_only_t2, show_v_shift=show_v_shift_t2)
 
+# ╔═╡ ec00618a-5042-4aaf-a17a-b60f67f95aa9
+plot_side_by_side(θ_t3, R=R_t3, x₀=x₀_t3, y₀=y₀_t3, circle_max_x=4, circle_max_y=5, circle_tick=2, max_θ=4π, wave_max_y=4)
+
+# ╔═╡ 9ffa7538-c969-4e7a-8bd6-6b568d7e1a03
+show_table_t3 ? format_special_angles_table([Wave(sin), Wave(sin, A=A_t3, k=k_t3)], critical_only=critical_only_t3, column_width=16) : nothing
+
 # ╔═╡ d26018da-e17d-430d-baf9-84265352cd8c
 plot_trig_function(Wave(sin, A=A_t3, k=k_t3), max_θ=2π, tickstyle=:πfraction, max_y=4, tick_y=1, show_curve=show_curve_t3, show_positive=show_points_t3, critical_only=critical_only_t3, show_max_min=show_max_min_t3, show_v_shift=show_v_shift_t3)
 
+# ╔═╡ dfed3645-85e2-440b-965b-eaef0585a823
+plot_side_by_side(θ_t4, b=b_t4, max_θ=4π)
+
+# ╔═╡ 25a533c4-61dc-4ba0-8ab2-eba55f69b21f
+show_table_t4 ? format_special_angles_table([Wave(b=b2_t4), Wave(sin, b=b2_t4)], critical_only=critical_only_t4, column_width=11) : nothing
+
 # ╔═╡ 0112eae5-6f4c-400f-b636-9fd4e3786153
 plot_trig_function(Wave(sin, b=b2_t4), max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t4, show_positive=show_points_t4, critical_only=critical_only_t4, show_period=show_period_t4)
+
+# ╔═╡ e4751115-51e2-4bab-ad19-b7cf4a8f56ad
+plot_side_by_side(θ_t5, h=h_t5, max_θ=4π)
+
+# ╔═╡ 050c6975-e92b-48b1-a0d5-b12f1005b611
+show_table_t5 ? format_special_angles_table([Wave(h=h2_t5), Wave(sin, h=h2_t5), Wave(cos, h=h2_t5)], critical_only=critical_only_t5, column_width=15) : nothing
 
 # ╔═╡ c675e5ee-185e-41d1-b879-939357ffb5c7
 let
@@ -974,108 +628,43 @@ let
 	plot(sin_plot, cos_plot, layout=(2,1))
 end
 
-# ╔═╡ f530f155-fd4e-4dae-ab85-994ea0ebe8b2
-plot_trig_function(Wave(sin, A=A_t6, k=k_t6, b=b2_t6, h=h2_t6), max_θ=2π, tickstyle=:πfraction, max_y=5, tick_y=1, show_curve=show_curve_t6, show_positive=show_points_t6, critical_only=critical_only_t6, show_max_min=show_max_min_t6, show_period=show_period_t6, show_v_shift=show_v_shift_t6, show_h_shift=show_h_shift_t6)
-
-# ╔═╡ 6b76e577-317b-48ab-989e-7b716602aadb
-function plot_side_by_side(
-	θ; R=1, x₀=0, y₀=0, b=1, h=0,
-	circle_max_x=1, circle_max_y=1.5, circle_tick=0.5,
-	max_θ=2π, tick_θ=max_θ/2, tickstyle=:πmultiple,
-	wave_max_y=1, wave_tick_y=wave_max_y/2
-)
-	circle_plot = plot_trig_circle(
-		θ; R, x₀, y₀, b, h,
-		max_x=circle_max_x, max_y=circle_max_y, R_tick=circle_tick,
-		show_sin=true, show_cos=true
-	)
-	sin_curve_plot = plot_trig_function(
-		Wave(sin; A=R, k=y₀, b, h);
-		max_θ, tick_θ, tickstyle, max_y=wave_max_y, tick_y=wave_tick_y, θ
-	)
-	cos_curve_plot = plot_trig_function(
-		Wave(cos; A=R, k=x₀, b, h);
-		max_θ, tick_θ, tickstyle, max_y=wave_max_y, tick_y=wave_tick_y, θ
-	)
-	plot(circle_plot, plot(sin_curve_plot, cos_curve_plot, layout=(2, 1)))
-end;
-
-# ╔═╡ a8c7df79-e9bc-4ab0-a1c9-b3dde44adeb3
-plot_side_by_side(θ₁)
-
-# ╔═╡ 33eb69c3-7391-44cb-b31f-8e2e724028c8
-plot_side_by_side(θ_t1, R=R_t1, circle_max_x=4, circle_max_y=5, circle_tick=1, max_θ=4π, wave_max_y=3, wave_tick_y=1)
-
-# ╔═╡ 1b50e6b9-e161-4b86-b771-787f34352a8a
-plot_side_by_side(θ_t2, x₀=x₀_t2, y₀=y₀_t2, circle_max_x=3, circle_max_y=4, circle_tick=1, max_θ=4π, wave_max_y=3, wave_tick_y=1)
-
-# ╔═╡ ec00618a-5042-4aaf-a17a-b60f67f95aa9
-plot_side_by_side(θ_t3, R=R_t3, x₀=x₀_t3, y₀=y₀_t3, circle_max_x=4, circle_max_y=5, circle_tick=2, max_θ=4π, wave_max_y=4)
-
-# ╔═╡ dfed3645-85e2-440b-965b-eaef0585a823
-plot_side_by_side(θ_t4, b=b_t4, max_θ=4π)
-
-# ╔═╡ e4751115-51e2-4bab-ad19-b7cf4a8f56ad
-plot_side_by_side(θ_t5, h=h_t5, max_θ=4π)
-
 # ╔═╡ ee7b9d4e-6b25-4951-95b8-7d3992294aee
 plot_side_by_side(θ_t6, R=R_t6, x₀=x₀_t6, y₀=y₀_t6, b=b_t6, h=h_t6, circle_max_x=4, circle_max_y=5, circle_tick=2, max_θ=4π, wave_max_y=4)
 
-# ╔═╡ 819075e8-0058-4606-9a29-93fe169263be
-md"""
-## Appendix: Figures for Assessments
-"""
+# ╔═╡ bc101546-cb14-40e5-ba6a-1f3b084be914
+show_table_t6 ? format_special_angles_table([Wave(b=b2_t6, h=h2_t6), Wave(sin, A=A_t6, k=k_t6, b=b2_t6, h=h2_t6)], critical_only=critical_only_t6, column_width=26) : nothing
 
-# ╔═╡ db66a1ef-6f40-447e-8e09-1b612bd98d3b
-begin
-	plot_trig_function(Wave(sin, color=3, A=2, T=2), show_label=false)
-	png("exports/MQ 6 - Sine Graph.png")
+# ╔═╡ f530f155-fd4e-4dae-ab85-994ea0ebe8b2
+plot_trig_function(Wave(sin, A=A_t6, k=k_t6, b=b2_t6, h=h2_t6), max_θ=2π, tickstyle=:πfraction, max_y=5, tick_y=1, show_curve=show_curve_t6, show_positive=show_points_t6, critical_only=critical_only_t6, show_max_min=show_max_min_t6, show_period=show_period_t6, show_v_shift=show_v_shift_t6, show_h_shift=show_h_shift_t6)
 
-	plot_trig_function(Wave(cos), max_y=1.5, tick_y=0.5, tickstyle=:πfraction, show_curve=false, show_label=false)
-	png("exports/MQ 7 - Empty Plot.png")
-
-	plot_trig_function(Wave(cos, color=3, A=2, k=2, T=π), tickstyle=:πfraction, show_label=false)
-	png("exports/MQ 8 - Graph 1.png")
-
-	plot_trig_function(Wave(sin, color=3, A=-3, k=-1, T=2), show_label=false)
-	png("exports/MQ 8 - Graph 2.png")
-
-	plot_trig_function(Wave(sin, A=3, h=π/2), max_y=4, tickstyle=:πfraction, show_curve=false, show_label=false)
-	png("exports/MQ 9 - Empty Plot Scaled 1.png")
-
-	plot_trig_function(Wave(cos, b=4π, k=0.5), max_θ=1, max_y=1.5, tick_y=0.5, show_curve=false, show_label=false)
-	png("exports/MQ 9 - Empty Plot Scaled 2.png")
-end;
-
-# ╔═╡ 336917ac-4ae5-4132-9930-5a15ef057d57
-begin
-	plot_trig_function(Wave(sin, color=3, A=5, k=2, T=8, h=-1), tick_θ=2, tick_y=2, show_label=false)
-	png("exports/Quiz 3 - 1.2")
-
-	plot_trig_function(Wave(sin, A=12, k=8, T=π, h=π/4), max_θ=2π, tickstyle=:πfraction, show_label=false)
-	png("exports/Quiz 3 - 2.1")
-
-	plot_trig_function(Wave(cos, A=2.5, k=-1.5, T=3, h=1), max_θ=3, tick_θ=1, tick_y=1, show_label=false)
-	png("exports/Quiz 3 - 2.2")
-
-	plot_trig_function(Wave(cos, A=3, k=-1, T=4π/3, h=π/2), max_y=4, tickstyle=:πfraction, max_θ=2π, show_curve=false, show_label=false)
-	png("exports/Quiz 3 - 3.1")
-
-	plot_trig_function(Wave(sin, A=-2, k=0.5, T=6, h=-1), tick_θ=1, max_y=3, tick_y=0.5, show_curve=false, show_label=false)
-	png("exports/Quiz 3 - 3.2")
-end;
+# ╔═╡ d55da43e-9ba9-4527-8fec-72493e7996f3
+html"""<script>
+document.presentAndReset = function() {
+	window.present();
+	window.scrollTo(0, 0);
+	setTimeout(function() {  // need to wait for body update
+		if(document.body.classList.contains("presentation")) {
+			document.getElementsByClassName("changeslide next")[0].click();
+		}
+	}, 10);
+}
+window.addEventListener('keyup', function(e) {
+	if (e.keyCode === 13 && e.altKey) {  // toggle presentation with alt + enter
+		document.presentAndReset();
+	}
+});
+</script>"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+PlutoLinks = "0ff47ea0-7a50-410d-8455-4348d5de0420"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
-DataStructures = "~0.18.15"
 Plots = "~1.39.0"
+PlutoLinks = "~0.1.6"
 PlutoUI = "~0.7.52"
 """
 
@@ -1085,7 +674,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.9.3"
 manifest_format = "2.0"
-project_hash = "09deb9ef67d44b6c98d4306f01026619d7120bc6"
+project_hash = "d803ec12c0e16d37f98123b0fd977f31871b57a4"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1119,6 +708,12 @@ deps = ["Artifacts", "Bzip2_jll", "CompilerSupportLibraries_jll", "Fontconfig_jl
 git-tree-sha1 = "4b859a208b2397a7a623a03449e4636bdb17bcf2"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.16.1+1"
+
+[[deps.CodeTracking]]
+deps = ["InteractiveUtils", "UUIDs"]
+git-tree-sha1 = "a1296f0fe01a4c3f9bf0dc2934efbf4416f5db31"
+uuid = "da1fd8a2-8d9e-5ec2-8556-3022fb5608a2"
+version = "1.3.4"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -1158,9 +753,9 @@ version = "0.12.10"
 
 [[deps.Compat]]
 deps = ["UUIDs"]
-git-tree-sha1 = "e460f044ca8b99be31d35fe54fc33a5c33dd8ed7"
+git-tree-sha1 = "8a62af3e248a8c4bad6b32cbbe663ae02275e32c"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.9.0"
+version = "4.10.0"
 weakdeps = ["Dates", "LinearAlgebra"]
 
     [deps.Compat.extensions]
@@ -1202,6 +797,10 @@ deps = ["Mmap"]
 git-tree-sha1 = "9e2f36d3c96a820c678f2f1f1782582fcf685bae"
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 version = "1.9.1"
+
+[[deps.Distributed]]
+deps = ["Random", "Serialization", "Sockets"]
+uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[deps.DocStringExtensions]]
 deps = ["LibGit2"]
@@ -1381,6 +980,12 @@ git-tree-sha1 = "6f2675ef130a300a112286de91973805fcc5ffbc"
 uuid = "aacddb02-875f-59d6-b918-886e6ef4fbf8"
 version = "2.1.91+0"
 
+[[deps.JuliaInterpreter]]
+deps = ["CodeTracking", "InteractiveUtils", "Random", "UUIDs"]
+git-tree-sha1 = "81dc6aefcbe7421bd62cb6ca0e700779330acff8"
+uuid = "aa1ae85d-cabe-5617-a682-6adf51b2e16a"
+version = "0.9.25"
+
 [[deps.LAME_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "f6250b16881adf048549549fba48b1161acdac8c"
@@ -1522,6 +1127,12 @@ deps = ["Dates", "Logging"]
 git-tree-sha1 = "0d097476b6c381ab7906460ef1ef1638fbce1d91"
 uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
 version = "1.0.2"
+
+[[deps.LoweredCodeUtils]]
+deps = ["JuliaInterpreter"]
+git-tree-sha1 = "60168780555f3e663c536500aa790b6368adc02a"
+uuid = "6f1432cf-f94c-5a45-995e-cdbf5db27b0b"
+version = "2.3.0"
 
 [[deps.MIMEs]]
 git-tree-sha1 = "65f28ad4b594aebe22157d6fac869786a255b7eb"
@@ -1675,6 +1286,18 @@ version = "1.39.0"
     ImageInTerminal = "d8c32880-2388-543b-8c61-d9f865259254"
     Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
+[[deps.PlutoHooks]]
+deps = ["InteractiveUtils", "Markdown", "UUIDs"]
+git-tree-sha1 = "072cdf20c9b0507fdd977d7d246d90030609674b"
+uuid = "0ff47ea0-7a50-410d-8455-4348d5de0774"
+version = "0.0.5"
+
+[[deps.PlutoLinks]]
+deps = ["FileWatching", "InteractiveUtils", "Markdown", "PlutoHooks", "Revise", "UUIDs"]
+git-tree-sha1 = "8f5fa7056e6dcfb23ac5211de38e6c03f6367794"
+uuid = "0ff47ea0-7a50-410d-8455-4348d5de0420"
+version = "0.1.6"
+
 [[deps.PlutoUI]]
 deps = ["AbstractPlutoDingetjes", "Base64", "ColorTypes", "Dates", "FixedPointNumbers", "Hyperscript", "HypertextLiteral", "IOCapture", "InteractiveUtils", "JSON", "Logging", "MIMEs", "Markdown", "Random", "Reexport", "URIs", "UUIDs"]
 git-tree-sha1 = "e47cd150dbe0443c3a3651bc5b9cbd5576ab75b7"
@@ -1740,6 +1363,12 @@ git-tree-sha1 = "838a3a4188e2ded87a4f9f184b4b0d78a1e91cb7"
 uuid = "ae029012-a4dd-5104-9daa-d747884805df"
 version = "1.3.0"
 
+[[deps.Revise]]
+deps = ["CodeTracking", "Distributed", "FileWatching", "JuliaInterpreter", "LibGit2", "LoweredCodeUtils", "OrderedCollections", "Pkg", "REPL", "Requires", "UUIDs", "Unicode"]
+git-tree-sha1 = "609c26951d80551620241c3d7090c71a73da75ab"
+uuid = "295af30f-e4ad-537b-8983-00126c2a3abe"
+version = "3.5.6"
+
 [[deps.SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 version = "0.7.0"
@@ -1790,9 +1419,9 @@ version = "1.7.0"
 
 [[deps.StatsBase]]
 deps = ["DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
-git-tree-sha1 = "75ebe04c5bed70b91614d684259b661c9e6274a4"
+git-tree-sha1 = "1d77abd07f617c4868c33d4f5b9e1dbb2643c9cf"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-version = "0.34.0"
+version = "0.34.2"
 
 [[deps.SuiteSparse_jll]]
 deps = ["Artifacts", "Libdl", "Pkg", "libblastrampoline_jll"]
@@ -1893,9 +1522,9 @@ version = "1.25.0+0"
 
 [[deps.XML2_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libiconv_jll", "Zlib_jll"]
-git-tree-sha1 = "04a51d15436a572301b5abbb9d099713327e9fc4"
+git-tree-sha1 = "24b81b59bd35b3c42ab84fa589086e19be919916"
 uuid = "02c8fc9c-b97f-50b9-bbe4-9be30ff0a78a"
-version = "2.10.4+0"
+version = "2.11.5+0"
 
 [[deps.XSLT_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libgcrypt_jll", "Libgpg_error_jll", "Libiconv_jll", "Pkg", "XML2_jll", "Zlib_jll"]
@@ -2165,8 +1794,6 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─e503d9f6-84f0-486f-aa0f-b9cf6aa88b69
-# ╟─d55da43e-9ba9-4527-8fec-72493e7996f3
 # ╟─9a65324e-594f-11ee-3a9b-dff0ec87117f
 # ╟─178903b9-1112-4f42-8995-dab542e293fe
 # ╟─ffa59d87-7b68-4192-a52f-6582e67f1cbd
@@ -2241,22 +1868,9 @@ version = "1.4.1+1"
 # ╟─f530f155-fd4e-4dae-ab85-994ea0ebe8b2
 # ╟─bb83958a-3700-4246-8b37-c94642a88c31
 # ╟─1a408b82-fe7e-4930-94d2-cfa89c7340b8
-# ╟─3bb2ca7f-c283-4574-a45a-bebf068dfe71
-# ╠═289f7931-8511-4650-960e-54a20a180320
-# ╠═8fd2edc7-5063-4033-a9cb-5e7623467fb5
-# ╟─7e6d7f4f-e68c-41ff-8dcc-14cf326279da
-# ╠═10737f1b-f132-468f-95f2-089705bd7488
-# ╟─3e4e081f-d8ab-4b82-85ed-aaecc192a46b
-# ╠═66af7c57-3063-448f-baef-2898cb262c22
-# ╟─1577dff0-f4b6-4c39-8d2a-f7ff6fe5b044
-# ╠═64840f00-2529-4ad9-bf9e-33610dc4cfcc
-# ╟─26e8e204-a74e-4bc8-8bc0-28ba4eb26620
-# ╠═30e87a64-2d1a-4198-8039-8bb0be7632f3
-# ╠═279fa764-91aa-415d-86ed-47ed3ecfc720
-# ╠═54eb2768-7b9e-442e-8818-b373f8b6d49e
-# ╠═6b76e577-317b-48ab-989e-7b716602aadb
-# ╟─819075e8-0058-4606-9a29-93fe169263be
-# ╠═db66a1ef-6f40-447e-8e09-1b612bd98d3b
-# ╠═336917ac-4ae5-4132-9930-5a15ef057d57
+# ╟─93f8a6d5-6764-441a-aa89-39211dcf9358
+# ╠═e503d9f6-84f0-486f-aa0f-b9cf6aa88b69
+# ╠═b64195b9-b27d-4702-a445-05118709faf9
+# ╟─d55da43e-9ba9-4527-8fec-72493e7996f3
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
