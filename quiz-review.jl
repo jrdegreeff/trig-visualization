@@ -16,7 +16,6 @@ end
 
 # ╔═╡ 1246e2af-cd23-4ec3-a0ae-f1ebd2d9938a
 begin
-	using LaTeXStrings
 	using Plots
 	using PlutoLinks
 	using PlutoUI
@@ -76,17 +75,15 @@ Drag this slider to reveal the answers.
 $(@bind prop_slider_2 Slider(0:15))
 """
 
-# ╔═╡ cd77d6ea-82c7-4029-b406-a75cdf0a82f7
-
-
-# ╔═╡ 8a28d7fb-3140-4f4d-b9f9-e0c5e5c6386f
+# ╔═╡ bec685ed-829b-493a-9317-b6a41598fc48
 md"""
-## Graph --> Function
-Write down a function that describes the plot below. Use the base trig function (``\sin`` or ``\cos``) that is listed.
+Show solution: $(@bind show_function_3 CheckBox())
 """
 
-# ╔═╡ a3ecaae8-ef50-4ccc-a141-3503b082e95c
-
+# ╔═╡ 3609db62-51af-4620-955d-a41d024a1bde
+md"""
+Show solution: $(@bind show_function_4 CheckBox())
+"""
 
 # ╔═╡ 9efe1298-bb5e-4d44-a022-82ab53e32445
 md"""
@@ -119,6 +116,8 @@ begin
 		rand(Bool) && (h = -h)
 		Wave(func; A, k, T, h), (piunits ? :πfraction : :decimal)
 	end
+
+	# TODO: tick formatting
 end;
 
 # ╔═╡ 5134d47b-4327-4558-b06d-a565dc5cbc16
@@ -207,20 +206,27 @@ md"""
 Plot the function f(θ) = $(string(wave_3)). Make sure to hit all of the "critical points" and have roughly accurate curvature between them.
 """
 
+# ╔═╡ cd77d6ea-82c7-4029-b406-a75cdf0a82f7
+plot_trig_function(wave_3, show_curve=show_function_3, tickstyle=tickstyle_3)
+
+# ╔═╡ 8a28d7fb-3140-4f4d-b9f9-e0c5e5c6386f
+md"""
+## Graph --> Function
+Write down a function that describes the plot below. Use $(string(wave_4.f)) as the base function.
+"""
+
 # ╔═╡ 769f081d-093e-4119-b2f9-897508187700
-plot_trig_function(wave_4, show_label=false, tickstyle=tickstyle_4)
+plot_trig_function(wave_4, show_label=show_function_4, tickstyle=tickstyle_4)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoLinks = "0ff47ea0-7a50-410d-8455-4348d5de0420"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]
-LaTeXStrings = "~1.3.0"
 Plots = "~1.39.0"
 PlutoLinks = "~0.1.6"
 PlutoUI = "~0.7.52"
@@ -232,7 +238,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.9.3"
 manifest_format = "2.0"
-project_hash = "15a1d41c4e322c46333a4b12a4100f6ccb335734"
+project_hash = "61e60e75feec5e907b510dc25dda1b81d8de9ddf"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1363,10 +1369,11 @@ version = "1.4.1+1"
 # ╟─3a589b29-cd26-4f97-ba1a-e58723a4bff3
 # ╟─0623adec-18d3-482f-b2fb-7fc4b67c8aa8
 # ╟─561e7d96-3bb1-4130-a921-b5462ed874af
-# ╠═cd77d6ea-82c7-4029-b406-a75cdf0a82f7
+# ╟─cd77d6ea-82c7-4029-b406-a75cdf0a82f7
+# ╟─bec685ed-829b-493a-9317-b6a41598fc48
 # ╟─8a28d7fb-3140-4f4d-b9f9-e0c5e5c6386f
-# ╠═769f081d-093e-4119-b2f9-897508187700
-# ╠═a3ecaae8-ef50-4ccc-a141-3503b082e95c
+# ╟─769f081d-093e-4119-b2f9-897508187700
+# ╟─3609db62-51af-4620-955d-a41d024a1bde
 # ╟─9efe1298-bb5e-4d44-a022-82ab53e32445
 # ╠═1246e2af-cd23-4ec3-a0ae-f1ebd2d9938a
 # ╠═29f7ce4e-1c01-4515-ad78-6e8b5c16bede
