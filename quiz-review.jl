@@ -16,6 +16,7 @@ end
 
 # ╔═╡ 1246e2af-cd23-4ec3-a0ae-f1ebd2d9938a
 begin
+	using LaTeXStrings
 	using Plots
 	using PlutoLinks
 	using PlutoUI
@@ -42,21 +43,25 @@ seed: $(@bind seed_string TextField(default="0"))
 # ╔═╡ 4d853ea9-b866-4f70-a906-7cee7326d74a
 begin
 	seed = try
-		parse(Int64, seed_string)
-	catch ArgumentError
+		seed = parse(Int64, seed_string)
+		if seed < 0
+			@warn "Seed must be nonnegative"
+			0
+		else
+			seed
+		end
+	catch e
 		@warn "Seed must be an integer!"
 		0
 	end
-end
+end;
 
-# ╔═╡ f2d8e810-cc26-45a3-b77b-4aff6f3f5a91
+# ╔═╡ e60a31c2-0f8b-493e-a60d-df1b7ab1fc2e
 md"""
-## Function --> Properties
-Given the function below, provide exact values for each of the listed properties.
+Drag this slider to reveal the answers.
+
+$(@bind prop_slider_1 Slider(0:15))
 """
-
-# ╔═╡ 306d35c7-fdad-42f1-9fb7-18ae81fc90e9
-
 
 # ╔═╡ 2b41778f-d6b2-4764-8cd4-2d0dc2928dd4
 md"""
@@ -64,16 +69,14 @@ md"""
 Looking at the plotted function below, provide exact values for each of the listed properties.
 """
 
-# ╔═╡ f75cba03-6468-4aaa-b5d7-7134127fc176
-
-
-# ╔═╡ 561e7d96-3bb1-4130-a921-b5462ed874af
+# ╔═╡ 0623adec-18d3-482f-b2fb-7fc4b67c8aa8
 md"""
-## Function --> Graph
-Given the function below, plot it on a graph. Make sure to hit all of the "critical points" and have roughly accurate curvature between them.
+Drag this slider to reveal the answers.
+
+$(@bind prop_slider_2 Slider(0:15))
 """
 
-# ╔═╡ d2463618-0269-4120-a6d1-9cc0ff67548f
+# ╔═╡ cd77d6ea-82c7-4029-b406-a75cdf0a82f7
 
 
 # ╔═╡ 8a28d7fb-3140-4f4d-b9f9-e0c5e5c6386f
@@ -82,7 +85,7 @@ md"""
 Write down a function that describes the plot below. Use the base trig function (``\sin`` or ``\cos``) that is listed.
 """
 
-# ╔═╡ 769f081d-093e-4119-b2f9-897508187700
+# ╔═╡ a3ecaae8-ef50-4ccc-a141-3503b082e95c
 
 
 # ╔═╡ 9efe1298-bb5e-4d44-a022-82ab53e32445
@@ -93,29 +96,131 @@ md"""
 # ╔═╡ 29f7ce4e-1c01-4515-ad78-6e8b5c16bede
 begin
 	SP = @ingredients "./sinusoid-plotting.jl"
-	import .SP: Wave,
-	            format_special_angles_table, n_special_angles,
-	            plot_trig_circle, plot_trig_function, plot_side_by_side
+	import .SP: Wave, amplitude, midline,
+	            angular_frequency, h_shift, period, frequency, phase_shift,
+				format_label, plot_trig_function
+end;
+
+# ╔═╡ 5ea7c702-dc09-41ca-b7a1-7daf7501a3bf
+begin
+	rand_A = 0.5:0.5:3.0
+	rand_k = -3.0:0.5:3.0
+	rand_T = [0.5, 1, 1.5, 2, 2.5, 3]  # TODO
+	rand_h = [0, 1/6, 1/4, 1/3, 1/2, 2/3, 3/4, 5/6, 1]  # TODO
+	
+	function random_wave()
+		func=rand([sin, cos])
+        A=rand(rand_A)
+		rand(Bool) && (A = -A)
+		k=rand(rand_k)
+		piunits=rand(Bool)
+		T=rand(piunits ? rand_T .* π : rand_T)
+		h=rand(piunits ? rand_h .* π : rand_h)
+		rand(Bool) && (h = -h)
+		Wave(func; A, k, T, h), (piunits ? :πfraction : :decimal)
+	end
 end;
 
 # ╔═╡ 5134d47b-4327-4558-b06d-a565dc5cbc16
 begin
 	Random.seed!(seed)
-	x = rand()
+	wave_1, tickstyle_1 = random_wave()
+	wave_2, tickstyle_2 = random_wave()
+	wave_3, tickstyle_3 = random_wave()
+	wave_4, tickstyle_4 = random_wave()
 end;
 
-# ╔═╡ 3f8c0895-2301-4bbd-ab76-5aa8de69ec04
-x
+# ╔═╡ f2d8e810-cc26-45a3-b77b-4aff6f3f5a91
+md"""
+## Function --> Properties
+Given the function f(θ) = $(string(wave_1)), provide exact values for each of the listed properties.
+"""
+
+# ╔═╡ 04f7b284-8957-4d67-83f9-ba2d44349531
+let
+	max = format_label(maximum(wave_1))
+	min = format_label(minimum(wave_1))
+	A = format_label(amplitude(wave_1))
+	k = format_label(midline(wave_1))
+	b = format_label(angular_frequency(wave_1))
+	T = format_label(period(wave_1))
+	f = format_label(frequency(wave_1))
+	h = format_label(h_shift(wave_1))
+	y₀ = format_label(wave_1(0.0))
+	
+	md"""
+	Maximum Value = $(prop_slider_1 ≥ 1 ? max : "")\
+	Minimum Value = $(prop_slider_1 ≥ 2 ? min : "")\
+	Midline Value ``(k)`` = $(prop_slider_1 ≥ 3 ? k : "")\
+	Amplitude ``(A)`` = $(prop_slider_1 ≥ 4 ? A : "")\
+	``b`` = $(prop_slider_1 ≥ 5 ? b : "")\
+	Period ``(T)`` = $(prop_slider_1 ≥ 6 ? T : "")\
+	Frequency ``(f)`` = $(prop_slider_1 ≥ 7 ? f : "")\
+	Horizontal Shift ``(h)`` = $(prop_slider_1 ≥ 8 ? h : "")\
+	Maxima = $(prop_slider_1 ≥ 9 ? "TODO" : "")\
+	Minima = $(prop_slider_1 ≥ 10 ? "TODO" : "")\
+	Midline Points = $(prop_slider_1 ≥ 11 ? "TODO" : "")\
+	Domain = $(prop_slider_1 ≥ 12 ? "all real numbers" : "")\
+	Range = $(prop_slider_1 ≥ 13 ? "[" * min * ", " * max * "]" : "")\
+	Zeros = $(prop_slider_1 ≥ 14 ? "TODO" : "")\
+	``y``-Intercept = $(prop_slider_1 ≥ 15 ? y₀ : "")\
+	"""
+end
+
+# ╔═╡ f75cba03-6468-4aaa-b5d7-7134127fc176
+plot_trig_function(wave_2, show_label=false, tickstyle=tickstyle_2)
+
+# ╔═╡ 3a589b29-cd26-4f97-ba1a-e58723a4bff3
+let
+	max = format_label(maximum(wave_2))
+	min = format_label(minimum(wave_2))
+	A = format_label(amplitude(wave_2))
+	k = format_label(midline(wave_2))
+	b = format_label(angular_frequency(wave_2))
+	T = format_label(period(wave_2))
+	f = format_label(frequency(wave_2))
+	h = format_label(h_shift(wave_2))
+	y₀ = format_label(wave_2(0.0))
+	
+	md"""
+	Maximum Value = $(prop_slider_2 ≥ 1 ? max : "")\
+	Minimum Value = $(prop_slider_2 ≥ 2 ? min : "")\
+	Midline Value ``(k)`` = $(prop_slider_2 ≥ 3 ? k : "")\
+	Amplitude ``(A)`` = $(prop_slider_2 ≥ 4 ? A : "")\
+	``b`` = $(prop_slider_2 ≥ 5 ? b : "")\
+	Period ``(T)`` = $(prop_slider_2 ≥ 6 ? T : "")\
+	Frequency ``(f)`` = $(prop_slider_2 ≥ 7 ? f : "")\
+	Horizontal Shift ``(h)`` = $(prop_slider_2 ≥ 8 ? h : "")\
+	Maxima = $(prop_slider_2 ≥ 9 ? "TODO" : "")\
+	Minima = $(prop_slider_2 ≥ 10 ? "TODO" : "")\
+	Midline Points = $(prop_slider_2 ≥ 11 ? "TODO" : "")\
+	Domain = $(prop_slider_2 ≥ 12 ? "all real numbers" : "")\
+	Range = $(prop_slider_2 ≥ 13 ? "[" * min * ", " * max * "]" : "")\
+	Zeros = $(prop_slider_2 ≥ 14 ? "TODO" : "")\
+	``y``-Intercept = $(prop_slider_2 ≥ 15 ? y₀ : "")\
+	"""
+end
+
+# ╔═╡ 561e7d96-3bb1-4130-a921-b5462ed874af
+md"""
+## Function --> Graph
+Plot the function f(θ) = $(string(wave_3)). Make sure to hit all of the "critical points" and have roughly accurate curvature between them.
+"""
+
+# ╔═╡ 769f081d-093e-4119-b2f9-897508187700
+plot_trig_function(wave_4, show_label=false, tickstyle=tickstyle_4)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoLinks = "0ff47ea0-7a50-410d-8455-4348d5de0420"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]
+LaTeXStrings = "~1.3.0"
 Plots = "~1.39.0"
 PlutoLinks = "~0.1.6"
 PlutoUI = "~0.7.52"
@@ -127,7 +232,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.9.3"
 manifest_format = "2.0"
-project_hash = "61e60e75feec5e907b510dc25dda1b81d8de9ddf"
+project_hash = "15a1d41c4e322c46333a4b12a4100f6ccb335734"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1250,18 +1355,22 @@ version = "1.4.1+1"
 # ╟─bbd5aafe-6731-11ee-19e7-df00e4f539e0
 # ╟─22fcdd94-7a91-42b1-a777-0559512b573f
 # ╟─4d853ea9-b866-4f70-a906-7cee7326d74a
-# ╟─3f8c0895-2301-4bbd-ab76-5aa8de69ec04
 # ╟─f2d8e810-cc26-45a3-b77b-4aff6f3f5a91
-# ╠═306d35c7-fdad-42f1-9fb7-18ae81fc90e9
+# ╟─04f7b284-8957-4d67-83f9-ba2d44349531
+# ╟─e60a31c2-0f8b-493e-a60d-df1b7ab1fc2e
 # ╟─2b41778f-d6b2-4764-8cd4-2d0dc2928dd4
-# ╠═f75cba03-6468-4aaa-b5d7-7134127fc176
+# ╟─f75cba03-6468-4aaa-b5d7-7134127fc176
+# ╟─3a589b29-cd26-4f97-ba1a-e58723a4bff3
+# ╟─0623adec-18d3-482f-b2fb-7fc4b67c8aa8
 # ╟─561e7d96-3bb1-4130-a921-b5462ed874af
-# ╠═d2463618-0269-4120-a6d1-9cc0ff67548f
+# ╠═cd77d6ea-82c7-4029-b406-a75cdf0a82f7
 # ╟─8a28d7fb-3140-4f4d-b9f9-e0c5e5c6386f
 # ╠═769f081d-093e-4119-b2f9-897508187700
+# ╠═a3ecaae8-ef50-4ccc-a141-3503b082e95c
 # ╟─9efe1298-bb5e-4d44-a022-82ab53e32445
 # ╠═1246e2af-cd23-4ec3-a0ae-f1ebd2d9938a
 # ╠═29f7ce4e-1c01-4515-ad78-6e8b5c16bede
+# ╠═5ea7c702-dc09-41ca-b7a1-7daf7501a3bf
 # ╠═5134d47b-4327-4558-b06d-a565dc5cbc16
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

@@ -22,9 +22,10 @@ function π_label(x::Rational)
     isone(d) ? n : "$(n)/$(d)"
 end
 
-round_label(x) = isapproxinteger(x) ? round(Int, x) : round(x, digits=3)
+round_label(x) = string(isapproxinteger(x) ? round(Int, x) : round(x, digits=3))
 
-format_label(θ, d=5040) = isapproxinteger(θ/(π/d)) ?
+D = 5040
+format_label(θ, d=D) = isapproxinteger(θ/(π/d)) ?
     π_label(round(Int, θ/(π/d)) // d) :
     round_label(θ)
 
@@ -65,7 +66,7 @@ h_shift(w::Wave) = w.h
 Base.maximum(w::Wave) = midline(w) + amplitude(w)
 Base.minimum(w::Wave) = midline(w) - amplitude(w)
 period(w::Wave) = 2π / angular_frequency(w)
-freqeuncy(w::Wave) = angular_frequency(w) / (2π)
+frequency(w::Wave) = angular_frequency(w) / (2π)
 phase_shift(w::Wave) = -angular_frequency(w) * h_shift(w)
 
 Plots.get_series_color(w::Wave, sp::Plots.Subplot, n::Int, seriestype) =
@@ -244,19 +245,19 @@ function plot_trig_function(
     if tickstyle == :decimal
         θ_labels = round_label.(θ_ticks)
     elseif tickstyle == :πmultiple
-        @assert isinteger(tick_θ / π)
+        @assert isinteger(tick_θ / π) "isinteger(tick_θ / π): tick_θ = $tick_θ"
         θ_labels = π_label.(θ_ticks ./ π)
     elseif tickstyle == :πfraction
-        @assert isinteger(π / tick_θ)
-        θ_labels = π_label.(Int.(θ_ticks ./ tick_θ) .// Int(π / tick_θ))
+        @assert isinteger(D * π / tick_θ) "isinteger(π / tick_θ): tick_θ = $tick_θ"
+        θ_labels = π_label.(Int.(θ_ticks .* D ./ tick_θ) .// Int(D * π / tick_θ))
     else
         error("unexpected tickstyle: $tickstyle")
     end
     plot!(xlim=(-1.1max_θ, 1.1max_θ), xticks=(collect(θ_ticks), θ_labels))
 
     if isnothing(max_y)
-        max_y = maximum(maximum.(waves))
-        min_y = minimum(minimum.(waves))
+        max_y = max(maximum(maximum.(waves)), 0)
+        min_y = min(minimum(minimum.(waves)), 0)
     else
         min_y = -max_y
     end
