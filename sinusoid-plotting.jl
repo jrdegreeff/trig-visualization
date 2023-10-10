@@ -1,6 +1,6 @@
 using Plots
 
-import Base.Fix1
+import Base: Fix1, Fix2
 import Printf.@sprintf
 
 # Formatting
@@ -21,13 +21,19 @@ function π_label(x::Rational)
     n, d = π_label(numerator(x)), denominator(x)
     isone(d) ? n : "$(n)/$(d)"
 end
+function reciprocal_π_label(x::Rational)
+    iszero(x) && return "0"
+    n, d = numerator(x), denominator(x)
+    "$(n)/$(isone(d) ? "π" : "($(d)π)")"
+end
 
 round_label(x) = string(isapproxinteger(x) ? round(Int, x) : round(x, digits=3))
 
 D = 5040
-format_label(θ, d=D) = isapproxinteger(θ/(π/d)) ?
-    π_label(round(Int, θ/(π/d)) // d) :
-    round_label(θ)
+format_label(x, d=D) =
+    isapproxinteger((x/π)*d) ? π_label(round(Int, (x/π)*d) // d) :
+    isapproxinteger((x*π)*d) ? reciprocal_π_label(round(Int, (x*π)*d) // d) :
+    round_label(x)
 
 sin_color = 1
 cos_color = 2
@@ -69,14 +75,32 @@ period(w::Wave) = 2π / angular_frequency(w)
 frequency(w::Wave) = angular_frequency(w) / (2π)
 phase_shift(w::Wave) = -angular_frequency(w) * h_shift(w)
 
+trig_max(w::Wave) = base_step_label(invert_horizontal(w, 1), period(w))
+trig_min(w::Wave) = base_step_label(invert_horizontal(w, -1), period(w))
+trig_mid(w::Wave) = base_step_label(invert_horizontal(w, 0), period(w) / 2)
+function trig_zeros(w::Wave)
+    discriminant = abs(w.k / w.A)
+    discriminant > 1 && return []
+    base = invert(w)(0)
+    Fix2(base_step_label, period(w)).(isone(discriminant) ? [base] : [base, 2invert_horizontal(w, 1) - base])
+end
+
 Plots.get_series_color(w::Wave, sp::Plots.Subplot, n::Int, seriestype) =
     Plots.get_series_color(w.color, sp, n, seriestype)
 
 inner(w::Wave; color=w.color) = Wave(; color, b=w.b, h=w.h)
+horizontal(w::Wave) = Wave(w.f; b=w.b, h=w.h)
+vertical(w::Wave) = Wave(w.f; A=w.A, k=w.k)
 invert_inner(w::Wave, x) = invert(inner(w))(x)
+invert_horizontal(w::Wave, x) = invert(horizontal(w))(x)
+invert_vertical(w::Wave, x) = invert(vertical(w))(x)
 
 plus_label(x) = iszero(x) ? "" : " $(x > 0 ? "+" : "-") $(format_label(abs(x)))"
 times_label(x; space=true) = isone(x) ? "" : "$(format_label(x))$(space ? " " : "")"
+function base_step_label(x, s)
+    b = mod(x, s)
+    "$(iszero(b) ? "" : "$(format_label(b)) + ")$(isone(s) ? "" : "($(format_label(s)))")k"
+end
 
 function Base.show(io::IO, w::Wave{typeof(identity)})
     parenthesize = !isone(w.b) && !iszero(w.h)

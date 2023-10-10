@@ -80,6 +80,9 @@ md"""
 Show solution: $(@bind show_function_3 CheckBox())
 """
 
+# ╔═╡ c48a298e-bb15-47ce-81dc-7ba9f82c56e9
+# TODO: slider to show steps
+
 # ╔═╡ 3609db62-51af-4620-955d-a41d024a1bde
 md"""
 Show solution: $(@bind show_function_4 CheckBox())
@@ -93,8 +96,9 @@ md"""
 # ╔═╡ 29f7ce4e-1c01-4515-ad78-6e8b5c16bede
 begin
 	SP = @ingredients "./sinusoid-plotting.jl"
-	import .SP: Wave, amplitude, midline,
-	            angular_frequency, h_shift, period, frequency, phase_shift,
+	import .SP: Wave, amplitude, midline, angular_frequency, h_shift,
+	            period, frequency, phase_shift,
+				trig_max, trig_min, trig_mid, trig_zeros,
 				format_label, plot_trig_function
 end;
 
@@ -102,8 +106,8 @@ end;
 begin
 	rand_A = 0.5:0.5:3.0
 	rand_k = -3.0:0.5:3.0
-	rand_T = [0.5, 1, 1.5, 2, 2.5, 3]  # TODO
-	rand_h = [0, 1/6, 1/4, 1/3, 1/2, 2/3, 3/4, 5/6, 1]  # TODO
+	rand_T = [0.5, 1, 1.5, 2, 2.5, 3]  # TODO: more thought
+	rand_h = [0, 1/6, 1/4, 1/3, 1/2, 2/3, 3/4, 5/6, 1]  # TODO: more thought
 	
 	function random_wave()
 		func=rand([sin, cos])
@@ -135,70 +139,8 @@ md"""
 Given the function f(θ) = $(string(wave_1)), provide exact values for each of the listed properties.
 """
 
-# ╔═╡ 04f7b284-8957-4d67-83f9-ba2d44349531
-let
-	max = format_label(maximum(wave_1))
-	min = format_label(minimum(wave_1))
-	A = format_label(amplitude(wave_1))
-	k = format_label(midline(wave_1))
-	b = format_label(angular_frequency(wave_1))
-	T = format_label(period(wave_1))
-	f = format_label(frequency(wave_1))
-	h = format_label(h_shift(wave_1))
-	y₀ = format_label(wave_1(0.0))
-	
-	md"""
-	Maximum Value = $(prop_slider_1 ≥ 1 ? max : "")\
-	Minimum Value = $(prop_slider_1 ≥ 2 ? min : "")\
-	Midline Value ``(k)`` = $(prop_slider_1 ≥ 3 ? k : "")\
-	Amplitude ``(A)`` = $(prop_slider_1 ≥ 4 ? A : "")\
-	``b`` = $(prop_slider_1 ≥ 5 ? b : "")\
-	Period ``(T)`` = $(prop_slider_1 ≥ 6 ? T : "")\
-	Frequency ``(f)`` = $(prop_slider_1 ≥ 7 ? f : "")\
-	Horizontal Shift ``(h)`` = $(prop_slider_1 ≥ 8 ? h : "")\
-	Maxima = $(prop_slider_1 ≥ 9 ? "TODO" : "")\
-	Minima = $(prop_slider_1 ≥ 10 ? "TODO" : "")\
-	Midline Points = $(prop_slider_1 ≥ 11 ? "TODO" : "")\
-	Domain = $(prop_slider_1 ≥ 12 ? "all real numbers" : "")\
-	Range = $(prop_slider_1 ≥ 13 ? "[" * min * ", " * max * "]" : "")\
-	Zeros = $(prop_slider_1 ≥ 14 ? "TODO" : "")\
-	``y``-Intercept = $(prop_slider_1 ≥ 15 ? y₀ : "")\
-	"""
-end
-
 # ╔═╡ f75cba03-6468-4aaa-b5d7-7134127fc176
 plot_trig_function(wave_2, show_label=false, tickstyle=tickstyle_2)
-
-# ╔═╡ 3a589b29-cd26-4f97-ba1a-e58723a4bff3
-let
-	max = format_label(maximum(wave_2))
-	min = format_label(minimum(wave_2))
-	A = format_label(amplitude(wave_2))
-	k = format_label(midline(wave_2))
-	b = format_label(angular_frequency(wave_2))
-	T = format_label(period(wave_2))
-	f = format_label(frequency(wave_2))
-	h = format_label(h_shift(wave_2))
-	y₀ = format_label(wave_2(0.0))
-	
-	md"""
-	Maximum Value = $(prop_slider_2 ≥ 1 ? max : "")\
-	Minimum Value = $(prop_slider_2 ≥ 2 ? min : "")\
-	Midline Value ``(k)`` = $(prop_slider_2 ≥ 3 ? k : "")\
-	Amplitude ``(A)`` = $(prop_slider_2 ≥ 4 ? A : "")\
-	``b`` = $(prop_slider_2 ≥ 5 ? b : "")\
-	Period ``(T)`` = $(prop_slider_2 ≥ 6 ? T : "")\
-	Frequency ``(f)`` = $(prop_slider_2 ≥ 7 ? f : "")\
-	Horizontal Shift ``(h)`` = $(prop_slider_2 ≥ 8 ? h : "")\
-	Maxima = $(prop_slider_2 ≥ 9 ? "TODO" : "")\
-	Minima = $(prop_slider_2 ≥ 10 ? "TODO" : "")\
-	Midline Points = $(prop_slider_2 ≥ 11 ? "TODO" : "")\
-	Domain = $(prop_slider_2 ≥ 12 ? "all real numbers" : "")\
-	Range = $(prop_slider_2 ≥ 13 ? "[" * min * ", " * max * "]" : "")\
-	Zeros = $(prop_slider_2 ≥ 14 ? "TODO" : "")\
-	``y``-Intercept = $(prop_slider_2 ≥ 15 ? y₀ : "")\
-	"""
-end
 
 # ╔═╡ 561e7d96-3bb1-4130-a921-b5462ed874af
 md"""
@@ -207,7 +149,7 @@ Plot the function f(θ) = $(string(wave_3)). Make sure to hit all of the "critic
 """
 
 # ╔═╡ cd77d6ea-82c7-4029-b406-a75cdf0a82f7
-plot_trig_function(wave_3, show_curve=show_function_3, tickstyle=tickstyle_3)
+plot_trig_function(wave_3, show_curve=show_function_3, show_label=false, tickstyle=tickstyle_3)
 
 # ╔═╡ 8a28d7fb-3140-4f4d-b9f9-e0c5e5c6386f
 md"""
@@ -217,6 +159,61 @@ Write down a function that describes the plot below. Use $(string(wave_4.f)) as 
 
 # ╔═╡ 769f081d-093e-4119-b2f9-897508187700
 plot_trig_function(wave_4, show_label=show_function_4, tickstyle=tickstyle_4)
+
+# ╔═╡ 412f9af9-9bdc-47ee-a8c1-7b8d190b0795
+properties_list(properties, cutoff) = Markdown.parse(join((
+	"$n = $(cutoff ≥ i ? v : "")" for (i, (n, v)) in enumerate(properties)
+), "\\\n"));
+
+# ╔═╡ 04f7b284-8957-4d67-83f9-ba2d44349531
+let
+	max = format_label(maximum(wave_1))
+	min = format_label(minimum(wave_1))
+	zeros = trig_zeros(wave_1)
+	properties = [
+		("Midline Value ``(k)``", format_label(amplitude(wave_1))),
+		("Amplitude ``(A)``", format_label(amplitude(wave_1))),
+		("Maximum Value", max),
+		("Minimum Value", min),
+		("``b``", format_label(angular_frequency(wave_1))),
+		("Period ``(T)``", format_label(period(wave_1))),
+		("Frequency ``(f)``", format_label(frequency(wave_1))),
+		("Horizontal Shift ``(h)``", format_label(h_shift(wave_1))),
+		("Maxima", trig_max(wave_1)),
+		("Minima", trig_min(wave_1)),
+		("Midline Points", trig_mid(wave_1)),
+		("Domain", "\$\\mathbb{R}\$"),
+		("Range", "[$(min), $(max)]"),
+		("Zeros", isempty(zeros) ? "none" : join(zeros, "; ")),
+		("``y``-Intercept", format_label(wave_1(0.0)))
+	]
+	properties_list(properties, prop_slider_1)
+end
+
+# ╔═╡ 3a589b29-cd26-4f97-ba1a-e58723a4bff3
+let
+	max = format_label(maximum(wave_2))
+	min = format_label(minimum(wave_2))
+	zeros = trig_zeros(wave_2)
+	properties = [
+		("Maximum Value", max),
+		("Minimum Value", min),
+		("Midline Value ``(k)``", format_label(amplitude(wave_2))),
+		("Amplitude ``(A)``", format_label(amplitude(wave_2))),
+		("Period ``(T)``", format_label(period(wave_2))),
+		("Frequency ``(f)``", format_label(frequency(wave_2))),
+		("``b``", format_label(angular_frequency(wave_2))),
+		("Horizontal Shift ``(h)``", format_label(h_shift(wave_2))),
+		("Maxima", trig_max(wave_2)),
+		("Minima", trig_min(wave_2)),
+		("Midline Points", trig_mid(wave_2)),
+		("Domain", "\$\\mathbb{R}\$"),
+		("Range", "[$(min), $(max)]"),
+		("Zeros", isempty(zeros) ? "none" : join(zeros, "; ")),
+		("``y``-Intercept", format_label(wave_2(0.0)))
+	]
+	properties_list(properties, prop_slider_2)
+end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1371,6 +1368,7 @@ version = "1.4.1+1"
 # ╟─561e7d96-3bb1-4130-a921-b5462ed874af
 # ╟─cd77d6ea-82c7-4029-b406-a75cdf0a82f7
 # ╟─bec685ed-829b-493a-9317-b6a41598fc48
+# ╠═c48a298e-bb15-47ce-81dc-7ba9f82c56e9
 # ╟─8a28d7fb-3140-4f4d-b9f9-e0c5e5c6386f
 # ╟─769f081d-093e-4119-b2f9-897508187700
 # ╟─3609db62-51af-4620-955d-a41d024a1bde
@@ -1379,5 +1377,6 @@ version = "1.4.1+1"
 # ╠═29f7ce4e-1c01-4515-ad78-6e8b5c16bede
 # ╠═5ea7c702-dc09-41ca-b7a1-7daf7501a3bf
 # ╠═5134d47b-4327-4558-b06d-a565dc5cbc16
+# ╠═412f9af9-9bdc-47ee-a8c1-7b8d190b0795
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
