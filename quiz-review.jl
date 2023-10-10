@@ -77,11 +77,10 @@ $(@bind prop_slider_2 Slider(0:15))
 
 # ╔═╡ bec685ed-829b-493a-9317-b6a41598fc48
 md"""
-Show solution: $(@bind show_function_3 CheckBox())
-"""
+Show solution:
 
-# ╔═╡ c48a298e-bb15-47ce-81dc-7ba9f82c56e9
-# TODO: slider to show steps
+$(@bind graph_slider Slider(0:7))
+"""
 
 # ╔═╡ 3609db62-51af-4620-955d-a41d024a1bde
 md"""
@@ -101,6 +100,11 @@ begin
 				trig_max, trig_min, trig_mid, trig_zeros,
 				format_label, plot_trig_function
 end;
+
+# ╔═╡ 2a90c23f-ba3f-49df-bbeb-be730c1b9928
+md"""
+## Appendix: Randomization
+"""
 
 # ╔═╡ 5ea7c702-dc09-41ca-b7a1-7daf7501a3bf
 begin
@@ -149,7 +153,7 @@ Plot the function f(θ) = $(string(wave_3)). Make sure to hit all of the "critic
 """
 
 # ╔═╡ cd77d6ea-82c7-4029-b406-a75cdf0a82f7
-plot_trig_function(wave_3, show_curve=show_function_3, show_label=false, tickstyle=tickstyle_3)
+plot_trig_function(wave_3, show_v_shift=1 ≤ graph_slider < 7, show_max_min=2 ≤ graph_slider < 7, show_h_shift=3 ≤ graph_slider < 7, show_period=4 ≤ graph_slider < 7, show_base_point=3 ≤ graph_slider < 7, show_period_points=4 ≤ graph_slider < 7, show_all_critical_points=5 ≤ graph_slider < 7, show_curve=6 ≤ graph_slider, show_label=false, tickstyle=tickstyle_3)
 
 # ╔═╡ 8a28d7fb-3140-4f4d-b9f9-e0c5e5c6386f
 md"""
@@ -159,6 +163,11 @@ Write down a function that describes the plot below. Use $(string(wave_4.f)) as 
 
 # ╔═╡ 769f081d-093e-4119-b2f9-897508187700
 plot_trig_function(wave_4, show_label=show_function_4, tickstyle=tickstyle_4)
+
+# ╔═╡ 62a8df43-d014-4228-bc24-a1550e826777
+md"""
+## Appendix: Formatting
+"""
 
 # ╔═╡ 412f9af9-9bdc-47ee-a8c1-7b8d190b0795
 properties_list(properties, cutoff) = Markdown.parse(join((
@@ -1368,15 +1377,16 @@ version = "1.4.1+1"
 # ╟─561e7d96-3bb1-4130-a921-b5462ed874af
 # ╟─cd77d6ea-82c7-4029-b406-a75cdf0a82f7
 # ╟─bec685ed-829b-493a-9317-b6a41598fc48
-# ╠═c48a298e-bb15-47ce-81dc-7ba9f82c56e9
 # ╟─8a28d7fb-3140-4f4d-b9f9-e0c5e5c6386f
 # ╟─769f081d-093e-4119-b2f9-897508187700
 # ╟─3609db62-51af-4620-955d-a41d024a1bde
 # ╟─9efe1298-bb5e-4d44-a022-82ab53e32445
 # ╠═1246e2af-cd23-4ec3-a0ae-f1ebd2d9938a
 # ╠═29f7ce4e-1c01-4515-ad78-6e8b5c16bede
+# ╟─2a90c23f-ba3f-49df-bbeb-be730c1b9928
 # ╠═5ea7c702-dc09-41ca-b7a1-7daf7501a3bf
 # ╠═5134d47b-4327-4558-b06d-a565dc5cbc16
+# ╟─62a8df43-d014-4228-bc24-a1550e826777
 # ╠═412f9af9-9bdc-47ee-a8c1-7b8d190b0795
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

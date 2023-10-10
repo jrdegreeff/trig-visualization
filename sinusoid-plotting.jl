@@ -38,6 +38,9 @@ format_label(x, d=D) =
 sin_color = 1
 cos_color = 2
 hyp_color = 3
+period_color = 4
+max_min_color = 5
+shift_color = :gray
 
 # Sinusoid Manipulation
 
@@ -256,6 +259,7 @@ function plot_trig_function(
     show_curve=true, show_label=true,
     n_angles=n_special_angles, critical_only=false,
     show_positive=false, show_negative=false,
+    show_base_point=false, show_period_points=false, show_all_critical_points=false,
     show_max_min=false, show_period=false,
     show_v_shift=false, show_h_shift=false
 )
@@ -294,44 +298,55 @@ function plot_trig_function(
     )
 
     for wave in waves
-        show_v_shift && plot!(  # midline marker
-            [-max_θ, max_θ], [midline(wave), midline(wave)],
-            label=false, lw=3, color=:gray, style=:dash
-        )
-        show_h_shift && vline!(  # phase marker
-            [h_shift(wave)],
-            label=false, lw=3, color=:gray, style=:dash
-        )
-        show_period && vline!(  # period markers
-            sort(vcat(
-                h_shift(wave):-period(wave):-max_θ, h_shift(wave):period(wave):max_θ)
-            ), label=false, lw=2, color=4, style=:dash
-        )
-        show_max_min && plot!(  # max and min markers
-            [-max_θ, max_θ], [maximum(wave), maximum(wave)],
-            label=false, lw=2, color=5, style=:dash
-        )
-        show_max_min && plot!(  # max and min markers
-            [-max_θ, max_θ], [minimum(wave), minimum(wave)],
-            label=false, lw=2, color=5, style=:dash
-        )
-
-        
-        show_curve && plot!(  # the function itself
-            -max_θ:circle_resolution:max_θ, wave, label=string(wave),
-            lw=3, color=wave
-        )
-
+        phase_angle = [h_shift(wave)]
+        period_angles = sort(vcat(
+            h_shift(wave):-period(wave):-max_θ, h_shift(wave):period(wave):max_θ
+        ))
+        all_critical_angles = sort(vcat(
+            h_shift(wave):-period(wave)/4:-max_θ, h_shift(wave):period(wave)/4:max_θ
+        ))
         angles = critical_only ? critical_angles : special_angles
         n_angles = min(n_angles, length(angles))
         displayed_angles = Fix1(invert_inner, wave).(angles[1:n_angles])
         filter!(a -> a ≤ max_θ, displayed_angles)
 
+
+        show_v_shift && plot!(  # midline marker
+            [-max_θ, max_θ], [midline(wave), midline(wave)], label=false, lw=3, color=shift_color, style=:dash
+        )
+        show_h_shift && vline!(  # phase marker
+            phase_angle, label=false, lw=3, color=shift_color, style=:dash
+        )
+        show_period && vline!(  # period markers
+            period_angles, label=false, lw=2, color=period_color, style=:dash
+        )
+        show_max_min && plot!(  # max and min markers
+            [-max_θ, max_θ], [maximum(wave), maximum(wave)], label=false, lw=2, color=max_min_color, style=:dash
+        )
+        show_max_min && plot!(  # max and min markers
+            [-max_θ, max_θ], [minimum(wave), minimum(wave)], label=false, lw=2, color=max_min_color, style=:dash
+        )
+
+        
+        show_curve && plot!(  # the function itself
+            -max_θ:circle_resolution:max_θ, wave, label=string(wave), lw=3, color=wave
+        )
+        
         show_positive && scatter!(  # positive special angles
             displayed_angles, wave, label=false, color=wave
         )
         show_negative && scatter!(  # negative special angles
             -displayed_angles, wave, label=false, color=wave
+        )
+
+        show_all_critical_points && scatter!(  # all critical points
+            all_critical_angles, wave, label=false, color=wave
+        )
+        show_period_points && scatter!(  # points on period boundaries
+            period_angles, wave, label=false, color=period_color
+        )
+        show_base_point && scatter!(  # point on phase shift
+            phase_angle, wave, label=false, color=shift_color
         )
 
         !isnothing(θ) && plot!(  # vertical line at indicated point
