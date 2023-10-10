@@ -4,656 +4,37 @@
 using Markdown
 using InteractiveUtils
 
-# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
-macro bind(def, element)
-    quote
-        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
-        local el = $(esc(element))
-        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
-        el
-    end
-end
-
-# ╔═╡ e503d9f6-84f0-486f-aa0f-b9cf6aa88b69
+# ╔═╡ 1246e2af-cd23-4ec3-a0ae-f1ebd2d9938a
 begin
 	using Plots
 	using PlutoLinks
 	using PlutoUI
 end;
 
-# ╔═╡ 9a65324e-594f-11ee-3a9b-dff0ec87117f
+# ╔═╡ bbd5aafe-6731-11ee-19e7-df00e4f539e0
 begin
 	logo = Resource("https://raw.githubusercontent.com/jrdegreeff/trig-visualization/main/MX_Shield_Red.png", :height => 28)
 	md"""
-	# ``\quad`` $(logo) ``\quad``Graphing Trig Functions``\quad`` $(logo) ``\quad``
+	# ``\quad`` $(logo) ``\quad``Graphing Trig Functions``\quad`` $(logo) ``\quad`` 
 	This notebook was designed to complement Middlesex School's *Math 32 -- Pre-calculus: Trigonometry* class. Specifically, it is an interactive visual aide for PART II: Graphing Period Functions.
 	"""
 end
 
-# ╔═╡ 178903b9-1112-4f42-8995-dab542e293fe
-html"""
-<div style="display: flex; flex-align: center; flex-direction: column;">
-	<button onclick=document.presentAndReset()>
-		Toggle Presentation Mode 
-	</button>
-</div>
-"""
+# ╔═╡ 22fcdd94-7a91-42b1-a777-0559512b573f
 
-# ╔═╡ ffa59d87-7b68-4192-a52f-6582e67f1cbd
-md"""
-## Periodic Functions
-A **periodic** function is a function whose values repeat at regular intervals.
 
-Below we have a periodic function called a traingle wave.
-"""
-
-# ╔═╡ a2a5e259-785a-4907-9eeb-40c3e1f4332c
-md"""
-The **period** (``T``) of a periodic function is how far you have to go in the domain before the function repeats.
-
-What is the period of this function?
-
-Display intervals: $(@bind show_triangle_period CheckBox())
-"""
-
-# ╔═╡ 16e020f3-aa07-40d9-9f8f-e461ef7b903a
-let
-	f(x) = mod(x, 4) < 2 ? mod(x, 4) : 2 - mod(x, 4)
-	p = plot(legend=false, framestyle = :origin, xticks=-10:10, yticks=-1:1)
-	plot!(-10:10, f, lw=3)
-	show_triangle_period && vline!(-8:4:8, lw=2, color=4, style=:dash)
-	p
-end
-
-# ╔═╡ 46ec1e5a-9d63-4f99-b35c-ac69520e7565
-md"""
-## Sine
-Recall that ``\sin \theta`` is the **``y``-coordinate** of the point on the unit circle that intersects the ray at angle ``\theta`` from the positive ``x``-axis.
-
-``θ:\quad`` $(θ_sin_slider = @bind θ_sin Slider(-4π:π/12:4π, default=0.0))
-"""
-
-# ╔═╡ a87effdc-0282-4a92-82b4-ae35e496e81f
-md"""
-Now let's plot these points. The horizontal axis is ``θ``, and the vertical axis is ``\sin θ``.
-
-Show positive: $(@bind show_sin_positive CheckBox()) ``\quad``
-Show negative: $(@bind show_sin_negative CheckBox()) ``\quad``
-Show curve: $(@bind show_sin_curve CheckBox()) ``\quad``
-"""
-
-# ╔═╡ 31caf44b-cd8d-4cef-bbb3-6dd6eedf0a76
-md"""
-Lastly, let's look at the two plots together.
-
-``θ:\quad`` $(θ_sin_slider)
-"""
-
-# ╔═╡ 9004bad6-b416-483a-9852-1d6ad19b2a48
-md"""
-## Sinusoids
-We call this periodic wave shape a "sinusoid" or "sine wave."
-
-What is the period (``T``) of this sinusoid?
-
-Display intervals: $(@bind show_sin_period CheckBox())
-"""
-
-# ╔═╡ ad9ab2dc-9de7-4695-b6c3-29cbabc1dd8c
-md"""
-We also care about the **maximum** and **minimum** value of the sine wave. The **midline** is the average between the two.
-
-What are the maximum, minimum, and midline of this sinusoid?
-
-The **amplitude** (``A``) of the wave is the difference between the maximum and the midline (or eqivalently between the midline and the minimum).
-
-What is the amplitude (``A``) of this sinusoid?
-"""
-
-# ╔═╡ 99384a42-6902-481c-980e-3cc469df17c2
-md"""
-## Cosine
-
-Recall that ``\cos \theta`` is the **``x``-coordinate** of the point on the unit circle that intersects the ray at angle ``\theta`` from the positive ``x``-axis.
-
-``θ:\quad`` $(θ_cos_slider = @bind θ_cos Slider(-4π:π/12:4π, default=0.0))
-"""
-
-# ╔═╡ 8d289999-bbca-4db7-9730-e62cd2822747
-md"""
-Now let's plot these points. The horizontal axis is ``θ``, and the vertical axis is ``\cos θ``.
-
-Show positive: $(@bind show_cos_positive CheckBox()) ``\quad``
-Show negative: $(@bind show_cos_negative CheckBox()) ``\quad``
-Show curve: $(@bind show_cos_curve CheckBox()) ``\quad``
-"""
-
-# ╔═╡ 657496b6-cf0f-4f2b-a7ae-9ec89f0800e2
-md"""
-Lastly, let's look at the two plots together.
-
-``θ:\quad`` $(θ_cos_slider)
-"""
-
-# ╔═╡ 7f34b696-8844-40e5-8cf0-14ceb0f56868
-md"""
-What are the period, maximum, minimum, midline, and amplitude of this sinusoid?
-"""
-
-# ╔═╡ f8ccdf01-abc9-4fd9-95c1-e5c77e3527ef
-md"""
-## Putting it Together: Sinusoids from Circles
-Let's look at all three plots together. Once again, sine is in blue and cosine is in orange.
-
-``θ:\quad`` $(@bind θ₁ Slider(-2π:π/12:2π, default=0.0))
-"""
-
-# ╔═╡ 8b95ef50-fbac-4653-8819-757fdf77a4dd
-md"""
-When identifying the function for a basic sinusoid, use the following steps:
-
-1. Identify whether the sinusoid is sine or cosine (check behavior at ``0``).
-2. Identify whether the sinusoid is vertically flipped (check behavior at ``0``).
-
-If the sinusoid is vertically flipped, the sign will be ``-`` otherwise it will be ``+``.
-
-The functional form is ``\boxed{\pm \sin \theta}`` or ``\boxed{\pm \cos \theta}``.
-"""
-
-# ╔═╡ da783d24-3ae2-4618-8eac-af1b2a32f657
-md"""
-# Transforming Sinusoids
-
-We have now seen that the graphs of ``\sin \theta`` and ``\cos \theta`` come from reading lengths as we vary ``\theta`` in the unit circle.
-
-We will now apply the same process to other circles. This will give us new sinusoids that we can write down formulas for in terms ``\sin`` and ``\cos``.
-
-We will first look at **Vertical Transformations** which scale or shift the *output* of the wave functions. We will then look at **Horizontal Transformations** which scale or shift the *input* of the wave functions which is ``\theta``. Keep in mind that *vertical* and *horizontal* refer to graphs of the waves, not the plane of the unit circle.
-"""
-
-# ╔═╡ 618edeb0-411a-4c4f-9ddb-2497b40241aa
-md"""
-## Vertical Scaling
-First, let's remember what happens when we scale the unit circle.
-
-For a circle centered at the origin with radius ``R``, the coordinates of the point on the circle along the terminal ray an angle ``\theta`` from the positive ``x``-axis are ``(R\cos \theta, R\sin \theta)``.
-
-``θ:\quad`` $(θ_t1_slider = @bind θ_t1 Slider(-4π:π/12:4π, default=0.0))
-
-``R:\quad`` $(R_t1_slider = @bind R_t1 Slider(0.5:0.5:3.0, default=1.0, show_value=true))
-"""
-
-# ╔═╡ eaa13afa-3efd-42dd-9eb3-a41569e063dc
-md"""
-Now let's put the circle back in the context of the corresponding waves.
-
-This scaling of the radius by ``R`` also scales all of the coordinates on the circle by ``R``. Since the values of the wave functions are just the ``x`` and ``y`` coordinates of the points on the circle, the values at every point on the waves are multiplied by ``R``.
-
-``θ:\quad`` $(θ_t1_slider)
-
-``R:\quad`` $(R_t1_slider)
-"""
-
-# ╔═╡ de7960c4-9177-4ded-b0bf-6140c10e69f0
-md"""
-The waves ``R \sin \theta`` and ``R \cos \theta`` have a maximum value of ``R`` and a midline of ``0``, so they both have amplitude ``R``. Thus, scaling the circle affects the **amplitude** of its coresponding waves.
-"""
-
-# ╔═╡ 53bb3aa6-a858-4040-86c3-c94d8bb6848b
-md"""
-### Vertical Scaling in a Table
-Let's look at the transformation ``A \sin(\theta)`` in tabular form and see how that relates to its graph.
-
-``A:\quad`` $(@bind A_t1 Slider(-3.0:0.5:3.0, default=1.0, show_value=true))
-
-"critical angles" only: $(@bind critical_only_t1 CheckBox(default=true)) ``\quad``
-show table: $(@bind show_table_t1 CheckBox(default=true)) ``\quad``
-show points: $(@bind show_points_t1 CheckBox(default=true)) ``\quad``
-show curve: $(@bind show_curve_t1 CheckBox(default=true)) ``\quad``
-
-show max and min: $(@bind show_max_min_t1 CheckBox(default=true)) ``\quad``
-"""
-
-# ╔═╡ e1a9cf02-5f46-4ea8-bbbe-b8f1b9224be1
-md"""
-### Identifying Vertical Scaling
-When identifying the function for a vertically scaled sinusoid, use the following steps:
-
-1. Identify whether the sinusoid is sine or cosine (check behavior at ``0``).
-2. Identify whether the sinusoid is vertically flipped (check behavior at ``0``).
-3. Find the maximum and minimum value of the sinusoid.
-4. Calculate ``A = \frac{max\ -\ min}{2}``.
-
-The functional form is ``\boxed{\pm A \sin\left(\theta\right)}`` or ``\boxed{\pm A \cos\left(\theta\right)}``.
-"""
-
-# ╔═╡ f14d6ab2-1e06-4e72-86c1-6defaedd58c3
-md"""
-## Vertical Shifting
-
-What happens if we move the center of the unit circle around? Let's call the center of the circle ``(x₀, y₀)``. Then the coordinates of the point on the shifted unit circle along the terminal ray an angle ``\theta`` from the positive ``x``-axis are ``(\cos(\theta) + x₀, \sin(\theta) + y₀)``.
-
-``θ:\quad`` $(θ_t2_slider = @bind θ_t2 Slider(-4π:π/12:4π, default=0.0))
-
-``c_x:\quad`` $(x₀_t2_slider = @bind x₀_t2 Slider(-2:1:2, default=0, show_value=true))
-
-``c_y:\quad`` $(y₀_t2_slider = @bind y₀_t2 Slider(-2:1:2, default=0, show_value=true))
-"""
-
-# ╔═╡ 7086d5eb-6f81-4bfc-8ba0-1ea83268059f
-md"""
-Now let's put the circle back in the context of the corresponding waves.
-
-This shifting of the center to ``(x₀, y₀)`` increases all of the ``x``-coordinates on the circle by ``x₀`` and increases all of the ``y``-coordinates on the circle by ``y₀``. Since the values of the wave functions are just the ``x`` and ``y`` coordinates of the points on the circle, the values at every point on the waves are shifted up or down accordingly.
-
-``θ:\quad`` $(θ_t2_slider)
-
-``x₀:\quad`` $(x₀_t2_slider)
-
-``y₀:\quad`` $(y₀_t2_slider)
-"""
-
-# ╔═╡ 81d21cce-1374-4d64-9230-8216ff71ee38
-md"""
-The wave ``\sin(\theta) + c_y`` has a maximum value of ``c_y + 1`` and a minimum value of ``c_y - 1``, so it has a midline of ``c_y``. Likewise, ``\cos(\theta) + c_x`` has a midline of ``c_x``. Thus, shifting the circle affects the **midline** of its coresponding waves.
-"""
-
-# ╔═╡ af6ca434-aabe-4c95-9a4f-9155c861f2e2
-md"""
-### Vertical Shifting in a Table
-Let's look at the transformation ``\sin(\theta) + k`` in tabular form and see how that relates to its graph.
-
-``k:\quad`` $(@bind k_t2 Slider(-2.0:0.5:2.0, default=0, show_value=true))
-
-"critical angles" only: $(@bind critical_only_t2 CheckBox(default=true)) ``\quad``
-show table: $(@bind show_table_t2 CheckBox(default=true)) ``\quad``
-show points: $(@bind show_points_t2 CheckBox(default=true)) ``\quad``
-show curve: $(@bind show_curve_t2 CheckBox(default=true)) ``\quad``
-
-show midline: $(@bind show_v_shift_t2 CheckBox(default=true)) ``\quad``
-"""
-
-# ╔═╡ eb96720e-1a36-4295-a68f-e087c4d8a59b
-md"""
-### Identifying Vertical Shifting
-When identifying the function for a vertically shifted sinusoid, use the following steps:
-
-1. Identify whether the sinusoid is sine or cosine (check behavior at ``0``).
-2. Identify whether the sinusoid is vertically flipped (check behavior at ``0``).
-3. Find the maximum and minimum value of the sinusoid.
-4. Calculate ``k = \frac{max\ +\ min}{2}``.
-
-The functional form is ``\boxed{\pm \sin\left(\theta\right) + k}`` or ``\boxed{\pm \cos\left(\theta\right) + k}``.
-"""
-
-# ╔═╡ 3690445c-4878-4f9c-949b-222c2e31176e
-md"""
-## Putting it Together: Vertical Transformations
-
-If we combine changes in the **center** and **radius** of the circle, we see combined changes in the **midline** and **amplitude** of the waves.
-
-``θ:\quad`` $(@bind θ_t3 Slider(-4π:π/12:4π, default=0.0))
-
-``x₀:\quad`` $(@bind x₀_t3 Slider(-2:1:2, default=0, show_value=true))
-
-``y₀:\quad`` $(@bind y₀_t3 Slider(-2:1:2, default=0, show_value=true))
-
-``R:\quad`` $(@bind R_t3 Slider(0.5:0.25:2.0, default=1.0, show_value=true))
-"""
-
-# ╔═╡ 827b1c6b-e992-4135-a491-cabf39ac906c
-md"""
-### Combined Vertical Transformations in a Table
-Let's look at the transformation ``A \sin(\theta) + k`` in tabular form and see how that relates to its graph.
-
-``A:\quad`` $(@bind A_t3 Slider(-2.0:0.5:2.0, default=1.0, show_value=true))
-
-``k:\quad`` $(@bind k_t3 Slider(-2.0:0.5:2.0, default=0.0, show_value=true))
-
-"critical angles" only: $(@bind critical_only_t3 CheckBox(default=true)) ``\quad``
-show table: $(@bind show_table_t3 CheckBox(default=true)) ``\quad``
-show points: $(@bind show_points_t3 CheckBox(default=true)) ``\quad``
-show curve: $(@bind show_curve_t3 CheckBox(default=true)) ``\quad``
-
-show max and min: $(@bind show_max_min_t3 CheckBox(default=true)) ``\quad``
-show midline: $(@bind show_v_shift_t3 CheckBox(default=true)) ``\quad``
-"""
-
-# ╔═╡ 1bfcc315-531b-482d-b712-14589d2489f7
-md"""
-### Identifying Vertical Transformations
-When identifying the function for a vertically transformed sinusoid, use the following steps:
-
-1. Identify whether the sinusoid is sine or cosine (check behavior at ``0``).
-2. Identify whether the sinusoid is vertically flipped (check behavior at ``0``).
-3. Find the maximum and minimum value of the sinusoid.
-4. Calculate ``A = \frac{max\ -\ min}{2}``.
-5. Calculate ``k = \frac{max\ +\ min}{2}``.
-
-The functional form is ``\boxed{\pm A \sin\left(\theta\right) + k}`` or ``\boxed{\pm A \cos\left(\theta\right) + k}``.
-"""
-
-# ╔═╡ 48e3d3c0-a6f1-48a3-9ca1-c239fa15fc62
-md"""
-## Horizontal Scaling
-Horizontal scaling decouples the rate at which we move along the ``\theta``-axis in the wave space and the rate at which we rotate around the circle.
-
-We will call the ratio between these two rates ``b``.
-
-If ``b`` is large we will go around the circle faster, so the wave value will go up and down more quickly. Conversely, if ``b`` is small we will go around the circle more slowly, so the wave value will go up and down more slowly.
-
-[Side note]: in physics this quantity is sometimes called the *angular frequency* of the wave and denoted with the Greek letter omega (``\omega``) but in this class we won't use that term to avoid confusion.
-
-``θ:\quad`` $(@bind θ_t4 Slider(-4π:π/12:4π, default=0.0))
-
-``b:\quad`` $(@bind b_t4 Slider(0.25:0.25:2.0, default=1.0, show_value=true))
-"""
-
-# ╔═╡ 7a03612e-4116-4063-ba89-3e73028b115f
-md"""
-### Horiztonal Scaling in a Table
-Let's look at the transformation ``\sin(b * \theta)`` in tabular form and see how that relates to its graph.
-
-``b:\quad`` $(@bind b2_t4 Slider(0.5:0.5:4.0, default=1.0, show_value=true))
-
-"critical angles" only: $(@bind critical_only_t4 CheckBox(default=true)) ``\quad``
-show table: $(@bind show_table_t4 CheckBox(default=true)) ``\quad``
-show points: $(@bind show_points_t4 CheckBox(default=true)) ``\quad``
-show curve: $(@bind show_curve_t4 CheckBox(default=true)) ``\quad``
-
-show period: $(@bind show_period_t4 CheckBox(default=true)) ``\quad``
-"""
-
-# ╔═╡ c2d7a315-56c8-4e14-9a16-219d7669e3cb
-md"""
-Looking at this graph, we can see that the first period is completed when ``b\theta = 2\pi``. At this point, ``\theta = T``, so rearranging we have that the **period** ``\boxed{T = \frac{2\pi}{b}}``.
-
-Another quantity that we sometimes use when talking about waves (especially electromagnetic waves) is the **frequency** which is represented by ``f``. This is simply defined as the inverse of the period. In other words ``\boxed{ f = \frac{1}{T} = \frac{b}{2\pi}}``.
-"""
-
-# ╔═╡ b7b3afbb-5aeb-4f24-9beb-7f69a0c6629b
-md"""
-### Identifying Horizontal Scaling
-When identifying the function for a horizontally scaled sinusoid, use the following steps:
-
-1. Identify whether the sinusoid is sine or cosine (check behavior at ``0``).
-2. Identify whether the sinusoid is vertically flipped (check behavior at ``0``).
-3. Identify the period ``T``.
-
-The functional form is ``\boxed{\pm \sin\left(\frac{2\pi}{T}\theta\right)}`` or ``\boxed{\pm \cos\left(\frac{2\pi}{T}\theta\right)}``.
-"""
-
-# ╔═╡ 21c01e95-814a-4760-bc27-b31f45eb72b2
-md"""
-## Horizontal Shifting
-The final type of transformation is a shift along the ``\theta``-axis. This corresponds to changing the starting point of our angle measurements in the circle.
-
-We call the shift in the wave space ``h``.
-
-[Side note]: the shift in the starting point of the circle is called a *phase shift* and is often denoted with the Greek letter phi (``\phi``). Specifically with our sign and naming conventions, ``\phi = bh`` and it represents a change in the negative (clockwise) direction.
-
-``θ:\quad`` $(@bind θ_t5 Slider(-4π:π/12:4π, default=0.0))
-
-``h:\quad`` $(@bind h_t5 Slider(-2π:π/12:2π, default=0.0))
-"""
-
-# ╔═╡ ea4c2b2f-1419-4334-a545-f16dd6dd3e76
-md"""
-### Horiztonal Shifting in a Table
-Let's look at the transformations ``\sin(\theta - h)`` and ``\cos(\theta - h)`` in tabular form and see how that relates to their graphs.
-
-``h:\quad`` $(@bind h2_t5 Slider(-2π:π/12:2π, default=0.0))
-
-"critical angles" only: $(@bind critical_only_t5 CheckBox(default=true)) ``\quad``
-show table: $(@bind show_table_t5 CheckBox(default=true)) ``\quad``
-show points: $(@bind show_points_t5 CheckBox(default=true)) ``\quad``
-show curve: $(@bind show_curve_t5 CheckBox(default=true)) ``\quad``
-
-show ``h``: $(@bind show_h_shift_t5 CheckBox(default=true)) ``\quad``
-"""
-
-# ╔═╡ 49c21509-8821-4299-a725-814e54d0954d
-md"""
-**Observations**
-
-1. For ``\sin`` the shift line occurs at an upward-sloping midline point.
-2. For ``\cos`` the shift line occurs at a maximum point.
-3. ``\sin\left(\theta + \frac{\pi}{2}\right) = \cos\left(\theta\right)``.
-4. ``\cos\left(\theta - \frac{\pi}{2}\right) = \sin\left(\theta\right)``.
-5. ``\sin\left(\theta - \pi\right) = -\sin\left(\theta\right)``.
-6. ``\cos\left(\theta - \pi\right) = -\cos\left(\theta\right)``.
-5. ``\sin\left(\theta - 2\pi k\right) = \sin\left(\theta\right)`` for all integers ``k``.
-6. ``\cos\left(\theta - 2\pi k\right) = \cos\left(\theta\right)`` for all integers ``k``.
-
-Points 1-2 help us identify values for ``h`` when looking at a graph.
-
-Points 3-4 are interesting identities that we will explore later in the course.
-
-Points 5-8 imply that there are many possible functions in this form that have the same graph.
-"""
-
-# ╔═╡ 6a786e0f-6ab6-4c72-aa3d-cb0eff518d6d
-md"""
-### Identifying Horizontal Shifting
-When identifying the function for a horizontally shifted sinusoid, use the following steps:
-
-1. Choose whether you are going to use ``\sin`` or ``\cos``.
-2. If using ``\sin`` find the ``\theta``-coordinate, ``h``, of an upward-sloping midline point.
-3. If using ``\cos`` find the ``\theta``-coordinate, ``h``, of a maximum point.
-
-The functional form is ``\boxed{\sin\left(\theta - h\right)}`` or ``\boxed{\cos\left(\theta - h\right)}``.
-"""
-
-# ╔═╡ dd21e219-6c97-4f15-8fe7-803184aa6d6f
-md"""
-## Putting it Together: All Transformations
-Finally, let's look at all four transformations together.
-
-``θ:\quad`` $(@bind θ_t6 Slider(-4π:π/12:4π, default=0.0))
-
-``x₀:\quad`` $(@bind x₀_t6 Slider(-2:1:2, default=0, show_value=true))
-
-``y₀:\quad`` $(@bind y₀_t6 Slider(-2:1:2, default=0, show_value=true))
-
-``R:\quad`` $(@bind R_t6 Slider(0.5:0.25:2.0, default=1.0, show_value=true))
-
-``b:\quad`` $(@bind b_t6 Slider(0.25:0.25:2.0, default=1.0, show_value=true))
-
-``h:\quad`` $(@bind h_t6 Slider(-2π:π/12:2π, default=0.0))
-"""
-
-# ╔═╡ b264e6e2-1ed9-4a01-8ca9-f0825de0482c
-md"""
-### Combined Transformation in a Table
-Let's look at the transformation ``A\sin(b(\theta - h)) + k`` in tabular form and see how that relates to its graph.
-
-``A:\quad`` $(@bind A_t6 Slider(-3:1:3, default=1, show_value=true))
-
-``k:\quad`` $(@bind k_t6 Slider(-2:1:2, default=0, show_value=true))
-
-``b:\quad`` $(@bind b2_t6 Slider(0.5:0.5:5, default=1.0, show_value=true))
-
-``h:\quad`` $(@bind h2_t6 Slider(-2π:π/12:2π, default=0.0))
-
-"critical angles" only: $(@bind critical_only_t6 CheckBox(default=true)) ``\quad``
-show table: $(@bind show_table_t6 CheckBox(default=true)) ``\quad``
-show points: $(@bind show_points_t6 CheckBox(default=true)) ``\quad``
-show curve: $(@bind show_curve_t6 CheckBox(default=true)) ``\quad``
-
-show max and min: $(@bind show_max_min_t6 CheckBox(default=true)) ``\quad``
-show midline: $(@bind show_v_shift_t6 CheckBox(default=true)) ``\quad``
-show period: $(@bind show_period_t6 CheckBox(default=true)) ``\quad``
-show ``h``: $(@bind show_h_shift_t6 CheckBox(default=true)) ``\quad``
-"""
-
-# ╔═╡ bb83958a-3700-4246-8b37-c94642a88c31
-md"""
-### Identifying Combined Transformations
-When identifying the function for an arbitrarily transformed sinusoid, use the following steps:
-
-1. Choose whether you are going to use ``\sin`` or ``\cos``.
-2. If using ``\sin`` find the ``\theta``-coordinate, ``h``, of an upward-sloping midline point.
-3. If using ``\cos`` find the ``\theta``-coordinate, ``h``, of a maximum point.
-4. Identify the period ``T``.
-5. Find the maximum and minimum value of the sinusoid.
-6. Calculate ``A = \frac{max\ -\ min}{2}``.
-7. Calculate ``k = \frac{max\ +\ min}{2}``.
-
-The functional form is ``\boxed{A\sin\left(\frac{2\pi}{T}(\theta - h)\right) + k}`` or ``\boxed{A\cos\left(\frac{2\pi}{T}(\theta - h)\right) + k}``.
-"""
-
-# ╔═╡ 1a408b82-fe7e-4930-94d2-cfa89c7340b8
-# Empty header cell to be a blank end-of-presentation screen.
-md"""
-##
-"""
-
-# ╔═╡ 93f8a6d5-6764-441a-aa89-39211dcf9358
+# ╔═╡ 9efe1298-bb5e-4d44-a022-82ab53e32445
 md"""
 ## Appendix: Dependencies
 """
 
-# ╔═╡ b64195b9-b27d-4702-a445-05118709faf9
+# ╔═╡ 29f7ce4e-1c01-4515-ad78-6e8b5c16bede
 begin
 	SP = @ingredients "./sinusoid-plotting.jl"
 	import .SP: Wave,
 	            format_special_angles_table, n_special_angles,
 	            plot_trig_circle, plot_trig_function, plot_side_by_side
 end;
-
-# ╔═╡ 7f924a27-3a75-47ba-a0e9-d5b841a49bb1
-plot_trig_circle(θ_sin, max_x=1.5, max_y=1, R_tick=0.5, show_sin=true)
-
-# ╔═╡ 12e416c5-6f4e-4c84-ab04-20ba300adfc3
-md"""
-Let's write down the sine values for the special angles, and round to 2 decimal places.
-
-$(@bind sin_slider Slider(0:n_special_angles))
-"""
-
-# ╔═╡ ebdbcb08-bdfa-46e4-9d20-898b25d77d15
-format_special_angles_table(Wave(sin), n_angles=sin_slider)
-
-# ╔═╡ f87b8e3f-4943-47e6-9317-6516a8c8a31a
-plot_trig_function(Wave(sin), tickstyle=:πfraction, show_curve=show_sin_curve, show_positive=show_sin_positive, show_negative=show_sin_negative, n_angles=sin_slider)
-
-# ╔═╡ ce0ca1d7-8ebf-4761-89e3-b53fc46216e0
-let
-	sin_circle_plot = plot_trig_circle(θ_sin, max_x=3, max_y=1, show_sin=true)
-	sin_curve_plot = plot_trig_function(Wave(sin), max_θ=4π, θ=θ_sin,  tickstyle=:πmultiple)
-	plot(sin_circle_plot, sin_curve_plot, layout=(2, 1))
-end
-
-# ╔═╡ e520ba54-bef4-44b9-a09c-feeb6519292e
-plot_trig_function(Wave(sin), max_θ=4π, tickstyle=:πmultiple, show_period=show_sin_period)
-
-# ╔═╡ 0e2de8ba-3a25-4158-abc0-bed956dfe470
-plot_trig_circle(θ_cos, max_x=1.5, max_y=1, R_tick=0.5, show_cos=true)
-
-# ╔═╡ 1159e991-073f-4e4d-88f8-c8cd0104a6e2
-md"""
-Let's write down the cosine values for the special angles, and round to 2 decimal places.
-
-$(@bind cos_slider Slider(0:n_special_angles))
-"""
-
-# ╔═╡ c3550f70-8b7b-432e-aa5e-7ab5084cf69f
-format_special_angles_table(Wave(cos), n_angles=cos_slider)
-
-# ╔═╡ 882dcccd-3c97-4bc3-9e95-014f90d7a795
-plot_trig_function(Wave(cos), tickstyle=:πfraction, show_curve=show_cos_curve, show_positive=show_cos_positive, show_negative=show_cos_negative, n_angles=cos_slider)
-
-# ╔═╡ 25408447-3e76-4bfc-94c9-4bede0a44351
-let
-	cos_circle_plot = plot_trig_circle(θ_cos, max_x=3, max_y=1, show_cos=true)
-	cos_curve_plot = plot_trig_function(Wave(cos), max_θ=4π, θ=θ_cos, tickstyle=:πmultiple)
-	plot(cos_circle_plot, cos_curve_plot, layout=(2, 1))
-end
-
-# ╔═╡ a8c7df79-e9bc-4ab0-a1c9-b3dde44adeb3
-plot_side_by_side(θ₁)
-
-# ╔═╡ ebc4c86d-621b-4c0a-b7bd-e9ea8e87d36d
-plot_trig_circle(θ_t1, R=R_t1, max_x=4, max_y=3, show_sin=true, show_cos=true)
-
-# ╔═╡ 33eb69c3-7391-44cb-b31f-8e2e724028c8
-plot_side_by_side(θ_t1, R=R_t1, circle_max_x=4, circle_max_y=5, circle_tick=1, max_θ=4π, wave_max_y=3, wave_tick_y=1)
-
-# ╔═╡ 8aee1e87-7b32-4f71-9685-12e15ba9b246
-show_table_t1 ? format_special_angles_table([Wave(sin), Wave(sin, A=A_t1)], critical_only=critical_only_t1, column_width=11) : nothing
-
-# ╔═╡ e29c8789-202f-4d93-ae34-7642b0b80d74
-plot_trig_function(Wave(sin, A=A_t1), max_θ=2π, tickstyle=:πfraction, max_y=3, tick_y=1, show_curve=show_curve_t1, show_positive=show_points_t1, critical_only=critical_only_t1, show_max_min=show_max_min_t1)
-
-# ╔═╡ e58f6c8b-ffcd-4f06-a1c3-6a02055ae428
-plot_trig_circle(θ_t2, x₀=x₀_t2, y₀=y₀_t2, max_x=4, max_y=3, show_sin=true, show_cos=true)
-
-# ╔═╡ 1b50e6b9-e161-4b86-b771-787f34352a8a
-plot_side_by_side(θ_t2, x₀=x₀_t2, y₀=y₀_t2, circle_max_x=3, circle_max_y=4, circle_tick=1, max_θ=4π, wave_max_y=3, wave_tick_y=1)
-
-# ╔═╡ 32e5c347-5dd3-41ab-9382-deaff3089657
-show_table_t2 ? format_special_angles_table([Wave(sin), Wave(sin, k=k_t2)], critical_only=critical_only_t2, column_width=12) : nothing
-
-# ╔═╡ 055c68c2-4fca-4a3e-ab26-28cf6c0cdef8
-plot_trig_function(Wave(sin, k=k_t2), max_θ=2π, tickstyle=:πfraction, max_y=3, tick_y=1, show_curve=show_curve_t2, show_positive=show_points_t2, critical_only=critical_only_t2, show_v_shift=show_v_shift_t2)
-
-# ╔═╡ ec00618a-5042-4aaf-a17a-b60f67f95aa9
-plot_side_by_side(θ_t3, R=R_t3, x₀=x₀_t3, y₀=y₀_t3, circle_max_x=4, circle_max_y=5, circle_tick=2, max_θ=4π, wave_max_y=4)
-
-# ╔═╡ 9ffa7538-c969-4e7a-8bd6-6b568d7e1a03
-show_table_t3 ? format_special_angles_table([Wave(sin), Wave(sin, A=A_t3, k=k_t3)], critical_only=critical_only_t3, column_width=16) : nothing
-
-# ╔═╡ d26018da-e17d-430d-baf9-84265352cd8c
-plot_trig_function(Wave(sin, A=A_t3, k=k_t3), max_θ=2π, tickstyle=:πfraction, max_y=4, tick_y=1, show_curve=show_curve_t3, show_positive=show_points_t3, critical_only=critical_only_t3, show_max_min=show_max_min_t3, show_v_shift=show_v_shift_t3)
-
-# ╔═╡ dfed3645-85e2-440b-965b-eaef0585a823
-plot_side_by_side(θ_t4, b=b_t4, max_θ=4π)
-
-# ╔═╡ 25a533c4-61dc-4ba0-8ab2-eba55f69b21f
-show_table_t4 ? format_special_angles_table([Wave(b=b2_t4), Wave(sin, b=b2_t4)], critical_only=critical_only_t4, column_width=11) : nothing
-
-# ╔═╡ 0112eae5-6f4c-400f-b636-9fd4e3786153
-plot_trig_function(Wave(sin, b=b2_t4), max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t4, show_positive=show_points_t4, critical_only=critical_only_t4, show_period=show_period_t4)
-
-# ╔═╡ e4751115-51e2-4bab-ad19-b7cf4a8f56ad
-plot_side_by_side(θ_t5, h=h_t5, max_θ=4π)
-
-# ╔═╡ 050c6975-e92b-48b1-a0d5-b12f1005b611
-show_table_t5 ? format_special_angles_table([Wave(h=h2_t5), Wave(sin, h=h2_t5), Wave(cos, h=h2_t5)], critical_only=critical_only_t5, column_width=15) : nothing
-
-# ╔═╡ c675e5ee-185e-41d1-b879-939357ffb5c7
-let
-	sin_plot = plot_trig_function(Wave(sin, h=h2_t5), max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t5, show_positive=show_points_t5, critical_only=critical_only_t5, show_h_shift=show_h_shift_t5)
-	cos_plot = plot_trig_function(Wave(cos, h=h2_t5), max_θ=2π, tickstyle=:πfraction, tick_y=1, show_curve=show_curve_t5, show_positive=show_points_t5, critical_only=critical_only_t5, show_h_shift=show_h_shift_t5)
-	plot(sin_plot, cos_plot, layout=(2,1))
-end
-
-# ╔═╡ ee7b9d4e-6b25-4951-95b8-7d3992294aee
-plot_side_by_side(θ_t6, R=R_t6, x₀=x₀_t6, y₀=y₀_t6, b=b_t6, h=h_t6, circle_max_x=4, circle_max_y=5, circle_tick=2, max_θ=4π, wave_max_y=4)
-
-# ╔═╡ bc101546-cb14-40e5-ba6a-1f3b084be914
-show_table_t6 ? format_special_angles_table([Wave(b=b2_t6, h=h2_t6), Wave(sin, A=A_t6, k=k_t6, b=b2_t6, h=h2_t6)], critical_only=critical_only_t6, column_width=26) : nothing
-
-# ╔═╡ f530f155-fd4e-4dae-ab85-994ea0ebe8b2
-plot_trig_function(Wave(sin, A=A_t6, k=k_t6, b=b2_t6, h=h2_t6), max_θ=2π, tickstyle=:πfraction, max_y=5, tick_y=1, show_curve=show_curve_t6, show_positive=show_points_t6, critical_only=critical_only_t6, show_max_min=show_max_min_t6, show_period=show_period_t6, show_v_shift=show_v_shift_t6, show_h_shift=show_h_shift_t6)
-
-# ╔═╡ d55da43e-9ba9-4527-8fec-72493e7996f3
-html"""<script>
-document.presentAndReset = function() {
-	window.present();
-	window.scrollTo(0, 0);
-	setTimeout(function() {  // need to wait for body update
-		if(document.body.classList.contains("presentation")) {
-			document.getElementsByClassName("changeslide next")[0].click();
-		}
-	}, 10);
-}
-window.addEventListener('keyup', function(e) {
-	if (e.keyCode === 13 && e.altKey) {  // toggle presentation with alt + enter
-		document.presentAndReset();
-	}
-});
-</script>"""
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -711,9 +92,9 @@ version = "1.16.1+1"
 
 [[deps.CodeTracking]]
 deps = ["InteractiveUtils", "UUIDs"]
-git-tree-sha1 = "a1296f0fe01a4c3f9bf0dc2934efbf4416f5db31"
+git-tree-sha1 = "c0216e792f518b39b22212127d4a84dc31e4e386"
 uuid = "da1fd8a2-8d9e-5ec2-8556-3022fb5608a2"
-version = "1.3.4"
+version = "1.3.5"
 
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
@@ -1124,9 +505,9 @@ uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
 
 [[deps.LoggingExtras]]
 deps = ["Dates", "Logging"]
-git-tree-sha1 = "0d097476b6c381ab7906460ef1ef1638fbce1d91"
+git-tree-sha1 = "c1dd6d7978c12545b4179fb6153b9250c96b0075"
 uuid = "e6f89c97-d47a-5376-807f-9c37f3926c36"
-version = "1.0.2"
+version = "1.0.3"
 
 [[deps.LoweredCodeUtils]]
 deps = ["JuliaInterpreter"]
@@ -1353,9 +734,9 @@ version = "1.2.2"
 
 [[deps.RelocatableFolders]]
 deps = ["SHA", "Scratch"]
-git-tree-sha1 = "90bc7a7c96410424509e4263e277e43250c05691"
+git-tree-sha1 = "ffdaf70d81cf6ff22c2b6e733c900c3321cab864"
 uuid = "05181044-ff0b-4ac5-8273-598c1e38db00"
-version = "1.0.0"
+version = "1.0.1"
 
 [[deps.Requires]]
 deps = ["UUIDs"]
@@ -1794,83 +1175,10 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─9a65324e-594f-11ee-3a9b-dff0ec87117f
-# ╟─178903b9-1112-4f42-8995-dab542e293fe
-# ╟─ffa59d87-7b68-4192-a52f-6582e67f1cbd
-# ╟─16e020f3-aa07-40d9-9f8f-e461ef7b903a
-# ╟─a2a5e259-785a-4907-9eeb-40c3e1f4332c
-# ╟─46ec1e5a-9d63-4f99-b35c-ac69520e7565
-# ╟─7f924a27-3a75-47ba-a0e9-d5b841a49bb1
-# ╟─12e416c5-6f4e-4c84-ab04-20ba300adfc3
-# ╟─ebdbcb08-bdfa-46e4-9d20-898b25d77d15
-# ╟─a87effdc-0282-4a92-82b4-ae35e496e81f
-# ╟─f87b8e3f-4943-47e6-9317-6516a8c8a31a
-# ╟─31caf44b-cd8d-4cef-bbb3-6dd6eedf0a76
-# ╟─ce0ca1d7-8ebf-4761-89e3-b53fc46216e0
-# ╟─9004bad6-b416-483a-9852-1d6ad19b2a48
-# ╟─e520ba54-bef4-44b9-a09c-feeb6519292e
-# ╟─ad9ab2dc-9de7-4695-b6c3-29cbabc1dd8c
-# ╟─99384a42-6902-481c-980e-3cc469df17c2
-# ╟─0e2de8ba-3a25-4158-abc0-bed956dfe470
-# ╟─1159e991-073f-4e4d-88f8-c8cd0104a6e2
-# ╟─c3550f70-8b7b-432e-aa5e-7ab5084cf69f
-# ╟─8d289999-bbca-4db7-9730-e62cd2822747
-# ╟─882dcccd-3c97-4bc3-9e95-014f90d7a795
-# ╟─657496b6-cf0f-4f2b-a7ae-9ec89f0800e2
-# ╟─25408447-3e76-4bfc-94c9-4bede0a44351
-# ╟─7f34b696-8844-40e5-8cf0-14ceb0f56868
-# ╟─f8ccdf01-abc9-4fd9-95c1-e5c77e3527ef
-# ╟─a8c7df79-e9bc-4ab0-a1c9-b3dde44adeb3
-# ╟─8b95ef50-fbac-4653-8819-757fdf77a4dd
-# ╟─da783d24-3ae2-4618-8eac-af1b2a32f657
-# ╟─618edeb0-411a-4c4f-9ddb-2497b40241aa
-# ╟─ebc4c86d-621b-4c0a-b7bd-e9ea8e87d36d
-# ╟─eaa13afa-3efd-42dd-9eb3-a41569e063dc
-# ╟─33eb69c3-7391-44cb-b31f-8e2e724028c8
-# ╟─de7960c4-9177-4ded-b0bf-6140c10e69f0
-# ╟─53bb3aa6-a858-4040-86c3-c94d8bb6848b
-# ╟─8aee1e87-7b32-4f71-9685-12e15ba9b246
-# ╟─e29c8789-202f-4d93-ae34-7642b0b80d74
-# ╟─e1a9cf02-5f46-4ea8-bbbe-b8f1b9224be1
-# ╟─f14d6ab2-1e06-4e72-86c1-6defaedd58c3
-# ╟─e58f6c8b-ffcd-4f06-a1c3-6a02055ae428
-# ╟─7086d5eb-6f81-4bfc-8ba0-1ea83268059f
-# ╟─1b50e6b9-e161-4b86-b771-787f34352a8a
-# ╟─81d21cce-1374-4d64-9230-8216ff71ee38
-# ╟─af6ca434-aabe-4c95-9a4f-9155c861f2e2
-# ╟─32e5c347-5dd3-41ab-9382-deaff3089657
-# ╟─055c68c2-4fca-4a3e-ab26-28cf6c0cdef8
-# ╟─eb96720e-1a36-4295-a68f-e087c4d8a59b
-# ╟─3690445c-4878-4f9c-949b-222c2e31176e
-# ╟─ec00618a-5042-4aaf-a17a-b60f67f95aa9
-# ╟─827b1c6b-e992-4135-a491-cabf39ac906c
-# ╟─9ffa7538-c969-4e7a-8bd6-6b568d7e1a03
-# ╟─d26018da-e17d-430d-baf9-84265352cd8c
-# ╟─1bfcc315-531b-482d-b712-14589d2489f7
-# ╟─48e3d3c0-a6f1-48a3-9ca1-c239fa15fc62
-# ╟─dfed3645-85e2-440b-965b-eaef0585a823
-# ╟─7a03612e-4116-4063-ba89-3e73028b115f
-# ╟─25a533c4-61dc-4ba0-8ab2-eba55f69b21f
-# ╟─0112eae5-6f4c-400f-b636-9fd4e3786153
-# ╟─c2d7a315-56c8-4e14-9a16-219d7669e3cb
-# ╟─b7b3afbb-5aeb-4f24-9beb-7f69a0c6629b
-# ╟─21c01e95-814a-4760-bc27-b31f45eb72b2
-# ╟─e4751115-51e2-4bab-ad19-b7cf4a8f56ad
-# ╟─ea4c2b2f-1419-4334-a545-f16dd6dd3e76
-# ╟─050c6975-e92b-48b1-a0d5-b12f1005b611
-# ╟─c675e5ee-185e-41d1-b879-939357ffb5c7
-# ╟─49c21509-8821-4299-a725-814e54d0954d
-# ╟─6a786e0f-6ab6-4c72-aa3d-cb0eff518d6d
-# ╟─dd21e219-6c97-4f15-8fe7-803184aa6d6f
-# ╟─ee7b9d4e-6b25-4951-95b8-7d3992294aee
-# ╟─b264e6e2-1ed9-4a01-8ca9-f0825de0482c
-# ╟─bc101546-cb14-40e5-ba6a-1f3b084be914
-# ╟─f530f155-fd4e-4dae-ab85-994ea0ebe8b2
-# ╟─bb83958a-3700-4246-8b37-c94642a88c31
-# ╟─1a408b82-fe7e-4930-94d2-cfa89c7340b8
-# ╠═93f8a6d5-6764-441a-aa89-39211dcf9358
-# ╠═e503d9f6-84f0-486f-aa0f-b9cf6aa88b69
-# ╠═b64195b9-b27d-4702-a445-05118709faf9
-# ╟─d55da43e-9ba9-4527-8fec-72493e7996f3
+# ╟─bbd5aafe-6731-11ee-19e7-df00e4f539e0
+# ╠═22fcdd94-7a91-42b1-a777-0559512b573f
+# ╟─9efe1298-bb5e-4d44-a022-82ab53e32445
+# ╠═1246e2af-cd23-4ec3-a0ae-f1ebd2d9938a
+# ╠═29f7ce4e-1c01-4515-ad78-6e8b5c16bede
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
