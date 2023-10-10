@@ -402,7 +402,7 @@ We call the shift in the wave space ``h``.
 
 # ╔═╡ ea4c2b2f-1419-4334-a545-f16dd6dd3e76
 md"""
-### Horiztonal Scaling in a Table
+### Horiztonal Shifting in a Table
 Let's look at the transformations ``\sin(\theta - h)`` and ``\cos(\theta - h)`` in tabular form and see how that relates to their graphs.
 
 ``h:\quad`` $(@bind h2_t5 Slider(-2π:π/12:2π, default=0.0))
@@ -838,14 +838,17 @@ begin
 		waves::Vector{<:Wave};
 		max_θ=maximum(period.(waves)), tick_θ=max_θ/4, tickstyle=:decimal,
 		max_y=nothing, tick_y=nothing,
-		circle_resolution=0.01π, θ=nothing,
+		circle_resolution=tick_θ/100, θ=nothing,
 		show_curve=true, show_label=true,
 		n_angles=n_special_angles, critical_only=false,
 		show_positive=false, show_negative=false,
 		show_max_min=false, show_period=false,
 		show_v_shift=false, show_h_shift=false
 	)
-		p = plot(framestyle=:origin, minorgrid=true, legend=show_label)
+		p = plot(
+			framestyle=:origin, minorgrid=true, legend=show_label,
+			xminorticks=6, yminorticks=4, minorgridlinewidth=1
+		)
 	
 		@assert isinteger(max_θ / tick_θ)
 		θ_ticks = -max_θ:tick_θ:max_θ
@@ -860,11 +863,7 @@ begin
 		else
 			error("unexpected tickstyle: $tickstyle")
 		end
-		plot!(
-			xlim=(-1.1max_θ, 1.1max_θ),
-			xticks=(collect(θ_ticks), θ_labels),
-			xminorticks=6
-		)
+		plot!(xlim=(-1.1max_θ, 1.1max_θ), xticks=(collect(θ_ticks), θ_labels))
 	
 		if isnothing(max_y)
 			max_y = maximum(maximum.(waves))
@@ -877,8 +876,7 @@ begin
 		
 		plot!(
 			ylim=(min_y - pad_y, max_y + pad_y),
-			yticks=(collect(min_y:tick_y:max_y), round_label.(min_y:tick_y:max_y)),
-			yminorticks=4
+			yticks=(collect(min_y:tick_y:max_y), round_label.(min_y:tick_y:max_y))
 		)
 
 		for wave in waves
@@ -1033,7 +1031,7 @@ begin
 	plot_trig_function(Wave(sin, color=3, A=2, T=2), show_label=false)
 	png("exports/MQ 6 - Sine Graph.png")
 
-	plot_trig_function(Wave(A=1.5), tick_y=0.5, tickstyle=:πfraction, show_curve=false, show_label=false)
+	plot_trig_function(Wave(cos), max_y=1.5, tick_y=0.5, tickstyle=:πfraction, show_curve=false, show_label=false)
 	png("exports/MQ 7 - Empty Plot.png")
 
 	plot_trig_function(Wave(cos, color=3, A=2, k=2, T=π), tickstyle=:πfraction, show_label=false)
@@ -1042,11 +1040,29 @@ begin
 	plot_trig_function(Wave(sin, color=3, A=-3, k=-1, T=2), show_label=false)
 	png("exports/MQ 8 - Graph 2.png")
 
-	plot_trig_function(Wave(A=4), tickstyle=:πfraction, show_curve=false, show_label=false)
+	plot_trig_function(Wave(sin, A=3, h=π/2), max_y=4, tickstyle=:πfraction, show_curve=false, show_label=false)
 	png("exports/MQ 9 - Empty Plot Scaled 1.png")
 
-	plot_trig_function(Wave(T=1), max_y=1.5, tick_y=0.5, show_curve=false, show_label=false)
+	plot_trig_function(Wave(cos, b=4π, k=0.5), max_θ=1, max_y=1.5, tick_y=0.5, show_curve=false, show_label=false)
 	png("exports/MQ 9 - Empty Plot Scaled 2.png")
+end;
+
+# ╔═╡ 336917ac-4ae5-4132-9930-5a15ef057d57
+begin
+	plot_trig_function(Wave(sin, color=3, A=5, k=2, T=8, h=-1), tick_θ=2, tick_y=2, show_label=false)
+	png("exports/Quiz 3 - 1.2")
+
+	plot_trig_function(Wave(sin, A=12, k=8, T=π, h=π/4), max_θ=2π, tickstyle=:πfraction, show_label=false)
+	png("exports/Quiz 3 - 2.1")
+
+	plot_trig_function(Wave(cos, A=2.5, k=-1.5, T=3, h=1), max_θ=3, tick_θ=1, tick_y=1, show_label=false)
+	png("exports/Quiz 3 - 2.2")
+
+	plot_trig_function(Wave(cos, A=3, k=-1, T=4π/3, h=π/2), max_y=4, tickstyle=:πfraction, max_θ=2π, show_curve=false, show_label=false)
+	png("exports/Quiz 3 - 3.1")
+
+	plot_trig_function(Wave(sin, A=-2, k=0.5, T=6, h=-1), tick_θ=1, max_y=3, tick_y=0.5, show_curve=false, show_label=false)
+	png("exports/Quiz 3 - 3.2")
 end;
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -2241,5 +2257,6 @@ version = "1.4.1+1"
 # ╠═6b76e577-317b-48ab-989e-7b716602aadb
 # ╟─819075e8-0058-4606-9a29-93fe169263be
 # ╠═db66a1ef-6f40-447e-8e09-1b612bd98d3b
+# ╠═336917ac-4ae5-4132-9930-5a15ef057d57
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
