@@ -26,7 +26,7 @@ begin
 	logo = Resource("https://raw.githubusercontent.com/jrdegreeff/trig-visualization/main/MX_Shield_Red.png", :height => 28)
 	md"""
 	# ``\quad`` $(logo) ``\quad``Graphing Trig Functions``\quad`` $(logo) ``\quad``
-	This notebook was designed to complement Middlesex School's *Math 32 -- Pre-calculus: Trigonometry* class. Specifically, it is an interactive visual aide for PART II: Graphing Period Functions.
+	This notebook was designed to complement Middlesex School's *Math 32 -- Pre-calculus: Trigonometry* class. Specifically, it is an interactive visual aid for PART II: Graphing Period Functions.
 	"""
 end
 

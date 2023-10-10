@@ -4,11 +4,22 @@
 using Markdown
 using InteractiveUtils
 
+# This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
+macro bind(def, element)
+    quote
+        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
+
 # ╔═╡ 1246e2af-cd23-4ec3-a0ae-f1ebd2d9938a
 begin
 	using Plots
 	using PlutoLinks
 	using PlutoUI
+	using Random
 end;
 
 # ╔═╡ bbd5aafe-6731-11ee-19e7-df00e4f539e0
@@ -16,11 +27,62 @@ begin
 	logo = Resource("https://raw.githubusercontent.com/jrdegreeff/trig-visualization/main/MX_Shield_Red.png", :height => 28)
 	md"""
 	# ``\quad`` $(logo) ``\quad``Graphing Trig Functions``\quad`` $(logo) ``\quad`` 
-	This notebook was designed to complement Middlesex School's *Math 32 -- Pre-calculus: Trigonometry* class. Specifically, it is an interactive visual aide for PART II: Graphing Period Functions.
+	This notebook was designed to complement Middlesex School's *Math 32 -- Pre-calculus: Trigonometry* class. Specifically, it is an interactive visual aid for PART II: Graphing Period Functions.
 	"""
 end
 
 # ╔═╡ 22fcdd94-7a91-42b1-a777-0559512b573f
+md"""
+# Quiz Review Problem Generator
+This notebook generates graph transformation problems. Because of a limitation of the deployment mechanism, you have to type a different number in the box below to "seed" the random number generator each time you want a new set of problems.
+
+seed: $(@bind seed_string TextField(default="0"))
+"""
+
+# ╔═╡ 4d853ea9-b866-4f70-a906-7cee7326d74a
+begin
+	seed = try
+		parse(Int64, seed_string)
+	catch ArgumentError
+		@warn "Seed must be an integer!"
+		0
+	end
+end
+
+# ╔═╡ f2d8e810-cc26-45a3-b77b-4aff6f3f5a91
+md"""
+## Function --> Properties
+Given the function below, provide exact values for each of the listed properties.
+"""
+
+# ╔═╡ 306d35c7-fdad-42f1-9fb7-18ae81fc90e9
+
+
+# ╔═╡ 2b41778f-d6b2-4764-8cd4-2d0dc2928dd4
+md"""
+## Graph --> Properties
+Looking at the plotted function below, provide exact values for each of the listed properties.
+"""
+
+# ╔═╡ f75cba03-6468-4aaa-b5d7-7134127fc176
+
+
+# ╔═╡ 561e7d96-3bb1-4130-a921-b5462ed874af
+md"""
+## Function --> Graph
+Given the function below, plot it on a graph. Make sure to hit all of the "critical points" and have roughly accurate curvature between them.
+"""
+
+# ╔═╡ d2463618-0269-4120-a6d1-9cc0ff67548f
+
+
+# ╔═╡ 8a28d7fb-3140-4f4d-b9f9-e0c5e5c6386f
+md"""
+## Graph --> Function
+Write down a function that describes the plot below. Use the base trig function (``\sin`` or ``\cos``) that is listed.
+"""
+
+# ╔═╡ 769f081d-093e-4119-b2f9-897508187700
 
 
 # ╔═╡ 9efe1298-bb5e-4d44-a022-82ab53e32445
@@ -36,12 +98,22 @@ begin
 	            plot_trig_circle, plot_trig_function, plot_side_by_side
 end;
 
+# ╔═╡ 5134d47b-4327-4558-b06d-a565dc5cbc16
+begin
+	Random.seed!(seed)
+	x = rand()
+end;
+
+# ╔═╡ 3f8c0895-2301-4bbd-ab76-5aa8de69ec04
+x
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 PlutoLinks = "0ff47ea0-7a50-410d-8455-4348d5de0420"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
 [compat]
 Plots = "~1.39.0"
@@ -55,7 +127,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.9.3"
 manifest_format = "2.0"
-project_hash = "d803ec12c0e16d37f98123b0fd977f31871b57a4"
+project_hash = "61e60e75feec5e907b510dc25dda1b81d8de9ddf"
 
 [[deps.AbstractPlutoDingetjes]]
 deps = ["Pkg"]
@@ -1176,9 +1248,20 @@ version = "1.4.1+1"
 
 # ╔═╡ Cell order:
 # ╟─bbd5aafe-6731-11ee-19e7-df00e4f539e0
-# ╠═22fcdd94-7a91-42b1-a777-0559512b573f
+# ╟─22fcdd94-7a91-42b1-a777-0559512b573f
+# ╟─4d853ea9-b866-4f70-a906-7cee7326d74a
+# ╟─3f8c0895-2301-4bbd-ab76-5aa8de69ec04
+# ╟─f2d8e810-cc26-45a3-b77b-4aff6f3f5a91
+# ╠═306d35c7-fdad-42f1-9fb7-18ae81fc90e9
+# ╟─2b41778f-d6b2-4764-8cd4-2d0dc2928dd4
+# ╠═f75cba03-6468-4aaa-b5d7-7134127fc176
+# ╟─561e7d96-3bb1-4130-a921-b5462ed874af
+# ╠═d2463618-0269-4120-a6d1-9cc0ff67548f
+# ╟─8a28d7fb-3140-4f4d-b9f9-e0c5e5c6386f
+# ╠═769f081d-093e-4119-b2f9-897508187700
 # ╟─9efe1298-bb5e-4d44-a022-82ab53e32445
 # ╠═1246e2af-cd23-4ec3-a0ae-f1ebd2d9938a
 # ╠═29f7ce4e-1c01-4515-ad78-6e8b5c16bede
+# ╠═5134d47b-4327-4558-b06d-a565dc5cbc16
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
