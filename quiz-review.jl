@@ -98,7 +98,8 @@ begin
 	import .SP: Wave, amplitude, midline, angular_frequency, h_shift,
 	            period, frequency, phase_shift,
 				trig_max, trig_min, trig_mid, trig_zeros,
-				format_label, plot_trig_function
+				format_label, latex_label,
+				plot_trig_function
 end;
 
 # ╔═╡ 2a90c23f-ba3f-49df-bbeb-be730c1b9928
@@ -138,28 +139,28 @@ begin
 end;
 
 # ╔═╡ f2d8e810-cc26-45a3-b77b-4aff6f3f5a91
-md"""
+Markdown.parse("""
 ## Function --> Properties
-Given the function f(θ) = $(string(wave_1)), provide exact values for each of the listed properties.
-"""
+Given the function $(latex_label(wave_1)), provide exact values for each of the listed properties.
+""")
 
 # ╔═╡ f75cba03-6468-4aaa-b5d7-7134127fc176
 plot_trig_function(wave_2, show_label=false, tickstyle=tickstyle_2)
 
 # ╔═╡ 561e7d96-3bb1-4130-a921-b5462ed874af
-md"""
+Markdown.parse("""
 ## Function --> Graph
-Plot the function f(θ) = $(string(wave_3)). Make sure to hit all of the "critical points" and have roughly accurate curvature between them.
-"""
+Plot the function $(latex_label(wave_3)). Make sure to hit all of the "critical points" and have roughly accurate curvature between them.
+""")
 
 # ╔═╡ cd77d6ea-82c7-4029-b406-a75cdf0a82f7
 plot_trig_function(wave_3, show_v_shift=1 ≤ graph_slider < 7, show_max_min=2 ≤ graph_slider < 7, show_h_shift=3 ≤ graph_slider < 7, show_period=4 ≤ graph_slider < 7, show_base_point=3 ≤ graph_slider < 7, show_period_points=4 ≤ graph_slider < 7, show_all_critical_points=5 ≤ graph_slider < 7, show_curve=6 ≤ graph_slider, show_label=false, tickstyle=tickstyle_3)
 
 # ╔═╡ 8a28d7fb-3140-4f4d-b9f9-e0c5e5c6386f
-md"""
+Markdown.parse("""
 ## Graph --> Function
-Write down a function that describes the plot below. Use $(string(wave_4.f)) as the base function.
-"""
+Write down a function that describes the plot below. Use \$\\$(string(wave_4.f))\$ as the base function.
+""")
 
 # ╔═╡ 769f081d-093e-4119-b2f9-897508187700
 plot_trig_function(wave_4, show_label=show_function_4, tickstyle=tickstyle_4)
@@ -180,7 +181,7 @@ let
 	min = format_label(minimum(wave_1))
 	zeros = trig_zeros(wave_1)
 	properties = [
-		("Midline Value ``(k)``", format_label(amplitude(wave_1))),
+		("Midline Value ``(k)``", format_label(midline(wave_1))),
 		("Amplitude ``(A)``", format_label(amplitude(wave_1))),
 		("Maximum Value", max),
 		("Minimum Value", min),
@@ -207,7 +208,7 @@ let
 	properties = [
 		("Maximum Value", max),
 		("Minimum Value", min),
-		("Midline Value ``(k)``", format_label(amplitude(wave_2))),
+		("Midline Value ``(k)``", format_label(midline(wave_2))),
 		("Amplitude ``(A)``", format_label(amplitude(wave_2))),
 		("Period ``(T)``", format_label(period(wave_2))),
 		("Frequency ``(f)``", format_label(frequency(wave_2))),

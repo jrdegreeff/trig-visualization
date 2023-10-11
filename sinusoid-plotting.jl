@@ -9,6 +9,18 @@ round_to_hundredths(x::Float64) = replace(@sprintf("%.2f", x), "-0.00" => "0.00"
 
 isapproxinteger = x -> abs(x - round(Int, x)) < 1e-6
 
+function fraction_label(x::Rational)
+    iszero(x) && return "0"
+    n, d = numerator(x), denominator(x)
+    isone(d) ? n : "$(n)/$(d)"
+end
+function latex_fraction_label(x::Rational)
+    iszero(x) && return "0"
+    S = x < 0 ? "-" : ""
+    n, d = abs(numerator(x)), denominator(x)
+    isone(d) ? n : "$(S)\\frac{$(n)}{$(d)}"
+end
+
 function π_label(x::Real)
     iszero(x) && return "0"
     S = x < 0 ? "-" : ""
@@ -18,21 +30,44 @@ function π_label(x::Real)
 end
 function π_label(x::Rational)
     iszero(x) && return "0"
-    n, d = π_label(numerator(x)), denominator(x)
-    isone(d) ? n : "$(n)/$(d)"
+    n, d = numerator(x), denominator(x)
+    N = "$(isone(n) ? "" : n)π"
+    isone(d) ? N : "$(N)/$(d)"
 end
+function latex_π_label(x::Rational)
+    iszero(x) && return "0"
+    S = x < 0 ? "-" : ""
+    n, d = abs(numerator(x)), denominator(x)
+    N = "$(isone(n) ? "" : n)π"
+    isone(d) ? "$(S)$(N)" : "$(S)\\frac{$(N)}{$(d)}"
+end
+
 function reciprocal_π_label(x::Rational)
     iszero(x) && return "0"
-    n, d = numerator(x), denominator(x)
-    "$(n)/$(isone(d) ? "π" : "($(d)π)")"
+    n, d = abs(numerator(x)), denominator(x)
+    D = isone(d) ? "π" : "($(d)π)"
+    "$(n)/$(D)"
+end
+function latex_reciprocal_π_label(x::Rational)
+    iszero(x) && return "0"
+    S = x < 0 ? "-" : ""
+    n, d = abs(numerator(x)), denominator(x)
+    D = "$(isone(d) ? "" : d)π"
+    "$(S)\\frac{$(n)}{$(D)}"
 end
 
 round_label(x) = string(isapproxinteger(x) ? round(Int, x) : round(x, digits=3))
 
 D = 5040
 format_label(x, d=D) =
+    isapproxinteger(x*d) ? fraction_label(round(Int, x*d) // d) :
     isapproxinteger((x/π)*d) ? π_label(round(Int, (x/π)*d) // d) :
     isapproxinteger((x*π)*d) ? reciprocal_π_label(round(Int, (x*π)*d) // d) :
+    round_label(x)
+latex_format_label(x, d=D) =
+    isapproxinteger(x*d) ? latex_fraction_label(round(Int, x*d) // d) :
+    isapproxinteger((x/π)*d) ? latex_π_label(round(Int, (x/π)*d) // d) :
+    isapproxinteger((x*π)*d) ? latex_reciprocal_π_label(round(Int, (x*π)*d) // d) :
     round_label(x)
 
 sin_color = 1
@@ -99,7 +134,9 @@ invert_horizontal(w::Wave, x) = invert(horizontal(w))(x)
 invert_vertical(w::Wave, x) = invert(vertical(w))(x)
 
 plus_label(x) = iszero(x) ? "" : " $(x > 0 ? "+" : "-") $(format_label(abs(x)))"
+latex_plus_label(x) = iszero(x) ? "" : " $(x > 0 ? "+" : "-") $(latex_format_label(abs(x)))"
 times_label(x; space=true) = isone(x) ? "" : "$(format_label(x))$(space ? " " : "")"
+latex_times_label(x) = isone(x) ? "" : latex_format_label(x)
 function base_step_label(x, s)
     b = mod(x, s)
     "$(iszero(b) ? "" : "$(format_label(b)) + ")$(isone(s) ? "" : "($(format_label(s)))")k"
@@ -114,6 +151,15 @@ end
 Base.show(io::IO, w::Wave) = print(
     io, times_label(w.A), w.f, "(", inner(w), ")", plus_label(w.k)
 )
+
+function latex_label(w::Wave)
+    parenthesize = !isone(w.b) && !iszero(w.h)
+    A = latex_times_label(w.A)
+    b = latex_times_label(w.b)
+    h = latex_plus_label(-w.h)
+    k = latex_plus_label(w.k)
+    "\$f(θ) = $(A)\\$(w.f)\\left($(b)$(parenthesize ? "\\left(" : "")θ$(h)$(parenthesize ? "\\right)" : "")\\right)$(k)\$"
+end
 eval_label(w::Wave, θ) = "$(w) = $(format_label(w(θ)))"
 
 default_colors = Dict([sin => sin_color, cos => cos_color])
