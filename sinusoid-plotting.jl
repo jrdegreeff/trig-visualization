@@ -326,6 +326,8 @@ function plot_trig_function(
     elseif tickstyle == :πfraction
         @assert isapproxinteger(D * π / tick_θ) "isinteger($D * π / tick_θ): tick_θ = $tick_θ"
         θ_labels = π_label.(Fix1(round, Int).(θ_ticks .* D ./ tick_θ) .// round(Int, D * π / tick_θ))
+    elseif tickstyle == :none
+        θ_labels = fill("", length(θ_ticks))
     else
         error("unexpected tickstyle: $tickstyle")
     end
@@ -339,10 +341,12 @@ function plot_trig_function(
     end
     pad_y = (max_y - min_y) / 20
     isnothing(tick_y) && (tick_y = (max_y - min_y) / 4)
+    y_ticks = min_y:tick_y:max_y
+    y_labels = tickstyle == :none ? fill("", length(y_ticks)) : round_label.(y_ticks)
     
     plot!(
         ylim=(min_y - pad_y, max_y + pad_y),
-        yticks=(collect(min_y:tick_y:max_y), round_label.(min_y:tick_y:max_y))
+        yticks=(collect(y_ticks), y_labels)
     )
 
     for wave in waves

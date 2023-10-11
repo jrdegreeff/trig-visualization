@@ -1,5 +1,8 @@
 include("./sinusoid-plotting.jl")
 
+plot_trig_function(Wave(), show_curve=false, tickstyle=:none)
+png("exports/Unlabeled Graph.png")
+
 plot_trig_function(Wave(sin, color=3, A=2, T=2), show_label=false)
 png("exports/MQ 6 - Sine Graph.png")
 

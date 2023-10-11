@@ -218,7 +218,7 @@ Write down a function that describes the plot below. Use \$\\$(string(wave_4.f))
 plot_trig_function(wave_4; show_label=false, wave_4_kwargs...)
 
 # ╔═╡ 66a9856b-9927-42cd-bd9b-f67655abd44b
-show_function_4 ? Markdown.parse("Example Solution: $(latex_label(wave_4))") : nothing
+show_function_4 ? Markdown.parse("One Possible Solution: $(latex_label(wave_4))") : nothing
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
