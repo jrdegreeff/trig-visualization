@@ -1,3 +1,4 @@
+using Markdown
 using Plots
 
 import Base: Fix1, Fix2
@@ -108,14 +109,15 @@ period(w::Wave) = 2π / angular_frequency(w)
 frequency(w::Wave) = angular_frequency(w) / (2π)
 phase_shift(w::Wave) = angular_frequency(w) * h_shift(w)
 
-trig_max(w::Wave) = base_step_label(invert_horizontal(w, 1), period(w))
-trig_min(w::Wave) = base_step_label(invert_horizontal(w, -1), period(w))
-trig_mid(w::Wave) = base_step_label(invert_horizontal(w, 0), period(w) / 2)
-function trig_zeros(w::Wave)
+trig_max(w::Wave; latex=false) = (latex ? latex_base_step_label : base_step_label)(invert_horizontal(w, 1), period(w))
+trig_min(w::Wave; latex=false) = (latex ? latex_base_step_label : base_step_label)(invert_horizontal(w, -1), period(w))
+trig_mid(w::Wave; latex=false) = (latex ? latex_base_step_label : base_step_label)(invert_horizontal(w, 0), period(w) / 2)
+function trig_zeros(w::Wave; latex=false)
     discriminant = abs(w.k / w.A)
     discriminant > 1 && return []
     base = invert(w)(0)
-    Fix2(base_step_label, period(w)).(isone(discriminant) ? [base] : [base, 2invert_horizontal(w, 1) - base])
+    labeler = Fix2((latex ? latex_base_step_label : base_step_label), period(w))
+    labeler.(isone(discriminant) ? [base] : [base, 2invert_horizontal(w, 1) - base])
 end
 
 Plots.get_series_color(w::Wave, sp::Plots.Subplot, n::Int, seriestype) =
@@ -135,6 +137,10 @@ latex_times_label(x) = isone(x) ? "" : latex_format_label(x)
 function base_step_label(x, s)
     b = mod(x, s)
     "$(iszero(b) ? "" : "$(format_label(b)) + ")$(isone(s) ? "" : "($(format_label(s)))")k"
+end
+function latex_base_step_label(x, s)
+    b = mod(x, s)
+    "$(iszero(b) ? "" : "$(latex_format_label(b)) + ")$(isone(s) ? "" : "$(latex_format_label(s))")k"
 end
 
 function Base.show(io::IO, w::Wave{typeof(identity)})
@@ -199,6 +205,10 @@ function format_special_angles_table(
     ) for wave in columns)...]
     format_table(columns, column_width=column_width)
 end
+
+properties_list(properties, cutoff) = Markdown.parse(join((
+	"$n = $(cutoff ≥ i ? "\$$v\$" : "")" for (i, (n, v)) in enumerate(properties)
+), "\\\n"))
 
 # Plotting
 
