@@ -21,17 +21,11 @@ function latex_fraction_label(x::Rational)
     isone(d) ? n : "$(S)\\frac{$(n)}{$(d)}"
 end
 
-function π_label(x::Real)
-    iszero(x) && return "0"
-    S = x < 0 ? "-" : ""
-    n = abs(isinteger(x) ? Int(x) : x)
-    N = isone(n) ? "" : n
-    "$(S)$(N)π"
-end
 function π_label(x::Rational)
     iszero(x) && return "0"
-    n, d = numerator(x), denominator(x)
-    N = "$(isone(n) ? "" : n)π"
+    S = x < 0 ? "-" : ""
+    n, d = abs(numerator(x)), denominator(x)
+    N = "$(S)$(isone(n) ? "" : n)π"
     isone(d) ? N : "$(N)/$(d)"
 end
 function latex_π_label(x::Rational)
@@ -89,11 +83,12 @@ struct Wave{F} <: Function
 
     function Wave(
         func=identity; color=default_color(func),
-        A=1, k=0, b=1, h=0, T=nothing, f=nothing
+        A=1, k=0, b=1, h=0, T=nothing, f=nothing, ϕ=nothing
     )
         @assert isnothing(T) || isnothing(f)
         !isnothing(T) && (b = 2π/T)
         !isnothing(f) && (b = 2πf)
+        !isnothing(ϕ) && (h = ϕ/b)
         
         new{typeof(func)}(func, color, A, k, b, h)
     end
@@ -111,7 +106,7 @@ Base.maximum(w::Wave) = midline(w) + amplitude(w)
 Base.minimum(w::Wave) = midline(w) - amplitude(w)
 period(w::Wave) = 2π / angular_frequency(w)
 frequency(w::Wave) = angular_frequency(w) / (2π)
-phase_shift(w::Wave) = -angular_frequency(w) * h_shift(w)
+phase_shift(w::Wave) = angular_frequency(w) * h_shift(w)
 
 trig_max(w::Wave) = base_step_label(invert_horizontal(w, 1), period(w))
 trig_min(w::Wave) = base_step_label(invert_horizontal(w, -1), period(w))
@@ -318,12 +313,9 @@ function plot_trig_function(
     θ_ticks = -max_θ:tick_θ:max_θ
     if tickstyle == :decimal
         θ_labels = round_label.(θ_ticks)
-    elseif tickstyle == :πmultiple
-        @assert isinteger(tick_θ / π) "isinteger(tick_θ / π): tick_θ = $tick_θ"
-        θ_labels = π_label.(θ_ticks ./ π)
     elseif tickstyle == :πfraction
-        @assert isinteger(D * π / tick_θ) "isinteger(π / tick_θ): tick_θ = $tick_θ"
-        θ_labels = π_label.(Int.(θ_ticks .* D ./ tick_θ) .// Int(D * π / tick_θ))
+        @assert isapproxinteger(D * π / tick_θ) "isinteger($D * π / tick_θ): tick_θ = $tick_θ"
+        θ_labels = π_label.(Fix1(round, Int).(θ_ticks .* D ./ tick_θ) .// round(Int, D * π / tick_θ))
     else
         error("unexpected tickstyle: $tickstyle")
     end
@@ -409,7 +401,7 @@ end
 function plot_side_by_side(
 	θ; R=1, x₀=0, y₀=0, b=1, h=0,
 	circle_max_x=1, circle_max_y=1.5, circle_tick=0.5,
-	max_θ=2π, tick_θ=max_θ/2, tickstyle=:πmultiple,
+	max_θ=2π, tick_θ=max_θ/2, tickstyle=:πfraction,
 	wave_max_y=1, wave_tick_y=wave_max_y/2
 )
 	circle_plot = plot_trig_circle(

@@ -540,12 +540,12 @@ plot_trig_function(Wave(sin), tickstyle=:πfraction, show_curve=show_sin_curve, 
 # ╔═╡ ce0ca1d7-8ebf-4761-89e3-b53fc46216e0
 let
 	sin_circle_plot = plot_trig_circle(θ_sin, max_x=3, max_y=1, show_sin=true)
-	sin_curve_plot = plot_trig_function(Wave(sin), max_θ=4π, θ=θ_sin,  tickstyle=:πmultiple)
+	sin_curve_plot = plot_trig_function(Wave(sin), max_θ=4π, θ=θ_sin,  tickstyle=:πfraction)
 	plot(sin_circle_plot, sin_curve_plot, layout=(2, 1))
 end
 
 # ╔═╡ e520ba54-bef4-44b9-a09c-feeb6519292e
-plot_trig_function(Wave(sin), max_θ=4π, tickstyle=:πmultiple, show_period=show_sin_period)
+plot_trig_function(Wave(sin), max_θ=4π, tickstyle=:πfraction, show_period=show_sin_period)
 
 # ╔═╡ 0e2de8ba-3a25-4158-abc0-bed956dfe470
 plot_trig_circle(θ_cos, max_x=1.5, max_y=1, R_tick=0.5, show_cos=true)
@@ -566,7 +566,7 @@ plot_trig_function(Wave(cos), tickstyle=:πfraction, show_curve=show_cos_curve, 
 # ╔═╡ 25408447-3e76-4bfc-94c9-4bede0a44351
 let
 	cos_circle_plot = plot_trig_circle(θ_cos, max_x=3, max_y=1, show_cos=true)
-	cos_curve_plot = plot_trig_function(Wave(cos), max_θ=4π, θ=θ_cos, tickstyle=:πmultiple)
+	cos_curve_plot = plot_trig_function(Wave(cos), max_θ=4π, θ=θ_cos, tickstyle=:πfraction)
 	plot(cos_circle_plot, cos_curve_plot, layout=(2, 1))
 end
 

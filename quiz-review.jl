@@ -109,33 +109,35 @@ md"""
 
 # ╔═╡ 5ea7c702-dc09-41ca-b7a1-7daf7501a3bf
 begin
-	rand_A = 0.5:0.5:3.0
-	rand_k = -3.0:0.5:3.0
-	rand_T = [0.5, 1, 1.5, 2, 2.5, 3]  # TODO: more thought
-	rand_h = [0, 1/6, 1/4, 1/3, 1/2, 2/3, 3/4, 5/6, 1]  # TODO: more thought
-	
 	function random_wave()
 		func=rand([sin, cos])
-        A=rand(rand_A)
+        A=rand(0.5:0.5:3.0)
 		rand(Bool) && (A = -A)
-		k=rand(rand_k)
-		piunits=rand(Bool)
-		T=rand(piunits ? rand_T .* π : rand_T)
-		h=rand(piunits ? rand_h .* π : rand_h)
-		rand(Bool) && (h = -h)
-		Wave(func; A, k, T, h), (piunits ? :πfraction : :decimal)
-	end
+		k=rand(-3.0:0.5:3.0)
+		πunits=rand(Bool)
+		T=rand([1/4, 1/3, 1/2, 2/3, 3/4, 1, 4/3, 3/2, 5/3, 2, 5/2, 3])
+		πunits && (T = π * T)
+		ϕ=rand([0, 1/6, 1/4, 1/3, 1/2, 2/3, 3/4, 5/6, 1]) * π
+		rand(Bool) && (ϕ = -ϕ)
+		nperiod=rand([1, 1.5, 2, 3])
 
-	# TODO: tick formatting
+		wave = Wave(func; A, k, T, ϕ=ϕ * nperiod)
+		(wave, (;
+			max_θ=T * nperiod,
+			tickstyle=πunits ? :πfraction : :decimal,
+			max_y=rand([max(abs(maximum(wave)), abs(minimum(wave))), nothing]),
+			tick_y=0.5
+		))
+	end
 end;
 
 # ╔═╡ 5134d47b-4327-4558-b06d-a565dc5cbc16
 begin
 	Random.seed!(seed)
-	wave_1, tickstyle_1 = random_wave()
-	wave_2, tickstyle_2 = random_wave()
-	wave_3, tickstyle_3 = random_wave()
-	wave_4, tickstyle_4 = random_wave()
+	wave_1, wave_1_kwargs = random_wave()
+	wave_2, wave_2_kwargs = random_wave()
+	wave_3, wave_3_kwargs = random_wave()
+	wave_4, wave_4_kwargs = random_wave()
 end;
 
 # ╔═╡ f2d8e810-cc26-45a3-b77b-4aff6f3f5a91
@@ -145,7 +147,7 @@ Given the function $(latex_label(wave_1)), provide exact values for each of the 
 """)
 
 # ╔═╡ f75cba03-6468-4aaa-b5d7-7134127fc176
-plot_trig_function(wave_2, show_label=false, tickstyle=tickstyle_2)
+plot_trig_function(wave_2; show_label=false, wave_2_kwargs...)
 
 # ╔═╡ 561e7d96-3bb1-4130-a921-b5462ed874af
 Markdown.parse("""
@@ -154,7 +156,7 @@ Plot the function $(latex_label(wave_3)). Make sure to hit all of the "critical 
 """)
 
 # ╔═╡ cd77d6ea-82c7-4029-b406-a75cdf0a82f7
-plot_trig_function(wave_3, show_v_shift=1 ≤ graph_slider < 7, show_max_min=2 ≤ graph_slider < 7, show_h_shift=3 ≤ graph_slider < 7, show_period=4 ≤ graph_slider < 7, show_base_point=3 ≤ graph_slider < 7, show_period_points=4 ≤ graph_slider < 7, show_all_critical_points=5 ≤ graph_slider < 7, show_curve=6 ≤ graph_slider, show_label=false, tickstyle=tickstyle_3)
+plot_trig_function(wave_3; show_v_shift=1 ≤ graph_slider < 7, show_max_min=2 ≤ graph_slider < 7, show_h_shift=3 ≤ graph_slider < 7, show_period=4 ≤ graph_slider < 7, show_base_point=3 ≤ graph_slider < 7, show_period_points=4 ≤ graph_slider < 7, show_all_critical_points=5 ≤ graph_slider < 7, show_curve=6 ≤ graph_slider, show_label=false, wave_3_kwargs...)
 
 # ╔═╡ 8a28d7fb-3140-4f4d-b9f9-e0c5e5c6386f
 Markdown.parse("""
@@ -163,7 +165,10 @@ Write down a function that describes the plot below. Use \$\\$(string(wave_4.f))
 """)
 
 # ╔═╡ 769f081d-093e-4119-b2f9-897508187700
-plot_trig_function(wave_4, show_label=show_function_4, tickstyle=tickstyle_4)
+plot_trig_function(wave_4; show_label=false, wave_4_kwargs...)
+
+# ╔═╡ 66a9856b-9927-42cd-bd9b-f67655abd44b
+show_function_4 ? Markdown.parse("Example Solution: $(latex_label(wave_4))") : nothing
 
 # ╔═╡ 62a8df43-d014-4228-bc24-a1550e826777
 md"""
@@ -173,7 +178,7 @@ md"""
 # ╔═╡ 412f9af9-9bdc-47ee-a8c1-7b8d190b0795
 properties_list(properties, cutoff) = Markdown.parse(join((
 	"$n = $(cutoff ≥ i ? v : "")" for (i, (n, v)) in enumerate(properties)
-), "\\\n"));
+), "\\\n"));  # TODO: latex
 
 # ╔═╡ 04f7b284-8957-4d67-83f9-ba2d44349531
 let
@@ -1381,6 +1386,7 @@ version = "1.4.1+1"
 # ╟─8a28d7fb-3140-4f4d-b9f9-e0c5e5c6386f
 # ╟─769f081d-093e-4119-b2f9-897508187700
 # ╟─3609db62-51af-4620-955d-a41d024a1bde
+# ╟─66a9856b-9927-42cd-bd9b-f67655abd44b
 # ╟─9efe1298-bb5e-4d44-a022-82ab53e32445
 # ╠═1246e2af-cd23-4ec3-a0ae-f1ebd2d9938a
 # ╠═29f7ce4e-1c01-4515-ad78-6e8b5c16bede
