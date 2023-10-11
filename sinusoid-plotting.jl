@@ -341,6 +341,7 @@ function plot_trig_function(
     end
     pad_y = (max_y - min_y) / 20
     isnothing(tick_y) && (tick_y = (max_y - min_y) / 4)
+    @assert isinteger((max_y - min_y) / tick_y)
     y_ticks = min_y:tick_y:max_y
     y_labels = tickstyle == :none ? fill("", length(y_ticks)) : round_label.(y_ticks)
     
