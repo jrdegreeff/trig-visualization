@@ -19,7 +19,7 @@ function latex_fraction_label(x::Rational)
     iszero(x) && return "0"
     S = x < 0 ? "-" : ""
     n, d = abs(numerator(x)), denominator(x)
-    isone(d) ? n : "$(S)\\frac{$(n)}{$(d)}"
+    isone(d) ? "$(S)$(n)" : "$(S)\\frac{$(n)}{$(d)}"
 end
 
 function π_label(x::Rational)
