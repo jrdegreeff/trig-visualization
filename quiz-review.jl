@@ -36,13 +36,13 @@ md"""
 # Quiz Review Problem Generator
 This notebook generates graph transformation problems. Because of a limitation of the deployment mechanism, you have to type a different number in the box below to "seed" the random number generator each time you want a new set of problems.
 
-seed: $(@bind seed_string TextField(default="0"))
+seed: $(@bind seed_string_ TextField(default="0"))
 """
 
 # ╔═╡ 4d853ea9-b866-4f70-a906-7cee7326d74a
 begin
 	seed = try
-		seed = parse(Int64, seed_string)
+		seed = parse(Int64, seed_string_)
 		if seed < 0
 			@warn "Seed must be nonnegative"
 			0
