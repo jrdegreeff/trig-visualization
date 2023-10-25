@@ -68,7 +68,7 @@ md"""
 # ╔═╡ 88fe90c5-0387-43ee-96d8-93f88964a2a0
 begin
 	SP = @ingredients "./sinusoid-plotting.jl"
-	import .SP: Wave, plot_trig_function, latex_label
+	import .SP: Wave, plot_trig_function, show_latex
 end;
 
 # ╔═╡ e303903e-5343-4e55-8e25-be588258f198
@@ -109,7 +109,7 @@ begin
 	tick_θ = parse_parameter(tick_θ_string, false)
 	
 	wave = Wave(func; remove_nothings((; color, A, k, b, h))...)
-	Markdown.parse(latex_label(wave))
+	Markdown.parse(show_latex(wave))
 end
 
 # ╔═╡ 0884c841-5bbe-4d2f-b358-5aac583fa94e

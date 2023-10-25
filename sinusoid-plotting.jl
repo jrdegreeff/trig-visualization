@@ -6,63 +6,44 @@ import Printf.@sprintf
 
 # Formatting
 
-round_to_hundredths(x::Float64) = replace(@sprintf("%.2f", x), "-0.00" => "0.00")
-
 isapproxinteger = x -> abs(x - round(Int, x)) < 1e-6
 
-function fraction_label(x::Rational)
-    iszero(x) && return "0"
-    n, d = numerator(x), denominator(x)
-    isone(d) ? n : "$(n)/$(d)"
-end
-function latex_fraction_label(x::Rational)
-    iszero(x) && return "0"
-    S = x < 0 ? "-" : ""
-    n, d = abs(numerator(x)), denominator(x)
-    isone(d) ? "$(S)$(n)" : "$(S)\\frac{$(n)}{$(d)}"
-end
-
-function π_label(x::Rational)
-    iszero(x) && return "0"
-    S = x < 0 ? "-" : ""
-    n, d = abs(numerator(x)), denominator(x)
-    N = "$(S)$(isone(n) ? "" : n)π"
-    isone(d) ? N : "$(N)/$(d)"
-end
-function latex_π_label(x::Rational)
-    iszero(x) && return "0"
-    S = x < 0 ? "-" : ""
-    n, d = abs(numerator(x)), denominator(x)
-    N = "$(isone(n) ? "" : n)π"
-    isone(d) ? "$(S)$(N)" : "$(S)\\frac{$(N)}{$(d)}"
-end
-
-function reciprocal_π_label(x::Rational)
-    iszero(x) && return "0"
-    n, d = abs(numerator(x)), denominator(x)
-    D = isone(d) ? "π" : "($(d)π)"
-    "$(n)/$(D)"
-end
-function latex_reciprocal_π_label(x::Rational)
-    iszero(x) && return "0"
-    S = x < 0 ? "-" : ""
-    n, d = abs(numerator(x)), denominator(x)
-    D = "$(isone(d) ? "" : d)π"
-    "$(S)\\frac{$(n)}{$(D)}"
-end
-
+round_to_hundredths(x::Float64) = replace(@sprintf("%.2f", x), "-0.00" => "0.00")
 round_label(x) = string(isapproxinteger(x) ? round(Int, x) : round(x, digits=3))
 
+destructure(x::Rational) = sign_label(x), abs(numerator(x)), denominator(x)
+
+sign_label(x::Real) = x < 0 ? "-" : ""
+coefficient_label(x::Real, f=identity) = sign_label(x) * (isone(abs(x)) ? "" : "$(f(abs(x)))")
+
+parenthesize(s::String, ::MIME"text/plain", condition::Bool=true) = (condition ? "(" : "") * s * (condition ? ")" : "")
+parenthesize(s::String, ::MIME"text/latex", condition::Bool=true) = (condition ? "\\left(" : "") * s * (condition ? "\\right)" : "")
+
+format_fraction(n, d, ::MIME"text/plain") = isone(d) ? "$n" : "$n/$d"
+format_fraction(n, d, ::MIME"text/latex") = isone(d) ? "$n" : "\\frac{$n}{$d}"
+
+function fraction_label(x::Rational, mime::MIME)
+    s, n, d = destructure(x)
+    s * format_fraction(n, d, mime)
+end
+function π_label(x::Rational, mime::MIME)
+    s, n, d = destructure(x)
+    s * format_fraction(coefficient_label(n) * (iszero(x) ? "" : "π"), d, mime)
+end
+function reciprocal_π_label(x::Rational, mime::MIME)
+    s, n, d = destructure(x)
+    s * format_fraction(n, coefficient_label(d) * (iszero(x) ? "" : "π"), mime)
+end
+function reciprocal_π_label(x::Rational, mime::MIME"text/plain")
+    s, n, d = destructure(x)
+    s * format_fraction(n, parenthesize(coefficient_label(d) * (iszero(x) ? "" : "π"), mime, !isone(d)), mime)
+end
+
 D = 5040
-format_label(x, d=D) =
-    isapproxinteger(x*d) ? fraction_label(round(Int, x*d) // d) :
-    isapproxinteger((x/π)*d) ? π_label(round(Int, (x/π)*d) // d) :
-    isapproxinteger((x*π)*d) ? reciprocal_π_label(round(Int, (x*π)*d) // d) :
-    round_label(x)
-latex_format_label(x, d=D) =
-    isapproxinteger(x*d) ? latex_fraction_label(round(Int, x*d) // d) :
-    isapproxinteger((x/π)*d) ? latex_π_label(round(Int, (x/π)*d) // d) :
-    isapproxinteger((x*π)*d) ? latex_reciprocal_π_label(round(Int, (x*π)*d) // d) :
+format_label(x, mime::MIME; d=D) =
+    isapproxinteger(x*d) ? fraction_label(round(Int, x*d) // d, mime) :
+    isapproxinteger((x/π)*d) ? π_label(round(Int, (x/π)*d) // d, mime) :
+    isapproxinteger((x*π)*d) ? reciprocal_π_label(round(Int, (x*π)*d) // d, mime) :
     round_label(x)
 
 sin_color = 1
@@ -109,14 +90,14 @@ period(w::Wave) = 2π / angular_frequency(w)
 frequency(w::Wave) = angular_frequency(w) / (2π)
 phase_shift(w::Wave) = angular_frequency(w) * h_shift(w)
 
-trig_max(w::Wave; latex=false) = (latex ? latex_base_step_label : base_step_label)(invert_horizontal(w, 1), period(w))
-trig_min(w::Wave; latex=false) = (latex ? latex_base_step_label : base_step_label)(invert_horizontal(w, -1), period(w))
-trig_mid(w::Wave; latex=false) = (latex ? latex_base_step_label : base_step_label)(invert_horizontal(w, 0), period(w) / 2)
-function trig_zeros(w::Wave; latex=false)
+trig_max(w::Wave, mime::MIME) = base_step_label(invert_horizontal(w, 1), period(w), mime)
+trig_min(w::Wave, mime::MIME) = base_step_label(invert_horizontal(w, -1), period(w), mime)
+trig_mid(w::Wave, mime::MIME) = base_step_label(invert_horizontal(w, 0), period(w) / 2, mime)
+function trig_zeros(w::Wave, mime::MIME)
     discriminant = abs(w.k / w.A)
     discriminant > 1 && return []
     base = invert(w)(0)
-    labeler = Fix2((latex ? latex_base_step_label : base_step_label), period(w))
+    labeler = x -> base_step_label(x, period(w), mime)
     labeler.(isone(discriminant) ? [base] : [base, 2invert_horizontal(w, 1) - base])
 end
 
@@ -130,38 +111,29 @@ invert_inner(w::Wave, x) = invert(inner(w))(x)
 invert_horizontal(w::Wave, x) = invert(horizontal(w))(x)
 invert_vertical(w::Wave, x) = invert(vertical(w))(x)
 
-plus_label(x) = iszero(x) ? "" : " $(x > 0 ? "+" : "-") $(format_label(abs(x)))"
-latex_plus_label(x) = iszero(x) ? "" : " $(x > 0 ? "+" : "-") $(latex_format_label(abs(x)))"
-times_label(x; space=true) = isone(x) ? "" : "$(format_label(x))$(space ? " " : "")"
-latex_times_label(x) = isone(x) ? "" : latex_format_label(x)
-function base_step_label(x, s)
-    b = mod(x, s)
-    "$(iszero(b) ? "" : "$(format_label(b)) + ")$(isone(s) ? "" : "($(format_label(s)))")k"
-end
-function latex_base_step_label(x, s)
-    b = mod(x, s)
-    "$(iszero(b) ? "" : "$(latex_format_label(b)) + ")$(isone(s) ? "" : "$(latex_format_label(s))")k"
+plus_label(x, mime::MIME) = iszero(x) ? "" : " $(x > 0 ? "+" : "-") $(format_label(abs(x), mime))"
+plus_label_left(x, mime::MIME) = iszero(x) ? "" : "$(format_label(x, mime)) + "
+times_label(x, mime::MIME; space=true) = coefficient_label(x, x -> format_label(x, mime) * (space ? " " : ""))
+
+function base_step_label(b, s, mime::MIME)
+    @assert s > 0
+    "$(plus_label_left(mod(b, s), mime))$(times_label(s, mime))k"
 end
 
-function Base.show(io::IO, w::Wave{typeof(identity)})
-    parenthesize = !isone(w.b) && !iszero(w.h)
-    print(
-        io, times_label(w.b, space=false), parenthesize ? "(θ" : "θ", plus_label(-w.h), parenthesize ? ")" : ""
-    )
-end
-Base.show(io::IO, w::Wave) = print(
-    io, times_label(w.A), w.f, "(", inner(w), ")", plus_label(w.k)
+format_inner(mime::MIME, w::Wave) = times_label(w.b, mime, space=false) * parenthesize("θ" * plus_label(-w.h, mime), mime, !isone(w.b) && !iszero(w.h))
+
+Base.show(io::IO, mime::MIME"text/plain", w::Wave{typeof(identity)}, prefix="") = print(io, prefix, format_inner(mime, w))
+Base.show(io::IO, mime::MIME"text/plain", w::Wave, prefix="") = print(
+    io, prefix, times_label(w.A, mime), w.f, parenthesize(format_inner(mime, w), mime), plus_label(w.k, mime)
+)
+Base.show(io::IO, mime::MIME"text/latex", w::Wave{typeof(identity)}, prefix="") = print(io, "\$", prefix, format_inner(mime, w), "\$")
+Base.show(io::IO, mime::MIME"text/latex", w::Wave, prefix="") = print(
+    io, "\$", prefix, times_label(w.A, mime), "\\", w.f, parenthesize(format_inner(mime, w), mime), plus_label(w.k, mime), "\$"
 )
 
-function latex_label(w::Wave)
-    parenthesize = !isone(w.b) && !iszero(w.h)
-    A = latex_times_label(w.A)
-    b = latex_times_label(w.b)
-    h = latex_plus_label(-w.h)
-    k = latex_plus_label(w.k)
-    "\$f(θ) = $(A)\\$(w.f)\\left($(b)$(parenthesize ? "\\left(" : "")θ$(h)$(parenthesize ? "\\right)" : "")\\right)$(k)\$"
-end
-eval_label(w::Wave, θ) = "$(w) = $(format_label(w(θ)))"
+show_text(w::Wave, prefix="") = sprint(show, MIME("text/plain"), w, prefix)
+show_latex(w::Wave, prefix="f(θ) = ") = sprint(show, MIME("text/latex"), w, prefix)
+label_eval(w::Wave, θ, mime::MIME=MIME("text/plain")) = "$(sprint(show, mime, w)) = $(format_label(w(θ), mime))"
 
 default_colors = Dict([sin => sin_color, cos => cos_color])
 default_color(func) = get(default_colors, func, 3)
@@ -200,9 +172,14 @@ function format_special_angles_table(
     angles = critical_only ? critical_angles : special_angles
     n_angles = min(n_angles, length(angles))
     adjusted_angles = Fix1(invert_inner, columns[1]).(angles)
-    columns = ["θ" => adjusted_angles .|> format_label, (string(wave) => vcat(
-        adjusted_angles[1:n_angles] .|> wave .|> (wave.f == identity ? format_label : round_to_hundredths), fill("", length(angles) - n_angles)
-    ) for wave in columns)...]
+    format_label_text = Fix2(format_label, MIME("text/plain"))
+    columns = [
+        "θ" => adjusted_angles .|> format_label_text,
+        (show_text(wave) => vcat(
+            adjusted_angles[1:n_angles] .|> wave .|> (wave.f == identity ? format_label_text : round_to_hundredths),
+            fill("", length(angles) - n_angles)
+        ) for wave in columns)...
+    ]
     format_table(columns, column_width=column_width)
 end
 
@@ -270,7 +247,7 @@ function plot_trig_circle(
 	)
 	plot!(  # angle % 2π
 		cos_func_angle.(θ_range), sin_func_angle.(θ_range),
-		lw=2(θ_rev + 1), color=:gray, label=eval_label(θ_func, θ)
+		lw=2(θ_rev + 1), color=:gray, label=label_eval(θ_func, θ)
 	)
 	plot!(  # vertical offset
 		[x₀, x₀], [0,  y₀],
@@ -286,11 +263,11 @@ function plot_trig_circle(
 	)
 	plot!(  # vertical edge of triangle
 		[cos_func(θ), cos_func(θ)], [y₀, sin_func(θ)],
-		lw=3, color=sin_color, label=show_sin && eval_label(sin_func, θ)
+		lw=3, color=sin_color, label=show_sin && label_eval(sin_func, θ)
 	)
 	plot!(  # horizontal edge of triangle
 		[x₀, cos_func(θ)], [y₀, y₀],
-		lw=3, color=cos_color, label=show_cos && eval_label(cos_func, θ)
+		lw=3, color=cos_color, label=show_cos && label_eval(cos_func, θ)
 	)
 	scatter!(  # point on circle
 		[cos_func(θ)], [sin_func(θ)],
@@ -325,7 +302,7 @@ function plot_trig_function(
         θ_labels = round_label.(θ_ticks)
     elseif tickstyle == :πfraction
         @assert isapproxinteger(D * π / tick_θ) "isinteger($D * π / tick_θ): tick_θ = $tick_θ"
-        θ_labels = π_label.(Fix1(round, Int).(θ_ticks .* D ./ tick_θ) .// round(Int, D * π / tick_θ))
+        θ_labels = Fix2(π_label, MIME("text/plain")).(Fix1(round, Int).(θ_ticks .* D ./ tick_θ) .// round(Int, D * π / tick_θ))
     elseif tickstyle == :none
         θ_labels = fill("", length(θ_ticks))
     else
@@ -382,7 +359,7 @@ function plot_trig_function(
 
         
         show_curve && plot!(  # the function itself
-            -max_θ:circle_resolution:max_θ, wave, label=string(wave), lw=3, color=wave
+            -max_θ:circle_resolution:max_θ, wave, label=show_text(wave), lw=3, color=wave
         )
         
         show_positive && scatter!(  # positive special angles

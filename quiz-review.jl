@@ -145,8 +145,9 @@ begin
 	import .SP: Wave, amplitude, midline, angular_frequency, h_shift,
 	            period, frequency, phase_shift,
 				trig_max, trig_min, trig_mid, trig_zeros,
-				format_label, latex_format_label, latex_label,
+				format_label, show_latex,
 				properties_list, plot_trig_function
+	latex = MIME("text/latex")
 end;
 
 # ╔═╡ 2a90c23f-ba3f-49df-bbeb-be730c1b9928
@@ -190,30 +191,30 @@ end;
 # ╔═╡ f2d8e810-cc26-45a3-b77b-4aff6f3f5a91
 Markdown.parse("""
 ### Function --> Properties
-Given the function $(latex_label(wave_1)), provide exact values for each of the listed properties.
+Given the function $(show_latex(wave_1)), provide exact values for each of the listed properties.
 """)
 
 # ╔═╡ 04f7b284-8957-4d67-83f9-ba2d44349531
 let
-	max = latex_format_label(maximum(wave_1))
-	min = latex_format_label(minimum(wave_1))
-	zeros = trig_zeros(wave_1, latex=true)
+	max = format_label(maximum(wave_1), latex)
+	min = format_label(minimum(wave_1), latex)
+	zeros = trig_zeros(wave_1, latex)
 	properties = [
-		("Midline Value ``(k)``", latex_format_label(midline(wave_1))),
-		("Amplitude ``(A)``", latex_format_label(amplitude(wave_1))),
+		("Midline Value ``(k)``", format_label(midline(wave_1), latex)),
+		("Amplitude ``(A)``", format_label(amplitude(wave_1), latex)),
 		("Maximum Value", max),
 		("Minimum Value", min),
-		("``b``", latex_format_label(angular_frequency(wave_1))),
-		("Period ``(T)``", latex_format_label(period(wave_1))),
-		("Frequency ``(f)``", latex_format_label(frequency(wave_1))),
-		("Horizontal Shift ``(h)``", latex_format_label(h_shift(wave_1))),
-		("Maxima", trig_max(wave_1, latex=true)),
-		("Minima", trig_min(wave_1, latex=true)),
-		("Midline Points", trig_mid(wave_1, latex=true)),
+		("``b``", format_label(angular_frequency(wave_1), latex)),
+		("Period ``(T)``", format_label(period(wave_1), latex)),
+		("Frequency ``(f)``", format_label(frequency(wave_1), latex)),
+		("Horizontal Shift ``(h)``", format_label(h_shift(wave_1), latex)),
+		("Maxima", trig_max(wave_1, latex)),
+		("Minima", trig_min(wave_1, latex)),
+		("Midline Points", trig_mid(wave_1, latex)),
 		("Domain", "\\mathbb{R}"),
 		("Range", "\\left[$(min), $(max)\\right]"),
 		("Zeros", isempty(zeros) ? "\\emptyset" : join(zeros, ",\\quad ")),
-		("``y``-Intercept", latex_format_label(wave_1(0.0)))
+		("``y``-Intercept", format_label(wave_1(0.0), latex))
 	]
 	properties_list(properties, prop_slider_1)
 end
@@ -223,25 +224,25 @@ plot_trig_function(wave_2; show_label=false, wave_2_kwargs...)
 
 # ╔═╡ 3a589b29-cd26-4f97-ba1a-e58723a4bff3
 let
-	max = latex_format_label(maximum(wave_2))
-	min = latex_format_label(minimum(wave_2))
-	zeros = trig_zeros(wave_2, latex=true)
+	max = format_label(maximum(wave_2), latex)
+	min = format_label(minimum(wave_2), latex)
+	zeros = trig_zeros(wave_2, latex)
 	properties = [
 		("Maximum Value", max),
 		("Minimum Value", min),
-		("Midline Value ``(k)``", latex_format_label(midline(wave_2))),
-		("Amplitude ``(A)``", latex_format_label(amplitude(wave_2))),
-		("Period ``(T)``", latex_format_label(period(wave_2))),
-		("Frequency ``(f)``", latex_format_label(frequency(wave_2))),
-		("``b``", latex_format_label(angular_frequency(wave_2))),
-		("Horizontal Shift ``(h)``", latex_format_label(h_shift(wave_2))),
-		("Maxima", trig_max(wave_2, latex=true)),
-		("Minima", trig_min(wave_2, latex=true)),
-		("Midline Points", trig_mid(wave_2, latex=true)),
+		("Midline Value ``(k)``", format_label(midline(wave_2), latex)),
+		("Amplitude ``(A)``", format_label(amplitude(wave_2), latex)),
+		("Period ``(T)``", format_label(period(wave_2), latex)),
+		("Frequency ``(f)``", format_label(frequency(wave_2), latex)),
+		("``b``", format_label(angular_frequency(wave_2), latex)),
+		("Horizontal Shift ``(h)``", format_label(h_shift(wave_2), latex)),
+		("Maxima", trig_max(wave_2, latex)),
+		("Minima", trig_min(wave_2, latex)),
+		("Midline Points", trig_mid(wave_2, latex)),
 		("Domain", "\$\\mathbb{R}\$"),
 		("Range", "\\left[$(min), $(max)\\right]"),
 		("Zeros", isempty(zeros) ? "\\emptyset" : join(zeros, ",\\quad ")),
-		("``y``-Intercept", latex_format_label(wave_2(0.0)))
+		("``y``-Intercept", format_label(wave_2(0.0), latex))
 	]
 	properties_list(properties, prop_slider_2)
 end
@@ -249,7 +250,7 @@ end
 # ╔═╡ 561e7d96-3bb1-4130-a921-b5462ed874af
 Markdown.parse("""
 ### Function --> Graph
-Plot the function $(latex_label(wave_3)). Make sure to hit all of the "critical points" and have roughly accurate curvature between them.
+Plot the function $(show_latex(wave_3)). Make sure to hit all of the "critical points" and have roughly accurate curvature between them.
 """)
 
 # ╔═╡ cd77d6ea-82c7-4029-b406-a75cdf0a82f7
