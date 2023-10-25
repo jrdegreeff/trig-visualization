@@ -24,12 +24,15 @@ end;
 
 # ╔═╡ bbd5aafe-6731-11ee-19e7-df00e4f539e0
 begin
-	logo = Resource("https://raw.githubusercontent.com/jrdegreeff/trig-visualization/main/MX_Shield_Red.png", :height => 28)
+	logo = Resource("https://raw.githubusercontent.com/jrdegreeff/trig-visualization/main/MX_Shield_Red.png", :style => "height: 0.8em; margin-left: 0.7em; margin-right: 0.7em;")
 	md"""
-	# ``\quad`` $(logo) ``\quad``Graphing Trig Functions``\quad`` $(logo) ``\quad`` 
+	# $(logo) Graphing Trig Functions $(logo)
 	This notebook was designed to complement Middlesex School's *Math 32 -- Pre-calculus: Trigonometry* class. Specifically, it is an interactive visual aid for PART II: Graphing Period Functions.
 	"""
 end
+
+# ╔═╡ b1382e24-d1d0-4c71-8657-60d3f661f3d9
+TableOfContents()
 
 # ╔═╡ 22fcdd94-7a91-42b1-a777-0559512b573f
 md"""
@@ -55,6 +58,11 @@ begin
 	end
 end;
 
+# ╔═╡ ef310370-acb4-4dd9-a8fc-3b381411b5bc
+md"""
+## Sinusoids (sin/cos)
+"""
+
 # ╔═╡ e60a31c2-0f8b-493e-a60d-df1b7ab1fc2e
 md"""
 Drag this slider to reveal the answers.
@@ -64,7 +72,7 @@ $(@bind prop_slider_1 Slider(0:15))
 
 # ╔═╡ 2b41778f-d6b2-4764-8cd4-2d0dc2928dd4
 md"""
-## Graph --> Properties
+### Graph --> Properties
 Looking at the plotted function below, provide exact values for each of the listed properties.
 """
 
@@ -85,6 +93,45 @@ $(@bind graph_slider Slider(0:7))
 # ╔═╡ 3609db62-51af-4620-955d-a41d024a1bde
 md"""
 Show solution: $(@bind show_function_4 CheckBox())
+"""
+
+# ╔═╡ 73058a91-8608-420f-825f-2d80b8d20ee5
+md"""
+## Reciprocal Functions (sec/csc)
+"""
+
+# ╔═╡ 303482f7-1103-4b0f-9cc6-7cbc85ef1d52
+
+
+# ╔═╡ 8f72b7e6-f718-4bc8-9c1d-f26005f8f77a
+
+
+# ╔═╡ 3f40a667-712d-4d04-916c-6d0b4c207a3c
+
+
+# ╔═╡ d78111fb-8b72-49df-9cff-04f4e48d19fd
+
+
+# ╔═╡ a4f49921-faad-4d0d-8570-90bf713c7a43
+md"""
+## Tangent
+"""
+
+# ╔═╡ 8505b12d-647c-41f0-8cf1-7b6daf8834a6
+
+
+# ╔═╡ 33f0f64b-a747-4449-8ad1-06f4bb707e79
+
+
+# ╔═╡ fc80b835-cf80-4c95-944b-412d2a2d9db6
+
+
+# ╔═╡ 0bf9095e-68e9-4439-8b67-7b1ec49ec569
+
+
+# ╔═╡ ca7e604f-a766-4c1b-a5b1-ce20269cf26b
+md"""
+##
 """
 
 # ╔═╡ 9efe1298-bb5e-4d44-a022-82ab53e32445
@@ -142,7 +189,7 @@ end;
 
 # ╔═╡ f2d8e810-cc26-45a3-b77b-4aff6f3f5a91
 Markdown.parse("""
-## Function --> Properties
+### Function --> Properties
 Given the function $(latex_label(wave_1)), provide exact values for each of the listed properties.
 """)
 
@@ -201,7 +248,7 @@ end
 
 # ╔═╡ 561e7d96-3bb1-4130-a921-b5462ed874af
 Markdown.parse("""
-## Function --> Graph
+### Function --> Graph
 Plot the function $(latex_label(wave_3)). Make sure to hit all of the "critical points" and have roughly accurate curvature between them.
 """)
 
@@ -210,7 +257,7 @@ plot_trig_function(wave_3; show_v_shift=1 ≤ graph_slider < 7, show_max_min=2 �
 
 # ╔═╡ 8a28d7fb-3140-4f4d-b9f9-e0c5e5c6386f
 Markdown.parse("""
-## Graph --> Function
+### Graph --> Function
 Write down a function that describes the plot below. Use \$\\$(string(wave_4.f))\$ as the base function.
 """)
 
@@ -1361,8 +1408,10 @@ version = "1.4.1+1"
 
 # ╔═╡ Cell order:
 # ╟─bbd5aafe-6731-11ee-19e7-df00e4f539e0
+# ╟─b1382e24-d1d0-4c71-8657-60d3f661f3d9
 # ╟─22fcdd94-7a91-42b1-a777-0559512b573f
 # ╟─4d853ea9-b866-4f70-a906-7cee7326d74a
+# ╟─ef310370-acb4-4dd9-a8fc-3b381411b5bc
 # ╟─f2d8e810-cc26-45a3-b77b-4aff6f3f5a91
 # ╟─04f7b284-8957-4d67-83f9-ba2d44349531
 # ╟─e60a31c2-0f8b-493e-a60d-df1b7ab1fc2e
@@ -1377,6 +1426,17 @@ version = "1.4.1+1"
 # ╟─769f081d-093e-4119-b2f9-897508187700
 # ╟─3609db62-51af-4620-955d-a41d024a1bde
 # ╟─66a9856b-9927-42cd-bd9b-f67655abd44b
+# ╟─73058a91-8608-420f-825f-2d80b8d20ee5
+# ╠═303482f7-1103-4b0f-9cc6-7cbc85ef1d52
+# ╠═8f72b7e6-f718-4bc8-9c1d-f26005f8f77a
+# ╠═3f40a667-712d-4d04-916c-6d0b4c207a3c
+# ╠═d78111fb-8b72-49df-9cff-04f4e48d19fd
+# ╟─a4f49921-faad-4d0d-8570-90bf713c7a43
+# ╠═8505b12d-647c-41f0-8cf1-7b6daf8834a6
+# ╠═33f0f64b-a747-4449-8ad1-06f4bb707e79
+# ╠═fc80b835-cf80-4c95-944b-412d2a2d9db6
+# ╠═0bf9095e-68e9-4439-8b67-7b1ec49ec569
+# ╟─ca7e604f-a766-4c1b-a5b1-ce20269cf26b
 # ╟─9efe1298-bb5e-4d44-a022-82ab53e32445
 # ╠═1246e2af-cd23-4ec3-a0ae-f1ebd2d9938a
 # ╠═29f7ce4e-1c01-4515-ad78-6e8b5c16bede

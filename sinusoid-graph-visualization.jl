@@ -23,9 +23,9 @@ end;
 
 # ╔═╡ 9a65324e-594f-11ee-3a9b-dff0ec87117f
 begin
-	logo = Resource("https://raw.githubusercontent.com/jrdegreeff/trig-visualization/main/MX_Shield_Red.png", :height => 28)
+	logo = Resource("https://raw.githubusercontent.com/jrdegreeff/trig-visualization/main/MX_Shield_Red.png", :style => "height: 0.8em; margin-left: 0.7em; margin-right: 0.7em;")
 	md"""
-	# ``\quad`` $(logo) ``\quad``Graphing Trig Functions``\quad`` $(logo) ``\quad``
+	# $(logo) Graphing Trig Functions $(logo)
 	This notebook was designed to complement Middlesex School's *Math 32 -- Pre-calculus: Trigonometry* class. Specifically, it is an interactive visual aid for PART II: Graphing Period Functions.
 	"""
 end
@@ -39,9 +39,12 @@ html"""
 </div>
 """
 
+# ╔═╡ a62be7d4-89fc-4762-a079-a58cbf682baf
+TableOfContents()
+
 # ╔═╡ ffa59d87-7b68-4192-a52f-6582e67f1cbd
 md"""
-## Periodic Functions
+# Periodic Functions
 A **periodic** function is a function whose values repeat at regular intervals.
 
 Below we have an example of a periodic function called a triangle wave.
@@ -1796,6 +1799,7 @@ version = "1.4.1+1"
 # ╔═╡ Cell order:
 # ╟─9a65324e-594f-11ee-3a9b-dff0ec87117f
 # ╟─178903b9-1112-4f42-8995-dab542e293fe
+# ╟─a62be7d4-89fc-4762-a079-a58cbf682baf
 # ╟─ffa59d87-7b68-4192-a52f-6582e67f1cbd
 # ╟─16e020f3-aa07-40d9-9f8f-e461ef7b903a
 # ╟─a2a5e259-785a-4907-9eeb-40c3e1f4332c

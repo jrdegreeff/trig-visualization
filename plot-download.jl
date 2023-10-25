@@ -23,12 +23,15 @@ end;
 
 # ╔═╡ 8d135c70-685d-11ee-0aed-271690cd28fa
 begin
-	logo = Resource("https://raw.githubusercontent.com/jrdegreeff/trig-visualization/main/MX_Shield_Red.png", :height => 28)
+	logo = Resource("https://raw.githubusercontent.com/jrdegreeff/trig-visualization/main/MX_Shield_Red.png", :style => "height: 0.8em; margin-left: 0.7em; margin-right: 0.7em;")
 	md"""
-	# ``\quad`` $(logo) ``\quad``Graphing Trig Functions``\quad`` $(logo) ``\quad`` 
+	# $(logo) Graphing Trig Functions $(logo)
 	This notebook was designed to complement Middlesex School's *Math 32 -- Pre-calculus: Trigonometry* class. Specifically, it is an interactive visual aid for PART II: Graphing Period Functions.
 	"""
 end
+
+# ╔═╡ d0422d93-8fcf-49ab-a3ac-e89561895a39
+TableOfContents()
 
 # ╔═╡ 8596e8f1-6ce2-4dac-ab3d-bae65f9b59ce
 md"""
@@ -50,6 +53,11 @@ tickstyle: $(@bind tickstyle Select([:decimal => "decimal", :πfraction => "mult
 \
 show curve: $(@bind show_curve CheckBox(default=true))``\quad``
 show label: $(@bind show_label CheckBox(default=false))\
+"""
+
+# ╔═╡ 70530057-9f1f-447a-9208-c98e6b1c0350
+md"""
+##
 """
 
 # ╔═╡ e6b92d5f-8d80-45c4-b4f3-cdeb7d49c9db
@@ -1263,10 +1271,12 @@ version = "1.4.1+1"
 
 # ╔═╡ Cell order:
 # ╟─8d135c70-685d-11ee-0aed-271690cd28fa
+# ╟─d0422d93-8fcf-49ab-a3ac-e89561895a39
 # ╟─8596e8f1-6ce2-4dac-ab3d-bae65f9b59ce
 # ╟─ce0441c1-2493-4716-a4de-137c049569ea
 # ╟─0884c841-5bbe-4d2f-b358-5aac583fa94e
 # ╟─4c275485-efd5-4805-ac13-c284b2f797b7
+# ╟─70530057-9f1f-447a-9208-c98e6b1c0350
 # ╟─e6b92d5f-8d80-45c4-b4f3-cdeb7d49c9db
 # ╠═064cfd6b-aa02-4aef-a800-bb7ed424aaab
 # ╠═88fe90c5-0387-43ee-96d8-93f88964a2a0
