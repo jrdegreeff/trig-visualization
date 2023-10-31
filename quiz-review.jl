@@ -39,13 +39,13 @@ md"""
 # Quiz Review Problem Generator
 This notebook generates graph transformation problems. Because of a limitation of the deployment mechanism, you have to type a different number in the box below to "seed" the random number generator each time you want a new set of problems.
 
-seed: $(@bind seed_string_ TextField(default="0"))
+seed: $(@bind seed_string TextField(default="0"))
 """
 
 # ╔═╡ 4d853ea9-b866-4f70-a906-7cee7326d74a
 begin
 	seed = try
-		seed = parse(Int64, seed_string_)
+		seed = parse(Int64, seed_string)
 		if seed < 0
 			@warn "Seed must be nonnegative"
 			0
@@ -70,29 +70,27 @@ Drag this slider to reveal the answers.
 $(@bind prop_slider_1 Slider(0:15))
 """
 
-# ╔═╡ 2b41778f-d6b2-4764-8cd4-2d0dc2928dd4
-md"""
-### Graph --> Properties
-Looking at the plotted function below, provide exact values for each of the listed properties.
-"""
-
 # ╔═╡ 0623adec-18d3-482f-b2fb-7fc4b67c8aa8
 md"""
 Drag this slider to reveal the answers.
 
 $(@bind prop_slider_2 Slider(0:15))
+
+Show function: $(@bind show_function_2 CheckBox())
+(Note that multiple valid functions exist.)
+"""
+
+# ╔═╡ 3609db62-51af-4620-955d-a41d024a1bde
+md"""
+Show solution: $(@bind show_function_3 CheckBox())
+(Note that multiple correct solutions exist.)
 """
 
 # ╔═╡ bec685ed-829b-493a-9317-b6a41598fc48
 md"""
 Show solution:
 
-$(@bind graph_slider Slider(0:7))
-"""
-
-# ╔═╡ 3609db62-51af-4620-955d-a41d024a1bde
-md"""
-Show solution: $(@bind show_function_4 CheckBox())
+$(@bind graph_slider_4 Slider(0:7))
 """
 
 # ╔═╡ 73058a91-8608-420f-825f-2d80b8d20ee5
@@ -100,34 +98,70 @@ md"""
 ## Reciprocal Functions (sec/csc)
 """
 
-# ╔═╡ 303482f7-1103-4b0f-9cc6-7cbc85ef1d52
+# ╔═╡ be9ca14c-a81c-4d7d-a0e2-f8e10939cffa
+md"""
+Drag this slider to reveal the answers.
 
+$(@bind prop_slider_5 Slider(0:5))
+"""
 
-# ╔═╡ 8f72b7e6-f718-4bc8-9c1d-f26005f8f77a
+# ╔═╡ c44369e9-dcb2-4f64-afeb-25da4467bf7e
+md"""
+Drag this slider to reveal the answers.
 
+$(@bind prop_slider_6 Slider(0:5))
 
-# ╔═╡ 3f40a667-712d-4d04-916c-6d0b4c207a3c
+Show function: $(@bind show_function_6 CheckBox())
+(Note that multiple valid functions exist.)
+"""
 
+# ╔═╡ 4e0884e4-de48-4f1d-99b3-9bba0a5d1fdf
+md"""
+Show solution: $(@bind show_function_7 CheckBox())
+(Note that multiple correct solutions exist.)
+"""
 
-# ╔═╡ d78111fb-8b72-49df-9cff-04f4e48d19fd
+# ╔═╡ 04c52d60-10a9-430b-ba7a-f61110e303a0
+md"""
+Show solution:
 
+$(@bind graph_slider_8 Slider(0:8))
+"""
 
 # ╔═╡ a4f49921-faad-4d0d-8570-90bf713c7a43
 md"""
 ## Tangent
 """
 
-# ╔═╡ 8505b12d-647c-41f0-8cf1-7b6daf8834a6
+# ╔═╡ 9b81b928-2a3a-424f-8642-2ba1305f1689
+md"""
+Drag this slider to reveal the answers.
 
+$(@bind prop_slider_9 Slider(0:5))
+"""
 
-# ╔═╡ 33f0f64b-a747-4449-8ad1-06f4bb707e79
+# ╔═╡ 1e3d06e1-5836-4960-ab8e-f7628a5b98f1
+md"""
+Drag this slider to reveal the answers.
 
+$(@bind prop_slider_10 Slider(0:5))
 
-# ╔═╡ fc80b835-cf80-4c95-944b-412d2a2d9db6
+Show function: $(@bind show_function_10 CheckBox())
+(Note that multiple valid functions exist.)
+"""
 
+# ╔═╡ 204eb0a3-fc8b-477b-bea0-db2c43d242e3
+md"""
+Show solution: $(@bind show_function_11 CheckBox())
+(Note that multiple correct solutions exist.)
+"""
 
-# ╔═╡ 0bf9095e-68e9-4439-8b67-7b1ec49ec569
+# ╔═╡ abea56df-e501-40d5-b177-ec2ed70381a7
+md"""
+Show solution:
 
+$(@bind graph_slider_12 Slider(0:8))
+"""
 
 # ╔═╡ ca7e604f-a766-4c1b-a5b1-ce20269cf26b
 md"""
@@ -142,9 +176,11 @@ md"""
 # ╔═╡ 29f7ce4e-1c01-4515-ad78-6e8b5c16bede
 begin
 	SP = @ingredients "./sinusoid-plotting.jl"
-	import .SP: Wave, amplitude, midline, angular_frequency, h_shift,
-	            period, frequency, phase_shift,
-				trig_max, trig_min, trig_mid, trig_zeros,
+	import .SP: Wave, reciprocal,
+				base_function, amplitude, midline, angular_frequency, h_shift,
+	            wave_min, wave_max, period, frequency,
+				wave_arg_max, wave_arg_min, wave_arg_mid,
+				wave_zeros, wave_asymptotes,
 				format_label, show_latex,
 				properties_list, plot_trig_function
 	latex = MIME("text/latex")
@@ -157,23 +193,54 @@ md"""
 
 # ╔═╡ 5ea7c702-dc09-41ca-b7a1-7daf7501a3bf
 begin
-	function random_wave()
+	rand_A = 0.5:0.5:3.0
+	rand_k = 0.5:0.5:3.0
+	rand_T = [1/3, 1/2, 2/3, 1, 4/3, 3/2, 5/3, 2, 5/2, 3, 4, 5]
+	rand_ϕ = [0, 1/6, 1/4, 1/3, 1/2, 2/3, 3/4, 5/6, 1]π
+	
+	function random_wave(; allow_reflection=true, reciprocate=false)
 		func=rand([sin, cos])
-        A=rand(0.5:0.5:3.0)
-		rand(Bool) && (A = -A)
-		k=rand(-3.0:0.5:3.0)
-		πunits=rand(Bool)
-		T=rand([1/4, 1/3, 1/2, 2/3, 3/4, 1, 4/3, 3/2, 5/3, 2, 5/2, 3])
-		πunits && (T = π * T)
-		ϕ=rand([0, 1/6, 1/4, 1/3, 1/2, 2/3, 3/4, 5/6, 1]) * π
+        A=rand(rand_A)
+		allow_reflection && rand(Bool) && (A = -A)
+		k=rand(rand_k)
+		rand(Bool) && (k = -k)
+		T=rand(rand_T)
+		allow_reflection && rand(Bool) && (T = -T)
+		ϕ=rand(rand_ϕ)
 		rand(Bool) && (ϕ = -ϕ)
-		nperiod=rand([1, 1.5, 2, 3])
+		
+		πunits=rand(Bool)
+		πunits && (T = π * T)
+		nperiod=rand([1, 1.5, 2])
 
 		wave = Wave(func; A, k, T, ϕ=ϕ * nperiod)
+		reciprocate && (wave = reciprocal(wave))
+		wave, (;
+			max_θ=abs(T) * nperiod,
+			tickstyle=πunits ? :πfraction : :fraction,
+			max_y=rand([max(abs(wave_max(wave)), abs(wave_min(wave))), nothing]),
+			tick_y=0.5
+		)
+	end
+	function random_tan(; allow_reflection=true)
+		parameter = rand([:A, :k, :T, :ϕ])
+		parameter == :A ? (A = rand(rand_A)) : (A = 1)
+		allow_reflection && rand(Bool) && (A = -A)
+		parameter == :k ? (k = rand(rand_k)) : (k = 0)
+		rand(Bool) && (k = -k)
+		parameter == :T ? (T = rand(rand_T)) : (T = 1)
+		allow_reflection && rand(Bool) && (T = -T)
+		parameter == :ϕ ? (ϕ = rand(rand_ϕ)) : (ϕ = 0)
+		rand(Bool) && (ϕ = -ϕ)
+		
+		πunits=rand(Bool)
+		πunits && (T = π * T)
+		nperiod=rand([1.5, 2, 3])
+	
+		wave = Wave(tan; A, k, T, ϕ=ϕ * nperiod)
 		(wave, (;
-			max_θ=T * nperiod,
-			tickstyle=πunits ? :πfraction : :decimal,
-			max_y=rand([max(abs(maximum(wave)), abs(minimum(wave))), nothing]),
+			max_θ=abs(T) * nperiod,
+			tickstyle=πunits ? :πfraction : :fraction,
 			tick_y=0.5
 		))
 	end
@@ -182,91 +249,210 @@ end;
 # ╔═╡ 5134d47b-4327-4558-b06d-a565dc5cbc16
 begin
 	Random.seed!(seed)
-	wave_1, wave_1_kwargs = random_wave()
-	wave_2, wave_2_kwargs = random_wave()
-	wave_3, wave_3_kwargs = random_wave()
-	wave_4, wave_4_kwargs = random_wave()
+	wave_1,  wave_1_kwargs  = random_wave()
+	wave_2,  wave_2_kwargs  = random_wave(allow_reflection=false)
+	wave_3,  wave_3_kwargs  = random_wave(allow_reflection=false)
+	wave_4,  wave_4_kwargs  = random_wave()
+	wave_5,  wave_5_kwargs  = random_wave(reciprocate=true)
+	wave_6,  wave_6_kwargs  = random_wave(reciprocate=true, allow_reflection=false)
+	wave_7,  wave_7_kwargs  = random_wave(reciprocate=true, allow_reflection=false)
+	wave_8,  wave_8_kwargs  = random_wave(reciprocate=true)
+	wave_9,  wave_9_kwargs  = random_tan(allow_reflection=false)
+	wave_10, wave_10_kwargs = random_tan(allow_reflection=false)
+	wave_11, wave_11_kwargs = random_tan(allow_reflection=false)
+	wave_12, wave_12_kwargs = random_tan(allow_reflection=false)
 end;
 
 # ╔═╡ f2d8e810-cc26-45a3-b77b-4aff6f3f5a91
 Markdown.parse("""
-### Function --> Properties
+### Properties from Function
 Given the function $(show_latex(wave_1)), provide exact values for each of the listed properties.
 """)
 
 # ╔═╡ 04f7b284-8957-4d67-83f9-ba2d44349531
-let
-	max = format_label(maximum(wave_1), latex)
-	min = format_label(minimum(wave_1), latex)
-	zeros = trig_zeros(wave_1, latex)
-	properties = [
-		("Midline Value ``(k)``", format_label(midline(wave_1), latex)),
-		("Amplitude ``(A)``", format_label(amplitude(wave_1), latex)),
-		("Maximum Value", max),
-		("Minimum Value", min),
-		("``b``", format_label(angular_frequency(wave_1), latex)),
-		("Period ``(T)``", format_label(period(wave_1), latex)),
-		("Frequency ``(f)``", format_label(frequency(wave_1), latex)),
-		("Horizontal Shift ``(h)``", format_label(h_shift(wave_1), latex)),
-		("Maxima", trig_max(wave_1, latex)),
-		("Minima", trig_min(wave_1, latex)),
-		("Midline Points", trig_mid(wave_1, latex)),
-		("Domain", "\\mathbb{R}"),
-		("Range", "\\left[$(min), $(max)\\right]"),
-		("Zeros", isempty(zeros) ? "\\emptyset" : join(zeros, ",\\quad ")),
-		("``y``-Intercept", format_label(wave_1(0.0), latex))
-	]
-	properties_list(properties, prop_slider_1)
-end
+properties_list([
+	("Midline Value ``(k)``", format_label(midline(wave_1), latex)),
+	("Amplitude ``(A)``", format_label(amplitude(wave_1), latex)),
+	("Maximum Value", format_label(wave_max(wave_1), latex)),
+	("Minimum Value", format_label(wave_min(wave_1), latex)),
+	("``b``", format_label(angular_frequency(wave_1), latex)),
+	("Period ``(T)``", format_label(period(wave_1), latex)),
+	("Frequency ``(f)``", format_label(frequency(wave_1), latex)),
+	("Horizontal Shift ``(h)``", format_label(h_shift(wave_1), latex)),
+	("Maxima", wave_arg_max(wave_1, latex)),
+	("Minima", wave_arg_min(wave_1, latex)),
+	("Midline Points", wave_arg_mid(wave_1, latex)),
+	("Domain", "\\mathbb{R}"),
+	("Range", "\\left[$(format_label(wave_min(wave_1), latex)), $(format_label(wave_max(wave_1), latex))\\right]"),
+	("Zeros", wave_zeros(wave_1, latex)),
+	("``y``-Intercept", format_label(wave_1(0.0), latex))
+], prop_slider_1)
+
+# ╔═╡ 2b41778f-d6b2-4764-8cd4-2d0dc2928dd4
+Markdown.parse("""
+### Properties from Graph
+Looking at the plotted function below, provide exact values for each of the listed properties. Assume that \$\\$(string(base_function(wave_2)))\$ is used as the base function.
+""")
 
 # ╔═╡ f75cba03-6468-4aaa-b5d7-7134127fc176
 plot_trig_function(wave_2; show_label=false, wave_2_kwargs...)
 
 # ╔═╡ 3a589b29-cd26-4f97-ba1a-e58723a4bff3
-let
-	max = format_label(maximum(wave_2), latex)
-	min = format_label(minimum(wave_2), latex)
-	zeros = trig_zeros(wave_2, latex)
-	properties = [
-		("Maximum Value", max),
-		("Minimum Value", min),
-		("Midline Value ``(k)``", format_label(midline(wave_2), latex)),
-		("Amplitude ``(A)``", format_label(amplitude(wave_2), latex)),
-		("Period ``(T)``", format_label(period(wave_2), latex)),
-		("Frequency ``(f)``", format_label(frequency(wave_2), latex)),
-		("``b``", format_label(angular_frequency(wave_2), latex)),
-		("Horizontal Shift ``(h)``", format_label(h_shift(wave_2), latex)),
-		("Maxima", trig_max(wave_2, latex)),
-		("Minima", trig_min(wave_2, latex)),
-		("Midline Points", trig_mid(wave_2, latex)),
-		("Domain", "\$\\mathbb{R}\$"),
-		("Range", "\\left[$(min), $(max)\\right]"),
-		("Zeros", isempty(zeros) ? "\\emptyset" : join(zeros, ",\\quad ")),
-		("``y``-Intercept", format_label(wave_2(0.0), latex))
-	]
-	properties_list(properties, prop_slider_2)
-end
+properties_list([
+	("Maximum Value", format_label(wave_max(wave_2), latex)),
+	("Minimum Value", format_label(wave_min(wave_2), latex)),
+	("Midline Value ``(k)``", format_label(midline(wave_2), latex)),
+	("Amplitude ``(A)``", format_label(amplitude(wave_2), latex)),
+	("Period ``(T)``", format_label(period(wave_2), latex)),
+	("Frequency ``(f)``", format_label(frequency(wave_2), latex)),
+	("``b``", format_label(angular_frequency(wave_2), latex)),
+	("Horizontal Shift ``(h)``", format_label(h_shift(wave_2), latex)),
+	("Maxima", wave_arg_max(wave_2, latex)),
+	("Minima", wave_arg_min(wave_2, latex)),
+	("Midline Points", wave_arg_mid(wave_2, latex)),
+	("Domain", "\$\\mathbb{R}\$"),
+	("Range", "\\left[$(format_label(wave_min(wave_2), latex)), $(format_label(wave_max(wave_2), latex))\\right]"),
+	("Zeros", wave_zeros(wave_2, latex)),
+	("``y``-Intercept", format_label(wave_2(0.0), latex))
+], prop_slider_2)
 
-# ╔═╡ 561e7d96-3bb1-4130-a921-b5462ed874af
-Markdown.parse("""
-### Function --> Graph
-Plot the function $(show_latex(wave_3)). Make sure to hit all of the "critical points" and have roughly accurate curvature between them.
-""")
-
-# ╔═╡ cd77d6ea-82c7-4029-b406-a75cdf0a82f7
-plot_trig_function(wave_3; show_v_shift=1 ≤ graph_slider < 7, show_max_min=2 ≤ graph_slider < 7, show_h_shift=3 ≤ graph_slider < 7, show_period=4 ≤ graph_slider < 7, show_base_point=3 ≤ graph_slider < 7, show_period_points=4 ≤ graph_slider < 7, show_all_critical_points=5 ≤ graph_slider < 7, show_curve=6 ≤ graph_slider, show_label=false, wave_3_kwargs...)
+# ╔═╡ c0cfad20-c5eb-45b5-b4bf-2e5e475c2397
+show_function_2 ? wave_2 : nothing
 
 # ╔═╡ 8a28d7fb-3140-4f4d-b9f9-e0c5e5c6386f
 Markdown.parse("""
-### Graph --> Function
-Write down a function that describes the plot below. Use \$\\$(string(wave_4.f))\$ as the base function.
+### Identification
+Write down a function that describes the plot below. Use \$\\$(string(base_function(wave_3)))\$ as the base function.
 """)
 
 # ╔═╡ 769f081d-093e-4119-b2f9-897508187700
-plot_trig_function(wave_4; show_label=false, wave_4_kwargs...)
+plot_trig_function(wave_3; show_label=false, wave_3_kwargs...)
 
 # ╔═╡ 66a9856b-9927-42cd-bd9b-f67655abd44b
-show_function_4 ? Markdown.parse("One Possible Solution: $(latex_label(wave_4))") : nothing
+show_function_3 ? wave_3 : nothing
+
+# ╔═╡ 561e7d96-3bb1-4130-a921-b5462ed874af
+Markdown.parse("""
+### Graphing
+Plot the function $(show_latex(wave_4)). Make sure to hit all of the "critical points" and have roughly accurate curvature between them.
+""")
+
+# ╔═╡ cd77d6ea-82c7-4029-b406-a75cdf0a82f7
+plot_trig_function(wave_4; show_v_shift=1 ≤ graph_slider_4 < 7, show_max_min=2 ≤ graph_slider_4 < 7, show_h_shift=3 ≤ graph_slider_4 < 7, show_period=4 ≤ graph_slider_4 < 7, show_base_point=3 ≤ graph_slider_4 < 7, show_period_points=4 ≤ graph_slider_4 < 7, show_all_critical_points=5 ≤ graph_slider_4 < 7, show_curve=6 ≤ graph_slider_4, show_label=false, wave_4_kwargs...)
+
+# ╔═╡ 303482f7-1103-4b0f-9cc6-7cbc85ef1d52
+Markdown.parse("""
+### Properties from Function
+Given the function $(show_latex(wave_5)), provide exact values for each of the listed properties.
+""")
+
+# ╔═╡ 73463f07-6a22-48b3-a0b2-0df84df0565e
+properties_list([
+	("Period ``(T)``", format_label(period(wave_5), latex)),
+	("Frequency ``(f)``", format_label(frequency(wave_5), latex)),
+	("Asymptotes", wave_asymptotes(wave_5, latex)),
+	("Domain", "\\mathbb{R} - \\left($(wave_asymptotes(wave_5, latex))\\right)"),
+	("Range", "\\left(-\\infty, $(format_label(wave_min(wave_5), latex))\\right] + \\left[$(format_label(wave_max(wave_5), latex)), \\infty\\right)")
+], prop_slider_5)
+
+# ╔═╡ a228af6b-93ae-4fc8-916f-46f4b529cc0d
+Markdown.parse("""
+### Properties from Graph
+Looking at the plotted function below, provide exact values for each of the listed properties. Assume that \$\\$(string(base_function(wave_6)))\$ is used as the base function.
+""")
+
+# ╔═╡ 37091b02-84f9-4aea-b79d-bc955fde84db
+plot_trig_function(wave_6; show_label=false, wave_6_kwargs...)
+
+# ╔═╡ ebe71436-681e-4f6c-b839-c2e20323566b
+properties_list([
+	("Period ``(T)``", format_label(period(wave_6), latex)),
+	("Frequency ``(f)``", format_label(frequency(wave_6), latex)),
+	("Asymptotes", wave_asymptotes(wave_6, latex)),
+	("Domain", "\\mathbb{R} - \\left($(wave_asymptotes(wave_6, latex))\\right)"),
+	("Range", "\\left(-\\infty, $(format_label(wave_min(wave_6), latex))\\right] + \\left[$(format_label(wave_max(wave_6), latex)), \\infty\\right)")
+], prop_slider_6)
+
+# ╔═╡ 874739e8-cc80-475b-9056-052f3bffb801
+show_function_6 ? wave_6 : nothing
+
+# ╔═╡ 8f72b7e6-f718-4bc8-9c1d-f26005f8f77a
+Markdown.parse("""
+### Identification
+Write down a function that describes the plot below. Use \$\\$(string(base_function(wave_7)))\$ as the base function.
+""")
+
+# ╔═╡ 638704c6-beab-4e3c-8c2e-b671f1e18a7b
+plot_trig_function(wave_7; show_label=false, wave_7_kwargs...)
+
+# ╔═╡ c5f5a490-a59f-4ec8-959b-732d6ccd45aa
+show_function_7 ? wave_7 : nothing
+
+# ╔═╡ d78111fb-8b72-49df-9cff-04f4e48d19fd
+Markdown.parse("""
+### Graphing
+Plot the function $(show_latex(wave_8)). Indicate all vertical asymptotes with a dashed line.
+""")
+
+# ╔═╡ 3f40a667-712d-4d04-916c-6d0b4c207a3c
+plot_trig_function(wave_8; show_v_shift=1 ≤ graph_slider_8 < 6, show_max_min=2 ≤ graph_slider_8 < 6, show_h_shift=3 ≤ graph_slider_8 < 6, show_period=4 ≤ graph_slider_8 < 6, show_base_point=3 ≤ graph_slider_8 < 8, show_period_points=4 ≤ graph_slider_8 < 8, show_all_critical_points=5 ≤ graph_slider_8 < 8, show_asymptotes=6 ≤ graph_slider_8, show_curve=7 ≤ graph_slider_8, show_label=false, wave_8_kwargs...)
+
+# ╔═╡ 8505b12d-647c-41f0-8cf1-7b6daf8834a6
+Markdown.parse("""
+### Properties from Function
+Given the function $(show_latex(wave_9)), provide exact values for each of the listed properties.
+""")
+
+# ╔═╡ 33f0f64b-a747-4449-8ad1-06f4bb707e79
+properties_list([
+	("Period ``(T)``", format_label(period(wave_9), latex)),
+	("Frequency ``(f)``", format_label(frequency(wave_9), latex)),
+	("Asymptotes", wave_asymptotes(wave_9, latex)),
+	("Domain", "\\mathbb{R} - \\left($(wave_asymptotes(wave_9, latex))\\right)"),
+	("Range", "\\mathbb{R}")
+], prop_slider_9)
+
+# ╔═╡ 9d86c3bc-56c2-4000-a08e-3e6b1362ee4c
+Markdown.parse("""
+### Properties from Graph
+Looking at the plotted function below, provide exact values for each of the listed properties. Assume that \$\\$(string(base_function(wave_10)))\$ is used as the base function.
+""")
+
+# ╔═╡ 3094b249-d2fa-4e58-adab-3beeef712283
+plot_trig_function(wave_10; show_label=false, wave_10_kwargs...)
+
+# ╔═╡ 3c56bba0-5eed-4424-8f03-0a1a25963b52
+properties_list([
+	("Period ``(T)``", format_label(period(wave_10), latex)),
+	("Frequency ``(f)``", format_label(frequency(wave_10), latex)),
+	("Asymptotes", wave_asymptotes(wave_10, latex)),
+	("Domain", "\\mathbb{R} - \\left($(wave_asymptotes(wave_10, latex))\\right)"),
+	("Range", "\\mathbb{R}")
+], prop_slider_10)
+
+# ╔═╡ 04712ac3-e154-482f-9c6b-4e37f07d4afd
+show_function_10 ? wave_10 : nothing
+
+# ╔═╡ fc80b835-cf80-4c95-944b-412d2a2d9db6
+Markdown.parse("""
+### Identification
+Write down a function that describes the plot below. Use \$\\$(string(base_function(wave_12)))\$ as the base function.
+""")
+
+# ╔═╡ d717dd9f-d67b-4422-9521-ef6b4edbb9ce
+plot_trig_function(wave_11; show_label=false, wave_11_kwargs...)
+
+# ╔═╡ 65f7b087-ddb3-4a91-8143-3f24229a526d
+show_function_11 ? wave_11 : nothing
+
+# ╔═╡ e66db5be-bc08-4e30-b72c-e411b2cc238b
+Markdown.parse("""
+### Graphing
+Plot the function $(show_latex(wave_12)). Indicate all vertical asymptotes with a dashed line.
+""")
+
+# ╔═╡ 0bf9095e-68e9-4439-8b67-7b1ec49ec569
+plot_trig_function(wave_12; show_v_shift=1 ≤ graph_slider_12 < 6, show_max_min=2 ≤ graph_slider_12 < 6, show_h_shift=3 ≤ graph_slider_12 < 6, show_period=4 ≤ graph_slider_12 < 6, show_base_point=3 ≤ graph_slider_12 < 8, show_period_points=4 ≤ graph_slider_12 < 8, show_all_critical_points=5 ≤ graph_slider_12 < 8, show_asymptotes=6 ≤ graph_slider_12, show_curve=7 ≤ graph_slider_12, show_label=false, wave_12_kwargs...)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -1420,23 +1606,46 @@ version = "1.4.1+1"
 # ╟─f75cba03-6468-4aaa-b5d7-7134127fc176
 # ╟─3a589b29-cd26-4f97-ba1a-e58723a4bff3
 # ╟─0623adec-18d3-482f-b2fb-7fc4b67c8aa8
-# ╟─561e7d96-3bb1-4130-a921-b5462ed874af
-# ╟─cd77d6ea-82c7-4029-b406-a75cdf0a82f7
-# ╟─bec685ed-829b-493a-9317-b6a41598fc48
+# ╟─c0cfad20-c5eb-45b5-b4bf-2e5e475c2397
 # ╟─8a28d7fb-3140-4f4d-b9f9-e0c5e5c6386f
 # ╟─769f081d-093e-4119-b2f9-897508187700
 # ╟─3609db62-51af-4620-955d-a41d024a1bde
 # ╟─66a9856b-9927-42cd-bd9b-f67655abd44b
+# ╟─561e7d96-3bb1-4130-a921-b5462ed874af
+# ╟─cd77d6ea-82c7-4029-b406-a75cdf0a82f7
+# ╟─bec685ed-829b-493a-9317-b6a41598fc48
 # ╟─73058a91-8608-420f-825f-2d80b8d20ee5
-# ╠═303482f7-1103-4b0f-9cc6-7cbc85ef1d52
-# ╠═8f72b7e6-f718-4bc8-9c1d-f26005f8f77a
-# ╠═3f40a667-712d-4d04-916c-6d0b4c207a3c
-# ╠═d78111fb-8b72-49df-9cff-04f4e48d19fd
+# ╟─303482f7-1103-4b0f-9cc6-7cbc85ef1d52
+# ╟─73463f07-6a22-48b3-a0b2-0df84df0565e
+# ╟─be9ca14c-a81c-4d7d-a0e2-f8e10939cffa
+# ╟─a228af6b-93ae-4fc8-916f-46f4b529cc0d
+# ╟─37091b02-84f9-4aea-b79d-bc955fde84db
+# ╟─ebe71436-681e-4f6c-b839-c2e20323566b
+# ╟─c44369e9-dcb2-4f64-afeb-25da4467bf7e
+# ╟─874739e8-cc80-475b-9056-052f3bffb801
+# ╟─8f72b7e6-f718-4bc8-9c1d-f26005f8f77a
+# ╟─638704c6-beab-4e3c-8c2e-b671f1e18a7b
+# ╟─4e0884e4-de48-4f1d-99b3-9bba0a5d1fdf
+# ╟─c5f5a490-a59f-4ec8-959b-732d6ccd45aa
+# ╟─d78111fb-8b72-49df-9cff-04f4e48d19fd
+# ╟─3f40a667-712d-4d04-916c-6d0b4c207a3c
+# ╟─04c52d60-10a9-430b-ba7a-f61110e303a0
 # ╟─a4f49921-faad-4d0d-8570-90bf713c7a43
-# ╠═8505b12d-647c-41f0-8cf1-7b6daf8834a6
-# ╠═33f0f64b-a747-4449-8ad1-06f4bb707e79
-# ╠═fc80b835-cf80-4c95-944b-412d2a2d9db6
-# ╠═0bf9095e-68e9-4439-8b67-7b1ec49ec569
+# ╟─8505b12d-647c-41f0-8cf1-7b6daf8834a6
+# ╟─33f0f64b-a747-4449-8ad1-06f4bb707e79
+# ╟─9b81b928-2a3a-424f-8642-2ba1305f1689
+# ╟─9d86c3bc-56c2-4000-a08e-3e6b1362ee4c
+# ╟─3094b249-d2fa-4e58-adab-3beeef712283
+# ╟─3c56bba0-5eed-4424-8f03-0a1a25963b52
+# ╟─1e3d06e1-5836-4960-ab8e-f7628a5b98f1
+# ╟─04712ac3-e154-482f-9c6b-4e37f07d4afd
+# ╟─fc80b835-cf80-4c95-944b-412d2a2d9db6
+# ╟─d717dd9f-d67b-4422-9521-ef6b4edbb9ce
+# ╟─204eb0a3-fc8b-477b-bea0-db2c43d242e3
+# ╟─65f7b087-ddb3-4a91-8143-3f24229a526d
+# ╟─e66db5be-bc08-4e30-b72c-e411b2cc238b
+# ╟─0bf9095e-68e9-4439-8b67-7b1ec49ec569
+# ╟─abea56df-e501-40d5-b177-ec2ed70381a7
 # ╟─ca7e604f-a766-4c1b-a5b1-ce20269cf26b
 # ╟─9efe1298-bb5e-4d44-a022-82ab53e32445
 # ╠═1246e2af-cd23-4ec3-a0ae-f1ebd2d9938a

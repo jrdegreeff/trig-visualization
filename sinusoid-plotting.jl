@@ -1,7 +1,7 @@
 using Markdown
 using Plots
 
-import Base: Fix1, Fix2
+import Base: Fix1, Fix2, ImmutableDict
 import Printf.@sprintf
 
 # Formatting
@@ -39,19 +39,42 @@ function reciprocal_π_label(x::Rational, mime::MIME"text/plain")
     s * format_fraction(n, parenthesize(coefficient_label(d) * (iszero(x) ? "" : "π"), mime, !isone(d)), mime)
 end
 
-D = 5040
+D = 10080 # 2^5 * 3^2 * 5 * 7
 format_label(x, mime::MIME; d=D) =
-    isapproxinteger(x*d) ? fraction_label(round(Int, x*d) // d, mime) :
+    isapproxinteger(x*d)     ? fraction_label(round(Int, x*d) // d, mime) :
     isapproxinteger((x/π)*d) ? π_label(round(Int, (x/π)*d) // d, mime) :
     isapproxinteger((x*π)*d) ? reciprocal_π_label(round(Int, (x*π)*d) // d, mime) :
-    round_label(x)
+                               round_label(x)
+
+function two_way_range(base, min, max, step)
+    @assert step > 0
+    @assert min < max
+    base = base % step
+    @assert min ≤ base ≤ max
+    sort(unique(vcat(base:-step:min, base:step:max)))
+end
+function padded_range(min, max, step, pad)
+    @assert step > 0
+    @assert min < max
+    @assert isinteger((max - min) / step)
+    sort(unique(vcat(min:-step:(min - pad), min:step:max, max:step:(max + pad))))
+end
+
+# Constants
 
 sin_color = 1
 cos_color = 2
 hyp_color = 3
+tan_color = 3
 period_color = 4
 max_min_color = 5
 shift_color = :gray
+fallback_color = :black
+
+default_colors = ImmutableDict(Pair{Function, Int}(sin, sin_color), cos => cos_color, tan => tan_color)
+base_period = ImmutableDict(Pair{Function, Float64}(sin, 2π), cos => 2π, tan => π)
+inverse_table = ImmutableDict(Pair{Function, Function}(sin, asin), cos => acos, tan => atan, identity => identity)
+reciprocal_table = ImmutableDict(Pair{Function, Function}(sin, csc), cos => sec, tan => cot)
 
 # Sinusoid Manipulation
 
@@ -62,54 +85,68 @@ struct Wave{F} <: Function
     k::Real
     b::Real
     h::Real
+    reciprocal::Bool
 
     function Wave(
-        func=identity; color=default_color(func),
-        A=1, k=0, b=1, h=0, T=nothing, f=nothing, ϕ=nothing
+        func=identity; color=get(default_colors, func, fallback_color),
+        A=1, k=0, b=1, h=0, reciprocal=false,
+        T=nothing, f=nothing, ϕ=nothing
     )
         @assert isnothing(T) || isnothing(f)
-        !isnothing(T) && (b = 2π/T)
-        !isnothing(f) && (b = 2πf)
+        !isnothing(T) && (b = base_period[func] / T)
+        !isnothing(f) && (b = base_period[func] * f)
         !isnothing(ϕ) && (h = ϕ/b)
         
-        new{typeof(func)}(func, color, A, k, b, h)
+        new{typeof(func)}(func, color, A, k, b, h, reciprocal)
     end
 end
+reciprocal(w::Wave; color=w.color) = Wave(w.f; color, A=w.A, k=w.k, b=w.b, h=w.h, reciprocal=true)
+inner(w::Wave; color=w.color) = Wave(; color, b=w.b, h=w.h)
+horizontal(w::Wave) = Wave(w.f; color=w.color, b=w.b, h=w.h)
+vertical(w::Wave) = Wave(w.f; color=w.color, A=w.A, k=w.k)
 
-(w::Wave)(θ) = w.A * w.f(w.b * (θ - w.h)) + w.k
-invert(w::Wave) = (x) -> inverse_table[w.f]((1 / w.A) * (x - w.k)) / w.b + w.h
+(w::Wave)(θ) = w.reciprocal ? reciprocal(w, θ) : apply(w, θ)
+apply(w::Wave, θ) = w.A * w.f(w.b * (θ - w.h)) + w.k
+reciprocal(w::Wave, θ) = w.A * reciprocal_table[w.f](w.b * (θ - w.h)) + w.k
+invert(w::Wave, x) = inverse_table[w.f]((1 / w.A) * (x - w.k)) / w.b + w.h
 
+invert_inner(w::Wave, x) = invert(inner(w), x)
+invert_horizontal(w::Wave, x) = invert(horizontal(w), x)
+invert_vertical(w::Wave, x) = invert(vertical(w), x)
+
+base_function(w::Wave) = w.reciprocal ? reciprocal_table[w.f] : w.f
 amplitude(w::Wave) = abs(w.A)
 midline(w::Wave) = w.k
-angular_frequency(w::Wave) = w.b
+angular_frequency(w::Wave) = abs(w.b)
 h_shift(w::Wave) = w.h
 
-Base.maximum(w::Wave) = midline(w) + amplitude(w)
-Base.minimum(w::Wave) = midline(w) - amplitude(w)
-period(w::Wave) = 2π / angular_frequency(w)
-frequency(w::Wave) = angular_frequency(w) / (2π)
+wave_max(w::Wave) = midline(w) + amplitude(w)
+wave_min(w::Wave) = midline(w) - amplitude(w)
+period(w::Wave) = base_period[w.f] / angular_frequency(w)
+frequency(w::Wave) = angular_frequency(w) / base_period[w.f]
 phase_shift(w::Wave) = angular_frequency(w) * h_shift(w)
 
-trig_max(w::Wave, mime::MIME) = base_step_label(invert_horizontal(w, 1), period(w), mime)
-trig_min(w::Wave, mime::MIME) = base_step_label(invert_horizontal(w, -1), period(w), mime)
-trig_mid(w::Wave, mime::MIME) = base_step_label(invert_horizontal(w, 0), period(w) / 2, mime)
-function trig_zeros(w::Wave, mime::MIME)
+asymptotes(w::Wave, min=-period(w), max=period(w)) =
+    w.reciprocal              ? two_way_range(invert_horizontal(w, 0), min, max, period(w) / 2) :
+    (base_function(w) == tan) ? two_way_range(invert_horizontal(w, 0) - (period(w) / 2), min, max, period(w)) :
+                                []
+
+wave_arg_max(w::Wave, mime::MIME) = base_step_label(invert_horizontal(w, 1), period(w), mime)
+wave_arg_min(w::Wave, mime::MIME) = base_step_label(invert_horizontal(w, -1), period(w), mime)
+wave_arg_mid(w::Wave, mime::MIME) = base_step_label(invert_horizontal(w, 0), period(w) / 2, mime)
+function wave_zeros(w::Wave, mime::MIME)
     discriminant = abs(w.k / w.A)
-    discriminant > 1 && return []
-    base = invert(w)(0)
+    base = discriminant > 1 ? [] : isone(discriminant) ? [invert(w, 0)] : [invert(w, 0), 2invert_horizontal(w, 1) - invert(w, 0)]
     labeler = x -> base_step_label(x, period(w), mime)
-    labeler.(isone(discriminant) ? [base] : [base, 2invert_horizontal(w, 1) - base])
+    list_label(labeler.(base), mime)
 end
+wave_asymptotes(w::Wave, mime::MIME) =
+    w.reciprocal              ? wave_arg_mid(w, mime) :
+    (base_function(w) == tan) ? base_step_label(invert_horizontal(w, 0) - (period(w) / 2), period(w), mime) :
+                                empty_label(mime)
 
-Plots.get_series_color(w::Wave, sp::Plots.Subplot, n::Int, seriestype) =
-    Plots.get_series_color(w.color, sp, n, seriestype)
 
-inner(w::Wave; color=w.color) = Wave(; color, b=w.b, h=w.h)
-horizontal(w::Wave) = Wave(w.f; b=w.b, h=w.h)
-vertical(w::Wave) = Wave(w.f; A=w.A, k=w.k)
-invert_inner(w::Wave, x) = invert(inner(w))(x)
-invert_horizontal(w::Wave, x) = invert(horizontal(w))(x)
-invert_vertical(w::Wave, x) = invert(vertical(w))(x)
+Plots.get_series_color(w::Wave, sp::Plots.Subplot, n::Int, seriestype) = Plots.get_series_color(w.color, sp, n, seriestype)
 
 plus_label(x, mime::MIME) = iszero(x) ? "" : " $(x > 0 ? "+" : "-") $(format_label(abs(x), mime))"
 plus_label_left(x, mime::MIME) = iszero(x) ? "" : "$(format_label(x, mime)) + "
@@ -119,25 +156,26 @@ function base_step_label(b, s, mime::MIME)
     @assert s > 0
     "$(plus_label_left(mod(b, s), mime))$(times_label(s, mime))k"
 end
+empty_label(::MIME"text/plain") = "none"
+empty_label(::MIME"text/latex") = "\\emptyset"
+list_label_separator(::MIME"text/plain") = ",  "
+list_label_separator(::MIME"text/latex") = ",\\ \\ "
+list_label(list, mime::MIME) = isempty(list) ? empty_label(mime) : join(list, list_label_separator(mime))
 
 format_inner(mime::MIME, w::Wave) = times_label(w.b, mime, space=false) * parenthesize("θ" * plus_label(-w.h, mime), mime, !isone(w.b) && !iszero(w.h))
 
 Base.show(io::IO, mime::MIME"text/plain", w::Wave{typeof(identity)}, prefix="") = print(io, prefix, format_inner(mime, w))
 Base.show(io::IO, mime::MIME"text/plain", w::Wave, prefix="") = print(
-    io, prefix, times_label(w.A, mime), w.f, parenthesize(format_inner(mime, w), mime), plus_label(w.k, mime)
+    io, prefix, times_label(w.A, mime), base_function(w), parenthesize(format_inner(mime, w), mime), plus_label(w.k, mime)
 )
 Base.show(io::IO, mime::MIME"text/latex", w::Wave{typeof(identity)}, prefix="") = print(io, "\$", prefix, format_inner(mime, w), "\$")
 Base.show(io::IO, mime::MIME"text/latex", w::Wave, prefix="") = print(
-    io, "\$", prefix, times_label(w.A, mime), "\\", w.f, parenthesize(format_inner(mime, w), mime), plus_label(w.k, mime), "\$"
+    io, "\$", prefix, times_label(w.A, mime), "\\", base_function(w), parenthesize(format_inner(mime, w), mime), plus_label(w.k, mime), "\$"
 )
 
 show_text(w::Wave, prefix="") = sprint(show, MIME("text/plain"), w, prefix)
 show_latex(w::Wave, prefix="f(θ) = ") = sprint(show, MIME("text/latex"), w, prefix)
 label_eval(w::Wave, θ, mime::MIME=MIME("text/plain")) = "$(sprint(show, mime, w)) = $(format_label(w(θ), mime))"
-
-default_colors = Dict([sin => sin_color, cos => cos_color])
-default_color(func) = get(default_colors, func, 3)
-inverse_table = Dict([sin => asin, cos => acos, identity => identity])
 
 # Tables
 
@@ -175,10 +213,10 @@ function format_special_angles_table(
     format_label_text = Fix2(format_label, MIME("text/plain"))
     columns = [
         "θ" => adjusted_angles .|> format_label_text,
-        (show_text(wave) => vcat(
-            adjusted_angles[1:n_angles] .|> wave .|> (wave.f == identity ? format_label_text : round_to_hundredths),
-            fill("", length(angles) - n_angles)
-        ) for wave in columns)...
+        (map(columns) do wave
+            format = base_function(wave) == identity ? format_label_text : round_to_hundredths
+            show_text(wave) => [adjusted_angles[1:n_angles] .|> wave .|> format; fill("", length(angles) - n_angles)]
+        end)...
     ]
     format_table(columns, column_width=column_width)
 end
@@ -206,7 +244,7 @@ function plot_trig_circle(
 	sin_func_angle = Wave(sin; A=angle_radius, k=y₀, b, h)
 	cos_func_angle = Wave(cos; A=angle_radius, k=x₀, b, h)
 
-	circle_start, circle_end = invert(θ_func)(0), invert(θ_func)(2π)
+	circle_start, circle_end = invert(θ_func, 0), invert(θ_func, 2π)
 	circle_range = circle_start:circle_resolution:circle_end
 
 	θ_rev = abs(θ) ÷ circle_end
@@ -285,6 +323,7 @@ function plot_trig_function(
     max_y=nothing, tick_y=nothing,
     circle_resolution=tick_θ/100, θ=nothing,
     show_curve=true, show_label=true,
+    show_asymptotes=false,
     n_angles=n_special_angles, critical_only=false,
     show_positive=false, show_negative=false,
     show_base_point=false, show_period_points=false, show_all_critical_points=false,
@@ -297,9 +336,13 @@ function plot_trig_function(
     )
 
     @assert isinteger(max_θ / tick_θ)
-    θ_ticks = -max_θ:tick_θ:max_θ
+    min_θ = -max_θ
+    θ_ticks = min_θ:tick_θ:max_θ
     if tickstyle == :decimal
         θ_labels = round_label.(θ_ticks)
+    elseif tickstyle == :fraction
+        @assert isapproxinteger(D / tick_θ) "isinteger($D / tick_θ): tick_θ = $tick_θ"
+        θ_labels = Fix2(fraction_label, MIME("text/plain")).(Fix1(round, Int).(θ_ticks .* D ./ tick_θ) .// round(Int, D / tick_θ))
     elseif tickstyle == :πfraction
         @assert isapproxinteger(D * π / tick_θ) "isinteger($D * π / tick_θ): tick_θ = $tick_θ"
         θ_labels = Fix2(π_label, MIME("text/plain")).(Fix1(round, Int).(θ_ticks .* D ./ tick_θ) .// round(Int, D * π / tick_θ))
@@ -308,18 +351,17 @@ function plot_trig_function(
     else
         error("unexpected tickstyle: $tickstyle")
     end
-    plot!(xlim=(-1.1max_θ, 1.1max_θ), xticks=(collect(θ_ticks), θ_labels))
+    plot!(xlim=(min_θ - tick_θ/6, max_θ + tick_θ/6), xticks=(collect(θ_ticks), θ_labels))
 
     if isnothing(max_y)
-        max_y = max(maximum(maximum.(waves)), 0)
-        min_y = min(minimum(minimum.(waves)), 0)
+        max_y = max(maximum(wave_max.(waves)), 0)
+        min_y = min(minimum(wave_min.(waves)), 0)
     else
         min_y = -max_y
     end
-    pad_y = (max_y - min_y) / 20
+    pad_y = any(!isempty(asymptotes(w)) for w in waves) ? (max_y - min_y) / 4 : (max_y - min_y) / 20
     isnothing(tick_y) && (tick_y = (max_y - min_y) / 4)
-    @assert isinteger((max_y - min_y) / tick_y)
-    y_ticks = min_y:tick_y:max_y
+    y_ticks = padded_range(min_y, max_y, tick_y, pad_y)
     y_labels = tickstyle == :none ? fill("", length(y_ticks)) : round_label.(y_ticks)
     
     plot!(
@@ -329,20 +371,16 @@ function plot_trig_function(
 
     for wave in waves
         phase_angle = [h_shift(wave)]
-        period_angles = sort(vcat(
-            h_shift(wave):-period(wave):-max_θ, h_shift(wave):period(wave):max_θ
-        ))
-        all_critical_angles = sort(vcat(
-            h_shift(wave):-period(wave)/4:-max_θ, h_shift(wave):period(wave)/4:max_θ
-        ))
+        period_angles = two_way_range(h_shift(wave), min_θ, max_θ, period(wave))
+        all_critical_angles = two_way_range(h_shift(wave), min_θ, max_θ, period(wave) / 4)
         angles = critical_only ? critical_angles : special_angles
         n_angles = min(n_angles, length(angles))
         displayed_angles = Fix1(invert_inner, wave).(angles[1:n_angles])
         filter!(a -> a ≤ max_θ, displayed_angles)
-
+        vasymptotes = asymptotes(wave, min_θ, max_θ)
 
         show_v_shift && plot!(  # midline marker
-            [-max_θ, max_θ], [midline(wave), midline(wave)], label=false, lw=3, color=shift_color, style=:dash
+            [min_θ, max_θ], [midline(wave), midline(wave)], label=false, lw=3, color=shift_color, style=:dash
         )
         show_h_shift && vline!(  # phase marker
             phase_angle, label=false, lw=3, color=shift_color, style=:dash
@@ -351,15 +389,19 @@ function plot_trig_function(
             period_angles, label=false, lw=2, color=period_color, style=:dash
         )
         show_max_min && plot!(  # max and min markers
-            [-max_θ, max_θ], [maximum(wave), maximum(wave)], label=false, lw=2, color=max_min_color, style=:dash
+            [min_θ, max_θ], [wave_max(wave), wave_max(wave)], label=false, lw=2, color=max_min_color, style=:dash
         )
         show_max_min && plot!(  # max and min markers
-            [-max_θ, max_θ], [minimum(wave), minimum(wave)], label=false, lw=2, color=max_min_color, style=:dash
+            [min_θ, max_θ], [wave_min(wave), wave_min(wave)], label=false, lw=2, color=max_min_color, style=:dash
         )
-
+        show_asymptotes && vline!(  # vertical asymptote markers
+            vasymptotes, label=false, lw=2, color=wave, style=:dash
+        )
         
+        inputs = filter(θ -> all(!isapprox(θ, va) for va in vasymptotes), min_θ:circle_resolution:max_θ)
+        points = sort(vcat([(θ, wave(θ)) for θ in inputs], [(θ, NaN) for θ in vasymptotes]), lt=((x, y) -> x[1] < y[1]))
         show_curve && plot!(  # the function itself
-            -max_θ:circle_resolution:max_θ, wave, label=show_text(wave), lw=3, color=wave
+            points, label=show_text(wave), lw=3, color=wave
         )
         
         show_positive && scatter!(  # positive special angles
