@@ -38,7 +38,8 @@ md"""
 # Downloadable Trig Plot Generator
 This notebook can be used to customize the plot of a transformed trig function and the download it as a PNG to be used for worksheets or assessments. Just type in the values you want to use in the text boxes below, and press the download button when you are satisfied. Note that you can type the letters `pi` or the character `π` to use that constant in your parameters.
 
-function: $(@bind func Select([sin => "sin", cos => "cos"]))``\quad``
+function: $(@bind func Select([sin => "sin", cos => "cos", tan => "tan"]))``\quad``
+reciprocal: $(@bind reciprocal CheckBox())``\quad``
 color: $(@bind color Select([nothing => "default", 1 => "blue", 2 => "orange", 3 => "green", 4 => "pink", 5 => "brown"]))\
 A: $(@bind A_string TextField(default="1"))``\quad``
 k: $(@bind k_string TextField(default="0"))\
@@ -49,7 +50,7 @@ maximum ``y``-value: $(@bind max_y_string TextField())``\quad``
 ``y``-tick frequency: $(@bind tick_y_string TextField())\
 maximum ``θ``-value: $(@bind max_θ_string TextField())``\quad``
 ``θ``-tick frequency: $(@bind tick_θ_string TextField())\
-tickstyle: $(@bind tickstyle Select([:decimal => "decimal", :πfraction => "multiples of pi", :none => "none"]))\
+tickstyle: $(@bind tickstyle Select([:decimal => "decimal", :fraction => "fractions", :πfraction => "multiples of pi", :none => "none"]))\
 \
 show curve: $(@bind show_curve CheckBox(default=true))``\quad``
 show label: $(@bind show_label CheckBox(default=false))\
@@ -108,7 +109,7 @@ begin
 	max_θ = parse_parameter(max_θ_string, false)
 	tick_θ = parse_parameter(tick_θ_string, false)
 	
-	wave = Wave(func; remove_nothings((; color, A, k, b, h))...)
+	wave = Wave(func; remove_nothings((; color, A, k, b, h, reciprocal))...)
 	Markdown.parse(show_latex(wave))
 end
 
@@ -118,7 +119,7 @@ begin
 		plot_trig_function(wave; tickstyle, show_curve, show_label, remove_nothings((; max_y, tick_y, max_θ, tick_θ))...)
 	catch e
 		@error e
-		plot_trig_function(Wave(), show_curve=false, tickstyle=:none)
+		plot_trig_function(Wave(sin), show_curve=false, tickstyle=:none)
 	end
 	p
 end
@@ -127,6 +128,8 @@ end
 begin
 	png(p, tempfile)
 	md"""
+	I have occasionally noticed a bug in the plotting library that impact how the plots are rendered inside the notebook. Even if the image here looks like some part of the curve is missing, the png that you download should be fully intact.
+	
 	$(DownloadButton(read(tempfile), "Trig Plot.png"))
 	"""
 end
