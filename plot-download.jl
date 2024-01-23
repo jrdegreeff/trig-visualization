@@ -53,7 +53,9 @@ maximum ``θ``-value: $(@bind max_θ_string TextField())``\quad``
 tickstyle: $(@bind tickstyle Select([:decimal => "decimal", :fraction => "fractions", :πfraction => "multiples of pi", :none => "none"]))\
 \
 show curve: $(@bind show_curve CheckBox(default=true))``\quad``
-show label: $(@bind show_label CheckBox(default=false))\
+show label: $(@bind show_label CheckBox(default=false))``\quad``
+pad vertically: $(@bind pad_y CheckBox(default=true))``\quad``
+pad horizontally: $(@bind pad_θ CheckBox(default=true))\
 """
 
 # ╔═╡ 70530057-9f1f-447a-9208-c98e6b1c0350
@@ -70,12 +72,6 @@ md"""
 begin
 	SP = @ingredients "./sinusoid-plotting.jl"
 	import .SP: Wave, plot_trig_function, show_latex
-end;
-
-# ╔═╡ e303903e-5343-4e55-8e25-be588258f198
-begin
-	temppng = tempname() * ".png"
-	tempsvg = tempname() * ".svg"
 end;
 
 # ╔═╡ 5a9bcd4f-6db7-4791-bd15-76f8a70bcaad
@@ -114,11 +110,16 @@ begin
 	Markdown.parse(show_latex(wave))
 end
 
+# ╔═╡ 6dedc4f5-731c-4ce3-ae80-e8deff7bb8ed
+md"""
+## Appendix: Plotting
+"""
+
 # ╔═╡ 73490152-44a9-41a0-8371-7a459e6677bc
 # I moved this into a function because reusing the same object broke the ticks when exporting... yes it is weird that I am using globals instead of parameters
 function create_plot()
 	try
-		plot_trig_function(wave; tickstyle, show_curve, show_label, remove_nothings((; max_y, tick_y, max_θ, tick_θ))...)
+		plot_trig_function(wave; tickstyle, show_curve, show_label, pad_θ, pad_y, remove_nothings((; max_y, tick_y, max_θ, tick_θ))...)
 	catch e
 		@error e
 		plot_trig_function(Wave(sin), show_curve=false, tickstyle=:none)
@@ -127,6 +128,12 @@ end;
 
 # ╔═╡ 0884c841-5bbe-4d2f-b358-5aac583fa94e
 create_plot()
+
+# ╔═╡ e303903e-5343-4e55-8e25-be588258f198
+begin
+	temppng = tempname() * ".png"
+	tempsvg = tempname() * ".svg"
+end;
 
 # ╔═╡ 4c275485-efd5-4805-ac13-c284b2f797b7
 begin
@@ -1296,10 +1303,11 @@ version = "1.4.1+1"
 # ╟─e6b92d5f-8d80-45c4-b4f3-cdeb7d49c9db
 # ╠═064cfd6b-aa02-4aef-a800-bb7ed424aaab
 # ╠═88fe90c5-0387-43ee-96d8-93f88964a2a0
-# ╠═e303903e-5343-4e55-8e25-be588258f198
-# ╠═73490152-44a9-41a0-8371-7a459e6677bc
 # ╟─5a9bcd4f-6db7-4791-bd15-76f8a70bcaad
 # ╠═1b1954b5-9b5a-42e4-84e9-f494e44b7285
 # ╠═df146996-4a09-4cb6-8793-1c328f750902
+# ╟─6dedc4f5-731c-4ce3-ae80-e8deff7bb8ed
+# ╠═73490152-44a9-41a0-8371-7a459e6677bc
+# ╠═e303903e-5343-4e55-8e25-be588258f198
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

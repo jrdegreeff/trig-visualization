@@ -319,8 +319,8 @@ function plot_trig_function(wave::Wave; kwargs...)
 end
 function plot_trig_function(
     waves::Vector{<:Wave};
-    max_θ=maximum(period.(waves)), tick_θ=max_θ/4, tickstyle=:decimal,
-    max_y=nothing, tick_y=nothing,
+    max_θ=maximum(period.(waves)), tick_θ=max_θ/4, pad_θ=true, tickstyle=:decimal,
+    max_y=nothing, tick_y=nothing, pad_y=true,
     circle_resolution=tick_θ/100, θ=nothing,
     show_curve=true, show_label=true,
     show_asymptotes=false,
@@ -337,6 +337,7 @@ function plot_trig_function(
 
     @assert isinteger(max_θ / tick_θ)
     min_θ = -max_θ
+    pad_θ = pad_θ ? tick_θ/6 : 0
     θ_ticks = min_θ:tick_θ:max_θ
     if tickstyle == :decimal
         θ_labels = round_label.(θ_ticks)
@@ -351,7 +352,7 @@ function plot_trig_function(
     else
         error("unexpected tickstyle: $tickstyle")
     end
-    plot!(xlim=(min_θ - tick_θ/6, max_θ + tick_θ/6), xticks=(collect(θ_ticks), θ_labels))
+    plot!(xlim=(min_θ - pad_θ, max_θ + pad_θ), xticks=(collect(θ_ticks), θ_labels))
 
     if isnothing(max_y)
         max_y = max(maximum(wave_max.(waves)), 0)
@@ -359,7 +360,7 @@ function plot_trig_function(
     else
         min_y = -max_y
     end
-    pad_y = any(!isempty(asymptotes(w)) for w in waves) ? (max_y - min_y) / 4 : (max_y - min_y) / 20
+    pad_y = pad_y ? (any(!isempty(asymptotes(w)) for w in waves) ? (max_y - min_y) / 4 : (max_y - min_y) / 20) : 0
     isnothing(tick_y) && (tick_y = (max_y - min_y) / 4)
     y_ticks = padded_range(min_y, max_y, tick_y, pad_y)
     y_labels = tickstyle == :none ? fill("", length(y_ticks)) : round_label.(y_ticks)
