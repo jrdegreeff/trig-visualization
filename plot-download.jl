@@ -74,7 +74,8 @@ end;
 
 # ╔═╡ e303903e-5343-4e55-8e25-be588258f198
 begin
-	tempfile = tempname() * ".png"
+	temppng = tempname() * ".png"
+	tempsvg = tempname() * ".svg"
 end;
 
 # ╔═╡ 5a9bcd4f-6db7-4791-bd15-76f8a70bcaad
@@ -113,24 +114,30 @@ begin
 	Markdown.parse(show_latex(wave))
 end
 
-# ╔═╡ 0884c841-5bbe-4d2f-b358-5aac583fa94e
-begin
-	p = try
+# ╔═╡ 73490152-44a9-41a0-8371-7a459e6677bc
+# I moved this into a function because reusing the same object broke the ticks when exporting... yes it is weird that I am using globals instead of parameters
+function create_plot()
+	try
 		plot_trig_function(wave; tickstyle, show_curve, show_label, remove_nothings((; max_y, tick_y, max_θ, tick_θ))...)
 	catch e
 		@error e
 		plot_trig_function(Wave(sin), show_curve=false, tickstyle=:none)
 	end
-	p
-end
+end;
+
+# ╔═╡ 0884c841-5bbe-4d2f-b358-5aac583fa94e
+create_plot()
 
 # ╔═╡ 4c275485-efd5-4805-ac13-c284b2f797b7
 begin
-	png(p, tempfile)
+	savefig(create_plot(), temppng)
+	savefig(create_plot(), tempsvg)
+	
 	md"""
 	I have occasionally noticed a bug in the plotting library that impact how the plots are rendered inside the notebook. Even if the image here looks like some part of the curve is missing, the png that you download should be fully intact.
 	
-	$(DownloadButton(read(tempfile), "Trig Plot.png"))
+	$(DownloadButton(read(temppng), "Trig Plot.png"))
+	$(DownloadButton(read(tempsvg), "Trig Plot.svg"))
 	"""
 end
 
@@ -1290,6 +1297,7 @@ version = "1.4.1+1"
 # ╠═064cfd6b-aa02-4aef-a800-bb7ed424aaab
 # ╠═88fe90c5-0387-43ee-96d8-93f88964a2a0
 # ╠═e303903e-5343-4e55-8e25-be588258f198
+# ╠═73490152-44a9-41a0-8371-7a459e6677bc
 # ╟─5a9bcd4f-6db7-4791-bd15-76f8a70bcaad
 # ╠═1b1954b5-9b5a-42e4-84e9-f494e44b7285
 # ╠═df146996-4a09-4cb6-8793-1c328f750902
