@@ -141,8 +141,6 @@ begin
 	savefig(create_plot(), tempsvg)
 	
 	md"""
-	I have occasionally noticed a bug in the plotting library that impact how the plots are rendered inside the notebook. Even if the image here looks like some part of the curve is missing, the png that you download should be fully intact.
-	
 	$(DownloadButton(read(temppng), "Trig Plot.png"))
 	$(DownloadButton(read(tempsvg), "Trig Plot.svg"))
 	"""

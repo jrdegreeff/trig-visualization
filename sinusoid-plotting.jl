@@ -399,7 +399,7 @@ function plot_trig_function(
             vasymptotes, label=false, lw=2, color=wave, style=:dash
         )
         
-        inputs = filter(θ -> all(!isapprox(θ, va) for va in vasymptotes), min_θ:circle_resolution:max_θ)
+        inputs = filter(θ -> !any(isapprox(θ, va, atol=1e-6) for va in vasymptotes), min_θ:circle_resolution:max_θ)
         points = sort(vcat([(θ, wave(θ)) for θ in inputs], [(θ, NaN) for θ in vasymptotes]), lt=((x, y) -> x[1] < y[1]))
         show_curve && plot!(  # the function itself
             points, label=show_text(wave), lw=3, color=wave
