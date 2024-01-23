@@ -6,34 +6,25 @@ Pluto.jl visualizations for trigonometric functions. Made for Middlesex's Math 3
 ### Install
 To install dependencies (Julia language and Pluto.jl) on macOS, double click `install-macos.command` in Finder. This only has to be done once. If you get a security error about the script being from an unidentified developer, you can bypass this by right clicking (control-clicking) the script and select `Open` then click the `Open` button on the security warning.
 
-This process has two steps, and in between the steps there will be a pause with no output. Depending on your internet speed and CPU this may take up to five minutes to complete.
+This process has three steps. The first two occur in the terminal, and the third will open a browser window. In between the first two steps there will be a pause with no output. In the browser stage, you can click the "status" button in the bottom right to see the progress. Depending on your internet speed and CPU this may take up to 10 minutes to complete.
+
+When you close the terminal window that the script opens, it will terminate the notebook process.
 
 ### Run
-Then each time you want to run the notebook, double click `run-macos.command` in Finder to start the notebook in your browser. The first time you run the notebook, it may take up to five minutes to compile everything in the background (in particular the plotting library takes a while). When you run it subsequent times, it should take less than thirty seconds to start up and run all of the cells.
+The install script described above only needs to be run once. To start the notebook in the future, all you need to do is double click `run-macos.command` in Finder which will run much faster than the first install (roughly 30 seconds to launch and load everything). If you get a security error about the script being from an unidentified developer, you can bypass this by right clicking (control-clicking) the script and select `Open` then click the `Open` button on the security warning.
 
-When you close the terminal window that this script opens, it will terminate the notebook.
+When you close the terminal window that this script opens, it will terminate the notebook process.
 
 ## Windows
-Note: there is probably a good way to automate this like I did for macOS, but these instructions are at least functional, if a bit more tedious.
 
 ### Install
-First install Julia from the Windows Store [here](https://www.microsoft.com/store/apps/9NJNWW8PVKMN).
+To install dependencies (Julia language and Pluto.jl) on Windows, double click `install-windows` in the File Explorer. This only has to be done once.
 
-Now open command prompt and type
-```
-julia
-```
-to open the julia REPL where you can run julia code. In this case all you need to do is type
-```
-using Pkg; Pkg.add("Pluto")
-```
-to install the dependency. This will take a little while to download and precompile.
+This process has three steps. The first two occur in the terminal, and the third will open a browser window. In the browser stage, you can click the "status" button in the bottom right to see the progress. Depending on your internet speed and CPU these steps may take up to 20 minutes to complete.
+
+When you close the power shell window that this script opens, it will terminate the notebook process.
 
 ### Run
-The instructions above only have to be run once. To start the notebook, all you need to do is open the julia REPL and type
-```
-import Pluto; Pluto.run(notebook="C:\\[...]\\sinusoid-graph-visualization.jl")
-```
-Where the [...] should be replaced the path to where you downloaded the file. Note that you need to use `\\` instead of `\` in the path because a single backslash introduces an escape character whereas the double backslash is in fact an escaped backslash literal in Julia and many other programming languages.
+The install script described above only needs to be run once. To start the notebook in the future, all you need to do is double click `run-windows` in the File Explorer which will run much faster than the first install (roughly 1 minute to launch and load everything).
 
-Type Ctrl+C or Ctrl+D in the REPL window to terminate the notebook when you are finished.
+When you close the power shell window that this script opens, it will terminate the notebook process.
